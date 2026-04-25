@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Semana Comercial - Cámara de Comercio de Arauca</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      border-top: 6px solid #003366;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .logo h2 {
+      color: #003366;
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .logo p {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .campo { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #003366;
+      margin-bottom: 5px;
+    }
+
+    label span { color: #e11d48; }
+
+    input {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #003366;
+      box-shadow: 0 0 0 3px rgba(0,51,102,0.08);
+    }
+
+    input.error { border-color: #e11d48; }
+
+    .msg-error {
+      font-size: 11px;
+      color: #e11d48;
+      margin-top: 4px;
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      background: #003366;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+
+    button:hover:not(:disabled) { background: #002244; }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    .resultado { margin-top: 20px; text-align: center; }
+
+    .exito {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 20px;
+      color: #166534;
+    }
+
+    .exito .numero {
+      font-size: 52px;
+      font-weight: 700;
+      color: #003366;
+      display: block;
+      margin: 8px 0 4px;
+    }
+
+    .exito .sub {
+      font-size: 13px;
+      color: #4b7a5e;
+    }
+
+    .fallo {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px;
+      color: #991b1b;
+      font-size: 14px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff55;
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <h2>Semana Comercial</h2>
+    <p>Cámara de Comercio de Arauca</p>
+  </div>
+
+  <div class="campo">
+    <label for="nombre">Nombre completo <span>*</span></label>
+    <input type="text" id="nombre" autocomplete="name" placeholder="Tu nombre completo">
+    <div class="msg-error" id="err-nombre">Ingresa tu nombre</div>
+  </div>
+
+  <div class="campo">
+    <label for="telefono">Teléfono <span>*</span></label>
+    <input type="tel" id="telefono" inputmode="numeric" autocomplete="tel"
+           placeholder="3XXXXXXXXX" maxlength="12">
+    <div class="msg-error" id="err-telefono">Ingresa un número de 10 dígitos</div>
+  </div>
+
+  <div class="campo">
+    <label for="email">Email</label>
+    <input type="email" id="email" autocomplete="email" placeholder="correo@ejemplo.com">
+    <div class="msg-error" id="err-email">Ingresa un email válido</div>
+  </div>
+
+  <div class="campo">
+    <label for="direccion">Dirección</label>
+    <input type="text" id="direccion" autocomplete="street-address" placeholder="Opcional">
+  </div>
+
+  <button id="btn" onclick="registrar()">Registrar</button>
+
+  <div class="resultado" id="resultado"></div>
+</div>
+
+<script type="module">
+  import { initializeApp }       from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getFirestore,
+           collection, addDoc,
+           runTransaction, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+  // ── Configuración Firebase (tus credenciales) ────────────
+  const firebaseConfig = {
+    apiKey:            "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
+    authDomain:        "semana-comercial.firebaseapp.com",
+    projectId:         "semana-comercial",
+    storageBucket:     "semana-comercial.firebasestorage.app",
+    messagingSenderId: "52687643666",
+    appId:             "1:52687643666:web:48e7106b88b2f2c2b364cb"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // Empresa desde URL (?empresa=EMP001) o "GENERAL" por defecto
+  const EMPRESA = new URLSearchParams(window.location.search).get("empresa") || "GENERAL";
+
+  // ── Validaciones ─────────────────────────────────────────
+  function esEmailValido(e) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  }
+
+  function esTelefonoValido(t) {
+    let l = t.replace(/\D/g, "");
+    if (l.length === 12 && l.startsWith("57")) l = l.substring(2);
+    return l.length === 10;
+  }
+
+  function marcar(inputId, errId, valido) {
+    document.getElementById(inputId).classList.toggle("error", !valido);
+    document.getElementById(errId).style.display = valido ? "none" : "block";
+    return valido;
+  }
+
+  // ── Registrar ────────────────────────────────────────────
+  window.registrar = async function () {
+    const nombre    = document.getElementById("nombre").value.trim();
+    const telefono  = document.getElementById("telefono").value.trim();
+    const email     = document.getElementById("email").value.trim();
+    const direccion = document.getElementById("direccion").value.trim();
+    const btn       = document.getElementById("btn");
+    const resultado = document.getElementById("resultado");
+
+    resultado.innerHTML = "";
+
+    // Validar campos
+    let ok = true;
+    ok = marcar("nombre",   "err-nombre",   nombre.length >= 2)         && ok;
+    ok = marcar("telefono", "err-telefono", esTelefonoValido(telefono))  && ok;
+    if (email) ok = marcar("email", "err-email", esEmailValido(email))   && ok;
+    if (!ok) return;
+
+    btn.disabled  = true;
+    btn.innerHTML = '<span class="spinner"></span>Procesando...';
+
+    try {
+      // Transacción atómica: garantiza que dos personas no reciban el mismo número
+      const contadorRef = doc(db, "contadores", EMPRESA);
+      let numeroBoleta;
+
+      await runTransaction(db, async (tx) => {
+        const snap   = await tx.get(contadorRef);
+        const actual = snap.exists() ? snap.data().actual : 0;
+        numeroBoleta = actual + 1;
+        tx.set(contadorRef, { actual: numeroBoleta });
+      });
+
+      // Guardar registro en Firestore
+      await addDoc(collection(db, "registros"), {
+        empresa:   EMPRESA,
+        boleta:    numeroBoleta,
+        nombre,
+        telefono,
+        email:     email || "",
+        direccion: direccion || "",
+        fecha:     new Date().toISOString()
+      });
+
+      // Mostrar número de boleta
+      resultado.innerHTML = `
+        <div class="exito">
+          ¡Registro exitoso!
+          <span class="numero">${numeroBoleta}</span>
+          <span class="sub">Tu número de boleta</span>
+          ${email ? `<p style="margin-top:8px;font-size:12px;color:#4b7a5e">Guarda este número</p>` : ""}
+        </div>
+      `;
+
+      // Limpiar formulario para el próximo registro
+      ["nombre","telefono","email","direccion"].forEach(id =>
+        document.getElementById(id).value = ""
+      );
+
+    } catch (err) {
+      resultado.innerHTML = `<p class="fallo">Error al registrar. Intenta de nuevo.</p>`;
+      console.error(err);
+    }
+
+    btn.disabled  = false;
+    btn.innerHTML = "Registrar";
+  };
+</script>
+
+</body>
+</html>
