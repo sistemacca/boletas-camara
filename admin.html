@@ -370,7 +370,7 @@
 
   function actualizarStats() {
     const hoy = new Date().toISOString().slice(0, 10);
-    const registrosHoy = todosLosRegistros.filter(r => r.fecha && r.fecha.startsWith(hoy));
+    const registrosHoy = todosLosRegistros.filter(r => { const f = r.fecha ? (r.fecha.toDate ? r.fecha.toDate().toISOString() : r.fecha.toString()) : ""; return f.startsWith(hoy); });
     const empresas = new Set(todosLosRegistros.map(r => r.empresa));
 
     document.getElementById("stat-total").textContent    = todosLosRegistros.length;
@@ -431,7 +431,7 @@
       const tr = document.createElement("tr");
 
       const fecha = r.fecha
-        ? new Date(r.fecha).toLocaleString("es-CO", { dateStyle: "short", timeStyle: "short" })
+        ? (r.fecha.toDate ? r.fecha.toDate() : new Date(r.fecha)).toLocaleString("es-CO", { dateStyle: "short", timeStyle: "short" })
         : "";
 
       tr.innerHTML = `
@@ -464,7 +464,7 @@
     let csv = "Boleta,Empresa,Nombre,Teléfono,Email,Dirección,Fecha\n";
     filtrados.forEach(r => {
       const fecha = r.fecha
-        ? new Date(r.fecha).toLocaleString("es-CO")
+        ? (r.fecha.toDate ? r.fecha.toDate() : new Date(r.fecha)).toLocaleString("es-CO")
         : "";
       csv += [
         r.boleta, r.empresa, r.nombre, r.telefono,
