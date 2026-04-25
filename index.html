@@ -312,7 +312,7 @@
 
         // Validar que quedan boletas disponibles
         const siguiente = desde + actual;
-        if (siguiente >= hasta) throw new Error("Boletas agotadas para esta empresa");
+        if (siguiente > hasta) throw new Error("Boletas agotadas para esta empresa");
 
         numeroBoleta = siguiente;
 
