@@ -2,12 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Semana Comercial - Cámara de Comercio de Arauca</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
+    html, body { height: 100%; }
+
+  body {
       font-family: 'Segoe UI', Arial, sans-serif;
       background: #f0f4f8;
       min-height: 100vh;
@@ -20,7 +22,7 @@
     .card {
       background: white;
       border-radius: 16px;
-      padding: 36px 32px;
+      padding: 28px 20px;
       width: 100%;
       max-width: 420px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.1);
@@ -156,6 +158,14 @@
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 480px) {
+      body { padding: 12px; align-items: flex-start; padding-top: 20px; }
+      .card { border-radius: 12px; padding: 24px 16px; }
+      .logo h2 { font-size: 19px; }
+      input { font-size: 16px; padding: 13px; }
+      button { font-size: 16px; padding: 15px; }
+    }
   </style>
 </head>
 <body>
