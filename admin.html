@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel Admin - Semana Comercial</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      padding: 24px 16px;
+      color: #1e293b;
+    }
+
+    .header {
+      background: #003366;
+      color: white;
+      padding: 20px 28px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header h1 { font-size: 20px; }
+    .header p  { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .stat .valor {
+      font-size: 32px;
+      font-weight: 700;
+      color: #003366;
+    }
+
+    .stat .etiqueta {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .controles {
+      background: white;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .controles input,
+    .controles select {
+      padding: 9px 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .controles input:focus,
+    .controles select:focus {
+      outline: none;
+      border-color: #003366;
+    }
+
+    .btn {
+      padding: 9px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary { background: #003366; color: white; }
+    .btn-primary:hover { background: #002244; }
+    .btn-green { background: #16a34a; color: white; }
+    .btn-green:hover { background: #15803d; }
+
+    .tabla-wrap {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead tr {
+      background: #003366;
+      color: white;
+    }
+
+    thead th {
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody tr:hover { background: #e8f0fe; }
+
+    tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      white-space: nowrap;
+    }
+
+    .boleta-badge {
+      background: #003366;
+      color: white;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    .empresa-badge {
+      background: #e8f0fe;
+      color: #003366;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .sin-datos {
+      text-align: center;
+      padding: 40px;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .spinner-wrap {
+      text-align: center;
+      padding: 40px;
+      color: #64748b;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 28px; height: 28px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #003366;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Login */
+    .login-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      border-top: 6px solid #003366;
+      text-align: center;
+    }
+
+    .login-card h2 { color: #003366; margin-bottom: 6px; }
+    .login-card p  { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+
+    .login-card input {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .login-card input:focus {
+      outline: none;
+      border-color: #003366;
+    }
+
+    .login-card button {
+      width: 100%;
+      padding: 13px;
+      background: #003366;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .login-card button:hover { background: #002244; }
+    .error-msg { color: #e11d48; font-size: 13px; margin-top: 10px; }
+
+    #app { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login">
+  <div class="login-card">
+    <h2>Panel Admin</h2>
+    <p>Cámara de Comercio de Arauca</p>
+    <input type="password" id="clave" placeholder="Contraseña de acceso"
+           onkeydown="if(event.key==='Enter') entrar()">
+    <button onclick="entrar()">Entrar</button>
+    <div class="error-msg" id="err-login"></div>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="app">
+  <div class="header">
+    <div>
+      <h1>Panel de Registros</h1>
+      <p>Semana Comercial — Cámara de Comercio de Arauca</p>
+    </div>
+    <button class="btn btn-green" onclick="exportarExcel()">⬇ Exportar Excel</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="valor" id="stat-total">-</div>
+      <div class="etiqueta">Total registros</div>
+    </div>
+    <div class="stat">
+      <div class="valor" id="stat-empresas">-</div>
+      <div class="etiqueta">Empresas activas</div>
+    </div>
+    <div class="stat">
+      <div class="valor" id="stat-hoy">-</div>
+      <div class="etiqueta">Registros hoy</div>
+    </div>
+  </div>
+
+  <div class="controles">
+    <input type="text" id="buscar" placeholder="🔍 Buscar nombre o teléfono..."
+           oninput="filtrar()">
+    <select id="filtro-empresa" onchange="filtrar()">
+      <option value="">Todas las empresas</option>
+    </select>
+    <button class="btn btn-primary" onclick="cargarRegistros()">↺ Actualizar</button>
+  </div>
+
+  <div class="tabla-wrap">
+    <div class="spinner-wrap" id="cargando">
+      <div class="spinner"></div>
+      <p>Cargando registros...</p>
+    </div>
+    <table id="tabla" style="display:none">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Boleta</th>
+          <th>Empresa</th>
+          <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Email</th>
+          <th>Dirección</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="sin-datos" id="sin-datos" style="display:none">
+      No hay registros que mostrar
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getFirestore,
+           collection,
+           getDocs,
+           orderBy,
+           query }          from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
+    authDomain:        "semana-comercial.firebaseapp.com",
+    projectId:         "semana-comercial",
+    storageBucket:     "semana-comercial.firebasestorage.app",
+    messagingSenderId: "52687643666",
+    appId:             "1:52687643666:web:48e7106b88b2f2c2b364cb"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // ── Contraseña simple de acceso ──────────────────────────
+  // Cámbiala por la que quieras
+  const CLAVE_ADMIN = "camara2024";
+
+  let todosLosRegistros = [];
+
+  // ── Login ────────────────────────────────────────────────
+  window.entrar = function () {
+    const clave = document.getElementById("clave").value;
+    if (clave === CLAVE_ADMIN) {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("app").style.display   = "block";
+      cargarRegistros();
+    } else {
+      document.getElementById("err-login").textContent = "Contraseña incorrecta";
+    }
+  };
+
+  // ── Cargar registros ─────────────────────────────────────
+  window.cargarRegistros = async function () {
+    document.getElementById("cargando").style.display = "block";
+    document.getElementById("tabla").style.display    = "none";
+    document.getElementById("sin-datos").style.display = "none";
+
+    try {
+      const q      = query(collection(db, "registros"), orderBy("fecha", "desc"));
+      const snap   = await getDocs(q);
+      todosLosRegistros = snap.docs.map(d => d.data());
+
+      actualizarStats();
+      poblarFiltroEmpresas();
+      filtrar();
+
+    } catch (e) {
+      console.error(e);
+      document.getElementById("cargando").style.display = "none";
+      document.getElementById("sin-datos").style.display = "block";
+      document.getElementById("sin-datos").textContent = "Error al cargar. Intenta de nuevo.";
+    }
+  };
+
+  function actualizarStats() {
+    const hoy = new Date().toISOString().slice(0, 10);
+    const registrosHoy = todosLosRegistros.filter(r => r.fecha && r.fecha.startsWith(hoy));
+    const empresas = new Set(todosLosRegistros.map(r => r.empresa));
+
+    document.getElementById("stat-total").textContent    = todosLosRegistros.length;
+    document.getElementById("stat-empresas").textContent = empresas.size;
+    document.getElementById("stat-hoy").textContent      = registrosHoy.length;
+  }
+
+  function poblarFiltroEmpresas() {
+    const select   = document.getElementById("filtro-empresa");
+    const empresas = [...new Set(todosLosRegistros.map(r => r.empresa))].sort();
+    const valorActual = select.value;
+
+    select.innerHTML = '<option value="">Todas las empresas</option>';
+    empresas.forEach(e => {
+      const opt = document.createElement("option");
+      opt.value       = e;
+      opt.textContent = e;
+      select.appendChild(opt);
+    });
+
+    select.value = valorActual;
+  }
+
+  // ── Filtrar ──────────────────────────────────────────────
+  window.filtrar = function () {
+    const buscar  = document.getElementById("buscar").value.toLowerCase();
+    const empresa = document.getElementById("filtro-empresa").value;
+
+    const filtrados = todosLosRegistros.filter(r => {
+      const coincideEmpresa = !empresa || r.empresa === empresa;
+      const coincideBuscar  = !buscar  ||
+        (r.nombre   && r.nombre.toLowerCase().includes(buscar))  ||
+        (r.telefono && r.telefono.includes(buscar))              ||
+        (r.email    && r.email.toLowerCase().includes(buscar));
+      return coincideEmpresa && coincideBuscar;
+    });
+
+    renderTabla(filtrados);
+  };
+
+  function renderTabla(registros) {
+    document.getElementById("cargando").style.display = "none";
+
+    if (registros.length === 0) {
+      document.getElementById("tabla").style.display    = "none";
+      document.getElementById("sin-datos").style.display = "block";
+      document.getElementById("sin-datos").textContent  = "No hay registros que mostrar";
+      return;
+    }
+
+    document.getElementById("tabla").style.display    = "table";
+    document.getElementById("sin-datos").style.display = "none";
+
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+
+    registros.forEach((r, i) => {
+      const tr = document.createElement("tr");
+
+      const fecha = r.fecha
+        ? new Date(r.fecha).toLocaleString("es-CO", { dateStyle: "short", timeStyle: "short" })
+        : "";
+
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td><span class="boleta-badge">${r.boleta}</span></td>
+        <td><span class="empresa-badge">${r.empresa || ""}</span></td>
+        <td>${r.nombre    || ""}</td>
+        <td>${r.telefono  || ""}</td>
+        <td>${r.email     || ""}</td>
+        <td>${r.direccion || ""}</td>
+        <td>${fecha}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ── Exportar Excel ───────────────────────────────────────
+  window.exportarExcel = function () {
+    const buscar  = document.getElementById("buscar").value.toLowerCase();
+    const empresa = document.getElementById("filtro-empresa").value;
+
+    const filtrados = todosLosRegistros.filter(r => {
+      const coincideEmpresa = !empresa || r.empresa === empresa;
+      const coincideBuscar  = !buscar  ||
+        (r.nombre   && r.nombre.toLowerCase().includes(buscar))  ||
+        (r.telefono && r.telefono.includes(buscar));
+      return coincideEmpresa && coincideBuscar;
+    });
+
+    let csv = "Boleta,Empresa,Nombre,Teléfono,Email,Dirección,Fecha\n";
+    filtrados.forEach(r => {
+      const fecha = r.fecha
+        ? new Date(r.fecha).toLocaleString("es-CO")
+        : "";
+      csv += [
+        r.boleta, r.empresa, r.nombre, r.telefono,
+        r.email, r.direccion, fecha
+      ].map(v => `"${(v || "").toString().replace(/"/g, '""')}"`).join(",") + "\n";
+    });
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = "registros-semana-comercial.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+</script>
+
+</body>
+</html>
