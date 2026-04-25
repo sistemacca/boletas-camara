@@ -32,15 +32,17 @@
       margin-bottom: 24px;
     }
 
-    .logo h2 {
+    .logo h2 { color: #003366; font-size: 22px; margin-bottom: 4px; }
+    .logo p  { color: #64748b; font-size: 13px; }
+    .logo .empresa-nombre {
+      display: inline-block;
+      margin-top: 8px;
+      background: #e8f0fe;
       color: #003366;
-      font-size: 22px;
-      margin-bottom: 4px;
-    }
-
-    .logo p {
-      color: #64748b;
       font-size: 13px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
     }
 
     .campo { margin-bottom: 14px; }
@@ -114,10 +116,7 @@
       margin: 8px 0 4px;
     }
 
-    .exito .sub {
-      font-size: 13px;
-      color: #4b7a5e;
-    }
+    .exito .sub { font-size: 13px; color: #4b7a5e; }
 
     .fallo {
       background: #fef2f2;
@@ -128,16 +127,32 @@
       font-size: 14px;
     }
 
+    .cargando {
+      text-align: center;
+      padding: 30px 0;
+      color: #64748b;
+      font-size: 14px;
+    }
+
     .spinner {
       display: inline-block;
-      width: 16px;
-      height: 16px;
+      width: 16px; height: 16px;
       border: 2px solid #ffffff55;
       border-top-color: white;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       vertical-align: middle;
       margin-right: 6px;
+    }
+
+    .spinner-dark {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 2px solid #cbd5e1;
+      border-top-color: #003366;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 10px;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -149,33 +164,37 @@
   <div class="logo">
     <h2>Semana Comercial</h2>
     <p>Cámara de Comercio de Arauca</p>
+    <span class="empresa-nombre" id="empresa-label">Cargando...</span>
   </div>
 
-  <div class="campo">
-    <label for="nombre">Nombre completo <span>*</span></label>
-    <input type="text" id="nombre" autocomplete="name" placeholder="Tu nombre completo">
-    <div class="msg-error" id="err-nombre">Ingresa tu nombre</div>
-  </div>
+  <!-- Formulario (oculto hasta cargar empresa) -->
+  <div id="formulario" style="display:none">
+    <div class="campo">
+      <label for="nombre">Nombre completo <span>*</span></label>
+      <input type="text" id="nombre" autocomplete="name" placeholder="Tu nombre completo">
+      <div class="msg-error" id="err-nombre">Ingresa tu nombre</div>
+    </div>
 
-  <div class="campo">
-    <label for="telefono">Teléfono <span>*</span></label>
-    <input type="tel" id="telefono" inputmode="numeric" autocomplete="tel"
-           placeholder="3XXXXXXXXX" maxlength="12">
-    <div class="msg-error" id="err-telefono">Ingresa un número de 10 dígitos</div>
-  </div>
+    <div class="campo">
+      <label for="telefono">Teléfono <span>*</span></label>
+      <input type="tel" id="telefono" inputmode="numeric" autocomplete="tel"
+             placeholder="3XXXXXXXXX" maxlength="12">
+      <div class="msg-error" id="err-telefono">Ingresa un número de 10 dígitos</div>
+    </div>
 
-  <div class="campo">
-    <label for="email">Email</label>
-    <input type="email" id="email" autocomplete="email" placeholder="correo@ejemplo.com">
-    <div class="msg-error" id="err-email">Ingresa un email válido</div>
-  </div>
+    <div class="campo">
+      <label for="email">Email</label>
+      <input type="email" id="email" autocomplete="email" placeholder="correo@ejemplo.com">
+      <div class="msg-error" id="err-email">Ingresa un email válido</div>
+    </div>
 
-  <div class="campo">
-    <label for="direccion">Dirección</label>
-    <input type="text" id="direccion" autocomplete="street-address" placeholder="Opcional">
-  </div>
+    <div class="campo">
+      <label for="direccion">Dirección</label>
+      <input type="text" id="direccion" autocomplete="street-address" placeholder="Opcional">
+    </div>
 
-  <button id="btn" onclick="registrar()">Registrar</button>
+    <button id="btn" onclick="registrar()">Registrar</button>
+  </div>
 
   <div class="resultado" id="resultado"></div>
 </div>
@@ -184,9 +203,9 @@
   import { initializeApp }       from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getFirestore,
            collection, addDoc,
-           runTransaction, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+           runTransaction,
+           doc, getDoc }         from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-  // ── Configuración Firebase (tus credenciales) ────────────
   const firebaseConfig = {
     apiKey:            "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
     authDomain:        "semana-comercial.firebaseapp.com",
@@ -199,8 +218,43 @@
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
-  // Empresa desde URL (?empresa=EMP001) o "GENERAL" por defecto
-  const EMPRESA = new URLSearchParams(window.location.search).get("empresa") || "GENERAL";
+  // Empresa desde URL
+  const EMPRESA = new URLSearchParams(window.location.search).get("empresa") || "";
+
+  // ── Cargar empresa y validar que existe ──────────────────
+  async function cargarEmpresa() {
+    const resultado = document.getElementById("resultado");
+
+    if (!EMPRESA) {
+      resultado.innerHTML = '<p class="fallo">Enlace sin empresa. Contacta al organizador.</p>';
+      document.getElementById("empresa-label").textContent = "Sin empresa";
+      return;
+    }
+
+    try {
+      const snap = await getDoc(doc(db, "empresas", EMPRESA));
+
+      if (!snap.exists()) {
+        resultado.innerHTML = '<p class="fallo">Empresa no registrada. Contacta al organizador.</p>';
+        document.getElementById("empresa-label").textContent = "No encontrada";
+        return;
+      }
+
+      const data = snap.data();
+
+      // Mostrar nombre de empresa
+      document.getElementById("empresa-label").textContent =
+        data.nombre || EMPRESA;
+
+      // Mostrar formulario
+      document.getElementById("formulario").style.display = "block";
+
+    } catch (e) {
+      resultado.innerHTML = '<p class="fallo">Error al cargar. Intenta de nuevo.</p>';
+    }
+  }
+
+  cargarEmpresa();
 
   // ── Validaciones ─────────────────────────────────────────
   function esEmailValido(e) {
@@ -232,27 +286,41 @@
 
     // Validar campos
     let ok = true;
-    ok = marcar("nombre",   "err-nombre",   nombre.length >= 2)         && ok;
-    ok = marcar("telefono", "err-telefono", esTelefonoValido(telefono))  && ok;
-    if (email) ok = marcar("email", "err-email", esEmailValido(email))   && ok;
+    ok = marcar("nombre",   "err-nombre",   nombre.length >= 2)          && ok;
+    ok = marcar("telefono", "err-telefono", esTelefonoValido(telefono))   && ok;
+    if (email) ok = marcar("email", "err-email", esEmailValido(email))    && ok;
     if (!ok) return;
 
     btn.disabled  = true;
     btn.innerHTML = '<span class="spinner"></span>Procesando...';
 
     try {
-      // Transacción atómica: garantiza que dos personas no reciban el mismo número
+      const empresaRef  = doc(db, "empresas", EMPRESA);
       const contadorRef = doc(db, "contadores", EMPRESA);
       let numeroBoleta;
 
       await runTransaction(db, async (tx) => {
-        const snap   = await tx.get(contadorRef);
-        const actual = snap.exists() ? snap.data().actual : 0;
-        numeroBoleta = actual + 1;
-        tx.set(contadorRef, { actual: numeroBoleta });
+        // Leer empresa (rangos)
+        const empSnap = await tx.get(empresaRef);
+        if (!empSnap.exists()) throw new Error("Empresa no encontrada");
+
+        const { desde, hasta } = empSnap.data();
+
+        // Leer contador actual
+        const contSnap = await tx.get(contadorRef);
+        const actual   = contSnap.exists() ? contSnap.data().actual : 0;
+
+        // Validar que quedan boletas disponibles
+        const siguiente = desde + actual;
+        if (siguiente >= hasta) throw new Error("Boletas agotadas para esta empresa");
+
+        numeroBoleta = siguiente;
+
+        // Actualizar contador
+        tx.set(contadorRef, { actual: actual + 1 });
       });
 
-      // Guardar registro en Firestore
+      // Guardar registro
       await addDoc(collection(db, "registros"), {
         empresa:   EMPRESA,
         boleta:    numeroBoleta,
@@ -263,7 +331,7 @@
         fecha:     new Date().toISOString()
       });
 
-      // Mostrar número de boleta
+      // Mostrar resultado
       resultado.innerHTML = `
         <div class="exito">
           ¡Registro exitoso!
@@ -273,13 +341,15 @@
         </div>
       `;
 
-      // Limpiar formulario para el próximo registro
+      // Limpiar formulario
       ["nombre","telefono","email","direccion"].forEach(id =>
         document.getElementById(id).value = ""
       );
 
     } catch (err) {
-      resultado.innerHTML = `<p class="fallo">Error al registrar. Intenta de nuevo.</p>`;
+      resultado.innerHTML = `<p class="fallo">${err.message === "Boletas agotadas para esta empresa"
+        ? "Ya no hay boletas disponibles para esta empresa."
+        : "Error al registrar. Intenta de nuevo."}</p>`;
       console.error(err);
     }
 
