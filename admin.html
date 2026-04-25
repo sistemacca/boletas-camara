@@ -529,7 +529,7 @@
       tbody.innerHTML = "";
       sorted.forEach(e => {
         const ent   = conts[e.id] || 0;
-        const total = Number(e.hasta) - Number(e.desde);  // total boletas del rango
+        const total = Number(e.hasta) - Number(e.desde) + 1;  // total boletas del rango
         const disp  = Math.max(0, total - ent);
         const pct   = total > 0 ? Math.min(100, Math.round((ent/total)*100)) : 0;
         const tr = document.createElement("tr");
@@ -550,7 +550,7 @@
       lm.innerHTML = "";
       sorted.forEach(e => {
         const ent   = conts[e.id] || 0;
-        const total = Number(e.hasta) - Number(e.desde);
+        const total = Number(e.hasta) - Number(e.desde) + 1;
         const disp  = Math.max(0, total - ent);
         const pct   = total > 0 ? Math.min(100, Math.round((ent/total)*100)) : 0;
         const d = document.createElement("div");
@@ -705,7 +705,7 @@
       tbody.innerHTML = "";
       emps.forEach(e => {
         const ent  = conts[e.id]||0;
-        const tot  = Number(e.hasta) - Number(e.desde);
+        const tot  = Number(e.hasta) - Number(e.desde) + 1;
         const disp = Math.max(0, tot-ent);
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -724,7 +724,7 @@
       lm.innerHTML = "";
       emps.forEach(e => {
         const ent  = conts[e.id]||0;
-        const tot  = Number(e.hasta) - Number(e.desde);
+        const tot  = Number(e.hasta) - Number(e.desde) + 1;
         const disp = Math.max(0, tot-ent);
         const d = document.createElement("div");
         d.className = "emp-card";
