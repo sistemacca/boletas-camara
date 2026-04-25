@@ -580,7 +580,7 @@
     // Cargar datos del panel si hace falta
     if (panel === "registros" && todosLosRegistros.length === 0) cargarRegistros();
     if (panel === "empresas"  && todasLasEmpresas.length === 0)  cargarEmpresas();
-    if (panel === "enlaces"   && todasLasEmpresas.length === 0)  cargarEmpresasEnlaces();
+    if (panel === "enlaces") cargarEmpresasEnlaces();
   };
 
   window.toggleSidebar = function () {
@@ -833,17 +833,15 @@
 
   // ── ENLACES ──────────────────────────────────────────────
   async function cargarEmpresasEnlaces() {
-    if (todasLasEmpresas.length === 0) {
-      try {
-        const snap = await getDocs(collection(db, "empresas"));
-        todasLasEmpresas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        todasLasEmpresas.sort((a,b) => (a.nombre||a.id).localeCompare(b.nombre||b.id));
-      } catch(e) {
-        document.getElementById("lista-enlaces").innerHTML = "<p style='color:#e11d48'>Error al cargar</p>";
-        return;
-      }
+    document.getElementById("lista-enlaces").innerHTML = "<div class='spinner-wrap'><div class='spinner'></div><p>Cargando...</p></div>";
+    try {
+      const snap = await getDocs(collection(db, "empresas"));
+      todasLasEmpresas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      todasLasEmpresas.sort((a,b) => (a.nombre||a.id).localeCompare(b.nombre||b.id));
+      renderEnlaces(todasLasEmpresas);
+    } catch(e) {
+      document.getElementById("lista-enlaces").innerHTML = "<p style='color:#e11d48'>Error al cargar</p>";
     }
-    renderEnlaces(todasLasEmpresas);
   }
 
   window.filtrarEnlaces = function () {
