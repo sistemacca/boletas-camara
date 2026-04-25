@@ -2,132 +2,188 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Panel Admin - Semana Comercial</title>
+  <link rel="icon" href="data:,">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #1e293b; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #1e293b; overflow-x: hidden; }
 
-    /* LOGIN */
+    /* ── LOGIN ─────────────────────────────────────── */
     #login { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
     .login-card { background:white; border-radius:16px; padding:40px 32px; width:100%; max-width:360px; box-shadow:0 8px 30px rgba(0,0,0,0.1); border-top:6px solid #003366; text-align:center; }
     .login-card h2 { color:#003366; margin-bottom:6px; font-size:22px; }
     .login-card p  { color:#64748b; font-size:13px; margin-bottom:24px; }
-    .login-card input { width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; margin-bottom:12px; }
+    .login-card input { width:100%; padding:14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:16px; margin-bottom:12px; }
     .login-card input:focus { outline:none; border-color:#003366; }
-    .login-card button { width:100%; padding:13px; background:#003366; color:white; border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; }
-    .login-card button:hover { background:#002244; }
+    .login-card button { width:100%; padding:14px; background:#003366; color:white; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; }
+    .login-card button:active { background:#002244; }
     .error-msg { color:#e11d48; font-size:13px; margin-top:10px; }
 
-    /* LAYOUT */
-    #app { display:none; min-height:100vh; }
-    .layout { display:flex; min-height:100vh; }
+    /* ── LAYOUT ────────────────────────────────────── */
+    #app { display:none; }
 
-    /* SIDEBAR */
-    .sidebar { width:240px; background:#003366; color:white; display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:100; transition:transform 0.3s; }
+    /* ── SIDEBAR ───────────────────────────────────── */
+    .sidebar {
+      width: 240px; background: #003366; color: white;
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; height: 100vh;
+      z-index: 200; transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+      transform: translateX(-100%);
+    }
+    .sidebar.abierto { transform: translateX(0); }
     .sidebar-logo { padding:24px 20px 16px; border-bottom:1px solid rgba(255,255,255,0.1); }
     .sidebar-logo h2 { font-size:15px; font-weight:700; }
     .sidebar-logo p  { font-size:11px; opacity:0.6; margin-top:3px; }
-    .sidebar-menu { flex:1; padding:12px 0; overflow-y:auto; }
-    .menu-item { display:flex; align-items:center; gap:12px; padding:12px 20px; cursor:pointer; font-size:14px; transition:background 0.15s; border-left:3px solid transparent; }
-    .menu-item:hover { background:rgba(255,255,255,0.08); }
+    .sidebar-menu { flex:1; padding:12px 0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+    .menu-item {
+      display:flex; align-items:center; gap:12px;
+      padding:14px 20px; cursor:pointer; font-size:15px;
+      transition:background 0.15s; border-left:3px solid transparent;
+      user-select:none;
+    }
+    .menu-item:active { background:rgba(255,255,255,0.15); }
     .menu-item.activo { background:rgba(255,255,255,0.12); border-left-color:#d4af37; font-weight:600; }
-    .menu-item .icono { font-size:18px; width:24px; text-align:center; }
+    .menu-item .icono { font-size:20px; width:26px; text-align:center; }
     .sidebar-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,0.1); font-size:12px; opacity:0.5; }
 
-    /* MAIN */
-    .main { margin-left:240px; flex:1; padding:24px; min-height:100vh; }
-    .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
-    .topbar h1 { font-size:22px; color:#003366; font-weight:700; }
+    /* ── TOPBAR MÓVIL ──────────────────────────────── */
+    .mobile-topbar {
+      position: fixed; top:0; left:0; right:0; height:54px;
+      background:#003366; color:white; z-index:150;
+      display:flex; align-items:center; padding:0 16px; gap:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    }
+    .mobile-topbar h2 { font-size:15px; font-weight:700; flex:1; }
+    .mobile-topbar span { font-size:11px; opacity:0.65; }
+    .btn-menu {
+      background:none; border:none; color:white;
+      font-size:22px; cursor:pointer; padding:4px 6px;
+      line-height:1; border-radius:6px;
+    }
+    .btn-menu:active { background:rgba(255,255,255,0.15); }
+
+    /* ── OVERLAY ───────────────────────────────────── */
+    .overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.45); z-index:199;
+    }
+    .overlay.visible { display:block; }
+
+    /* ── MAIN ──────────────────────────────────────── */
+    .main {
+      padding: 70px 16px 24px;
+      min-height:100vh;
+      max-width: 100%;
+    }
+
+    /* ── TOPBAR PANEL ──────────────────────────────── */
+    .topbar { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+    .topbar h1 { font-size:20px; color:#003366; font-weight:700; }
     .topbar p  { font-size:13px; color:#64748b; margin-top:2px; }
 
-    /* STATS */
-    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:24px; }
-    .stat { background:white; border-radius:12px; padding:18px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); border-top:3px solid #003366; }
-    .stat .valor { font-size:34px; font-weight:700; color:#003366; }
-    .stat .etiqueta { font-size:12px; color:#64748b; margin-top:4px; }
+    /* ── STATS ─────────────────────────────────────── */
+    .stats { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:20px; }
+    .stat { background:white; border-radius:12px; padding:16px 12px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); border-top:3px solid #003366; }
+    .stat .valor { font-size:30px; font-weight:700; color:#003366; }
+    .stat .etiqueta { font-size:11px; color:#64748b; margin-top:4px; }
 
-    /* PANELS */
+    /* ── PANELS ────────────────────────────────────── */
     .panel { display:none; }
     .panel.activo { display:block; }
 
-    /* CARDS */
+    /* ── CARDS ─────────────────────────────────────── */
     .tabla-card { background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden; margin-bottom:20px; }
-    .tabla-card-header { padding:16px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border-bottom:1px solid #f1f5f9; }
-    .tabla-card-header h3 { font-size:15px; color:#003366; }
-    .controles { display:flex; gap:10px; flex-wrap:wrap; align-items:center; padding:14px 20px; border-bottom:1px solid #f1f5f9; }
-    .controles input, .controles select { padding:9px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; flex:1; min-width:150px; }
+    .tabla-card-header { padding:14px 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; border-bottom:1px solid #f1f5f9; }
+    .tabla-card-header h3 { font-size:14px; color:#003366; font-weight:600; }
+    .controles { display:flex; flex-direction:column; gap:8px; padding:12px 16px; border-bottom:1px solid #f1f5f9; }
+    .controles input, .controles select {
+      width:100%; padding:11px 13px; border:1.5px solid #e2e8f0;
+      border-radius:8px; font-size:15px;
+    }
     .controles input:focus, .controles select:focus { outline:none; border-color:#003366; }
-    .tabla-wrap { overflow-x:auto; }
-    table { width:100%; border-collapse:collapse; font-size:13px; }
+    .controles .controles-row { display:flex; gap:8px; }
+    .controles .controles-row input,
+    .controles .controles-row select { flex:1; }
+
+    /* ── TABLA SCROLL HORIZONTAL ───────────────────── */
+    .tabla-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    table { width:100%; border-collapse:collapse; font-size:12px; min-width:520px; }
     thead tr { background:#003366; color:white; }
-    thead th { padding:12px 16px; text-align:left; font-weight:500; white-space:nowrap; }
+    thead th { padding:11px 13px; text-align:left; font-weight:500; white-space:nowrap; }
     tbody tr:nth-child(even) { background:#f8fafc; }
-    tbody tr:hover { background:#e8f0fe; }
-    tbody td { padding:10px 16px; border-bottom:1px solid #f1f5f9; white-space:nowrap; }
-    .boleta-badge { background:#003366; color:white; font-weight:700; padding:3px 10px; border-radius:20px; font-size:13px; }
-    .empresa-badge { background:#e8f0fe; color:#003366; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; }
-    .sin-datos { text-align:center; padding:40px; color:#94a3b8; font-size:14px; }
-    .spinner-wrap { text-align:center; padding:40px; color:#64748b; }
+    tbody tr:active { background:#e8f0fe; }
+    tbody td { padding:9px 13px; border-bottom:1px solid #f1f5f9; white-space:nowrap; }
+
+    /* ── BADGES ────────────────────────────────────── */
+    .boleta-badge { background:#003366; color:white; font-weight:700; padding:2px 8px; border-radius:20px; font-size:12px; }
+    .empresa-badge { background:#e8f0fe; color:#003366; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; }
+
+    /* ── ESTADOS ───────────────────────────────────── */
+    .sin-datos { text-align:center; padding:36px; color:#94a3b8; font-size:14px; }
+    .spinner-wrap { text-align:center; padding:36px; color:#64748b; }
     .spinner { display:block; width:28px; height:28px; border:3px solid #e2e8f0; border-top-color:#003366; border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 10px; }
     @keyframes spin { to { transform:rotate(360deg); } }
 
-    /* BOTONES */
-    .btn { padding:9px 18px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s; white-space:nowrap; }
+    /* ── BOTONES ───────────────────────────────────── */
+    .btn { padding:11px 18px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; }
+    .btn:active { opacity:0.85; }
     .btn-primary { background:#003366; color:white; }
-    .btn-primary:hover { background:#002244; }
-    .btn-green { background:#16a34a; color:white; }
-    .btn-green:hover { background:#15803d; }
-    .btn-gray { background:#f1f5f9; color:#1e293b; }
-    .btn-gray:hover { background:#e2e8f0; }
-    .btn-sm { padding:5px 12px; font-size:12px; }
+    .btn-green   { background:#16a34a; color:white; }
+    .btn-gray    { background:#f1f5f9; color:#1e293b; }
+    .btn-sm      { padding:7px 12px; font-size:12px; }
+    .btn-full    { width:100%; justify-content:center; }
 
-    /* FORM */
-    .form-card { background:white; border-radius:12px; padding:24px; box-shadow:0 2px 8px rgba(0,0,0,0.06); max-width:500px; margin-bottom:24px; }
-    .form-card h3 { color:#003366; font-size:16px; margin-bottom:20px; }
+    /* ── FORM ──────────────────────────────────────── */
+    .form-card { background:white; border-radius:12px; padding:20px 16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-bottom:20px; }
+    .form-card h3 { color:#003366; font-size:15px; margin-bottom:18px; }
     .form-grupo { margin-bottom:14px; }
     .form-grupo label { display:block; font-size:12px; font-weight:600; color:#003366; margin-bottom:5px; }
-    .form-grupo input { width:100%; padding:11px 13px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; }
+    .form-grupo input { width:100%; padding:12px 13px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:15px; }
     .form-grupo input:focus { outline:none; border-color:#003366; }
-    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .form-msg { font-size:13px; margin-top:12px; padding:10px 14px; border-radius:8px; display:none; }
     .form-msg.ok    { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
     .form-msg.error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
 
-    /* PROGRESO */
-    .progreso-bar { height:6px; background:#e2e8f0; border-radius:3px; margin-top:4px; }
+    /* ── PROGRESO ──────────────────────────────────── */
+    .progreso-bar  { height:6px; background:#e2e8f0; border-radius:3px; margin-top:4px; }
     .progreso-fill { height:100%; background:#003366; border-radius:3px; }
 
-    /* ENLACES */
-    .enlace-fila { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f1f5f9; flex-wrap:wrap; }
+    /* ── ENLACES ───────────────────────────────────── */
+    .enlace-fila { padding:12px 0; border-bottom:1px solid #f1f5f9; }
     .enlace-fila:last-child { border-bottom:none; }
-    .enlace-nombre { font-size:13px; font-weight:600; color:#003366; min-width:160px; }
-    .enlace-rango  { font-size:11px; color:#94a3b8; min-width:70px; }
-    .enlace-url { font-size:12px; color:#64748b; flex:1; word-break:break-all; background:#f8fafc; padding:6px 10px; border-radius:6px; }
-    .btn-copiar { padding:6px 12px; font-size:12px; background:#003366; color:white; border:none; border-radius:6px; cursor:pointer; white-space:nowrap; }
-    .btn-copiar:hover { background:#002244; }
+    .enlace-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; flex-wrap:wrap; }
+    .enlace-nombre { font-size:13px; font-weight:600; color:#003366; }
+    .enlace-rango  { font-size:11px; color:#94a3b8; }
+    .enlace-url    { font-size:12px; color:#64748b; word-break:break-all; background:#f8fafc; padding:7px 10px; border-radius:6px; margin-bottom:6px; }
+    .btn-copiar { padding:7px 14px; font-size:12px; background:#003366; color:white; border:none; border-radius:6px; cursor:pointer; width:100%; }
+    .btn-copiar:active { background:#002244; }
     .btn-copiar.copiado { background:#16a34a; }
 
-    /* MODAL */
-    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:300; align-items:center; justify-content:center; padding:20px; }
+    /* ── MODAL ─────────────────────────────────────── */
+    .modal-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.5); z-index:300;
+      align-items:flex-end; justify-content:center;
+      padding:0;
+    }
     .modal-overlay.visible { display:flex; }
-    .modal { background:white; border-radius:14px; padding:28px; width:100%; max-width:440px; box-shadow:0 20px 40px rgba(0,0,0,0.2); }
-    .modal h3 { color:#003366; font-size:17px; margin-bottom:6px; }
+    .modal {
+      background:white; border-radius:18px 18px 0 0;
+      padding:24px 20px 32px; width:100%; max-width:560px;
+      box-shadow:0 -8px 30px rgba(0,0,0,0.15);
+      max-height:90vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    }
+    .modal-handle { width:36px; height:4px; background:#e2e8f0; border-radius:2px; margin:0 auto 20px; }
+    .modal h3 { color:#003366; font-size:17px; margin-bottom:4px; }
     .modal .modal-sub { font-size:12px; color:#64748b; margin-bottom:20px; }
-    .modal-footer { display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
+    .modal-footer { display:flex; gap:10px; margin-top:20px; }
+    .modal-footer .btn { flex:1; justify-content:center; }
     .separador { height:1px; background:#f1f5f9; margin:16px 0; }
 
-    /* MOBILE */
-    .menu-toggle { display:none; position:fixed; top:14px; left:14px; z-index:200; background:#003366; color:white; border:none; border-radius:8px; padding:8px 12px; font-size:18px; cursor:pointer; }
-    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:99; }
-    @media (max-width:768px) {
-      .sidebar { transform:translateX(-100%); }
-      .sidebar.abierto { transform:translateX(0); }
-      .main { margin-left:0; padding:16px; padding-top:60px; }
-      .menu-toggle { display:block; }
-      .overlay.visible { display:block; }
-      .form-row { grid-template-columns:1fr; }
-    }
+    /* ── NOTA SCROLL ───────────────────────────────── */
+    .scroll-hint { font-size:11px; color:#94a3b8; padding:4px 16px 8px; }
   </style>
 </head>
 <body>
@@ -137,7 +193,9 @@
   <div class="login-card">
     <h2>Panel Admin</h2>
     <p>Cámara de Comercio de Arauca</p>
-    <input type="password" id="clave" placeholder="Contraseña de acceso" onkeydown="if(event.key==='Enter') entrar()">
+    <input type="password" id="clave" placeholder="Contraseña de acceso"
+           inputmode="text" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter') entrar()">
     <button onclick="entrar()">Entrar</button>
     <div class="error-msg" id="err-login"></div>
   </div>
@@ -145,157 +203,177 @@
 
 <!-- APP -->
 <div id="app">
-  <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+  <!-- Topbar móvil fija -->
+  <div class="mobile-topbar">
+    <button class="btn-menu" onclick="toggleSidebar()" aria-label="Menú">☰</button>
+    <h2>Semana Comercial</h2>
+    <span id="topbar-seccion">Dashboard</span>
+  </div>
+
+  <!-- Overlay -->
   <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-  <div class="layout">
-    <div class="sidebar" id="sidebar">
-      <div class="sidebar-logo">
-        <h2>Semana Comercial</h2>
-        <p>Cámara de Comercio de Arauca</p>
-      </div>
-      <nav class="sidebar-menu">
-        <div class="menu-item activo" onclick="irA('dashboard')"><span class="icono">📊</span> Dashboard</div>
-        <div class="menu-item" onclick="irA('registros')"><span class="icono">📋</span> Registros</div>
-        <div class="menu-item" onclick="irA('empresas')"><span class="icono">🏢</span> Empresas</div>
-        <div class="menu-item" onclick="irA('enlaces')"><span class="icono">🔗</span> Enlaces</div>
-      </nav>
-      <div class="sidebar-footer">v2.0 — Firebase + GitHub</div>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <h2>Semana Comercial</h2>
+      <p>Cámara de Comercio de Arauca</p>
     </div>
-
-    <div class="main">
-
-      <!-- DASHBOARD -->
-      <div class="panel activo" id="panel-dashboard">
-        <div class="topbar">
-          <div><h1>Dashboard</h1><p>Resumen general del evento</p></div>
-          <button class="btn btn-primary" onclick="recargarTodo()">↺ Actualizar</button>
-        </div>
-        <div class="stats">
-          <div class="stat"><div class="valor" id="stat-total">-</div><div class="etiqueta">Total registros</div></div>
-          <div class="stat"><div class="valor" id="stat-empresas">-</div><div class="etiqueta">Empresas</div></div>
-          <div class="stat"><div class="valor" id="stat-hoy">-</div><div class="etiqueta">Registros hoy</div></div>
-          <div class="stat"><div class="valor" id="stat-boletas">-</div><div class="etiqueta">Boletas asignadas</div></div>
-        </div>
-        <div class="tabla-card">
-          <div class="tabla-card-header"><h3>Progreso por empresa</h3></div>
-          <div class="tabla-wrap">
-            <div class="spinner-wrap" id="spin-dashboard"><div class="spinner"></div><p>Cargando...</p></div>
-            <table id="tabla-dashboard" style="display:none">
-              <thead><tr><th>Empresa</th><th>Entregadas / Total</th><th>Rango</th><th>Progreso</th></tr></thead>
-              <tbody id="tbody-dashboard"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- REGISTROS -->
-      <div class="panel" id="panel-registros">
-        <div class="topbar">
-          <div><h1>Registros</h1><p>Todos los usuarios registrados</p></div>
-          <button class="btn btn-green" onclick="exportarExcel()">⬇ Exportar Excel</button>
-        </div>
-        <div class="tabla-card">
-          <div class="controles">
-            <input type="text" id="buscar" placeholder="🔍 Buscar nombre, teléfono o email..." oninput="filtrar()">
-            <select id="filtro-empresa" onchange="filtrar()"><option value="">Todas las empresas</option></select>
-            <button class="btn btn-primary" onclick="cargarRegistros()">↺ Actualizar</button>
-          </div>
-          <div class="tabla-wrap">
-            <div class="spinner-wrap" id="spin-registros"><div class="spinner"></div><p>Cargando...</p></div>
-            <table id="tabla-registros" style="display:none">
-              <thead><tr><th>#</th><th>Boleta</th><th>Empresa</th><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th>Fecha</th></tr></thead>
-              <tbody id="tbody-registros"></tbody>
-            </table>
-            <div class="sin-datos" id="sin-registros" style="display:none">No hay registros</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- EMPRESAS -->
-      <div class="panel" id="panel-empresas">
-        <div class="topbar"><div><h1>Empresas</h1><p>Gestiona empresas y rangos de boletas</p></div></div>
-        <div class="form-card">
-          <h3>➕ Crear nueva empresa</h3>
-          <div class="form-grupo"><label>ID (sin espacios, sin tildes)</label><input type="text" id="emp-id" placeholder="Ej: electromuebles"></div>
-          <div class="form-grupo"><label>Nombre visible</label><input type="text" id="emp-nombre" placeholder="Ej: Electromuebles S.A."></div>
-          <div class="form-row">
-            <div class="form-grupo"><label>Boleta desde</label><input type="number" id="emp-desde" placeholder="Ej: 1"></div>
-            <div class="form-grupo"><label>Boleta hasta</label><input type="number" id="emp-hasta" placeholder="Ej: 50"></div>
-          </div>
-          <button class="btn btn-primary" onclick="crearEmpresa()">Crear empresa</button>
-          <div class="form-msg" id="msg-empresa"></div>
-        </div>
-        <div class="tabla-card">
-          <div class="tabla-card-header">
-            <h3>Empresas registradas</h3>
-            <button class="btn btn-primary btn-sm" onclick="cargarEmpresas()">↺ Actualizar</button>
-          </div>
-          <div class="tabla-wrap">
-            <div class="spinner-wrap" id="spin-empresas"><div class="spinner"></div><p>Cargando...</p></div>
-            <table id="tabla-empresas" style="display:none">
-              <thead><tr><th>ID</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Entregadas</th><th>Disponibles</th><th>Acciones</th></tr></thead>
-              <tbody id="tbody-empresas"></tbody>
-            </table>
-            <div class="sin-datos" id="sin-empresas" style="display:none">No hay empresas</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ENLACES -->
-      <div class="panel" id="panel-enlaces">
-        <div class="topbar">
-          <div><h1>Enlaces</h1><p>Enlace de registro para cada empresa</p></div>
-          <button class="btn btn-green" onclick="copiarTodos()">📋 Copiar todos</button>
-        </div>
-        <div class="tabla-card">
-          <div class="controles">
-            <input type="text" id="buscar-enlace" placeholder="🔍 Buscar empresa..." oninput="filtrarEnlaces()">
-          </div>
-          <div style="padding:8px 20px 20px" id="lista-enlaces">
-            <div class="spinner-wrap"><div class="spinner"></div><p>Cargando...</p></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
+    <nav class="sidebar-menu">
+      <div class="menu-item activo" onclick="irA('dashboard')"><span class="icono">📊</span> Dashboard</div>
+      <div class="menu-item" onclick="irA('registros')"><span class="icono">📋</span> Registros</div>
+      <div class="menu-item" onclick="irA('empresas')"><span class="icono">🏢</span> Empresas</div>
+      <div class="menu-item" onclick="irA('enlaces')"><span class="icono">🔗</span> Enlaces</div>
+    </nav>
+    <div class="sidebar-footer">v2.1 — Firebase + GitHub</div>
   </div>
-</div>
 
-<!-- MODAL EDITAR EMPRESA -->
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="panel activo" id="panel-dashboard">
+      <div class="topbar">
+        <div><h1>Dashboard</h1><p>Resumen general del evento</p></div>
+        <button class="btn btn-primary btn-sm" onclick="recargarTodo()">↺ Actualizar</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="valor" id="stat-total">-</div><div class="etiqueta">Total registros</div></div>
+        <div class="stat"><div class="valor" id="stat-empresas">-</div><div class="etiqueta">Empresas</div></div>
+        <div class="stat"><div class="valor" id="stat-hoy">-</div><div class="etiqueta">Registros hoy</div></div>
+        <div class="stat"><div class="valor" id="stat-boletas">-</div><div class="etiqueta">Boletas asignadas</div></div>
+      </div>
+      <div class="tabla-card">
+        <div class="tabla-card-header"><h3>Progreso por empresa</h3></div>
+        <div class="scroll-hint">← Desliza para ver más</div>
+        <div class="tabla-wrap">
+          <div class="spinner-wrap" id="spin-dashboard"><div class="spinner"></div><p>Cargando...</p></div>
+          <table id="tabla-dashboard" style="display:none">
+            <thead><tr><th>Empresa</th><th>Entregadas / Total</th><th>Rango</th><th>Progreso</th></tr></thead>
+            <tbody id="tbody-dashboard"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTROS -->
+    <div class="panel" id="panel-registros">
+      <div class="topbar">
+        <div><h1>Registros</h1><p>Todos los usuarios registrados</p></div>
+        <button class="btn btn-green btn-sm" onclick="exportarExcel()">⬇ Excel</button>
+      </div>
+      <div class="tabla-card">
+        <div class="controles">
+          <input type="search" id="buscar" placeholder="🔍 Buscar nombre, teléfono o email..." oninput="filtrar()">
+          <div class="controles-row">
+            <select id="filtro-empresa" onchange="filtrar()"><option value="">Todas las empresas</option></select>
+            <button class="btn btn-primary btn-sm" onclick="cargarRegistros()">↺</button>
+          </div>
+        </div>
+        <div class="scroll-hint">← Desliza para ver más</div>
+        <div class="tabla-wrap">
+          <div class="spinner-wrap" id="spin-registros"><div class="spinner"></div><p>Cargando...</p></div>
+          <table id="tabla-registros" style="display:none">
+            <thead><tr><th>#</th><th>Boleta</th><th>Empresa</th><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th>Fecha</th></tr></thead>
+            <tbody id="tbody-registros"></tbody>
+          </table>
+          <div class="sin-datos" id="sin-registros" style="display:none">No hay registros</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPRESAS -->
+    <div class="panel" id="panel-empresas">
+      <div class="topbar"><div><h1>Empresas</h1><p>Gestiona empresas y rangos de boletas</p></div></div>
+      <div class="form-card">
+        <h3>➕ Crear nueva empresa</h3>
+        <div class="form-grupo">
+          <label>ID (sin espacios, sin tildes)</label>
+          <input type="text" id="emp-id" placeholder="Ej: electromuebles" autocapitalize="none">
+        </div>
+        <div class="form-grupo">
+          <label>Nombre visible</label>
+          <input type="text" id="emp-nombre" placeholder="Ej: Electromuebles S.A.">
+        </div>
+        <div class="form-row">
+          <div class="form-grupo"><label>Boleta desde</label><input type="number" id="emp-desde" placeholder="1" inputmode="numeric"></div>
+          <div class="form-grupo"><label>Boleta hasta</label><input type="number" id="emp-hasta" placeholder="50" inputmode="numeric"></div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="crearEmpresa()">Crear empresa</button>
+        <div class="form-msg" id="msg-empresa"></div>
+      </div>
+      <div class="tabla-card">
+        <div class="tabla-card-header">
+          <h3>Empresas registradas</h3>
+          <button class="btn btn-primary btn-sm" onclick="cargarEmpresas()">↺ Actualizar</button>
+        </div>
+        <div class="scroll-hint">← Desliza para ver más</div>
+        <div class="tabla-wrap">
+          <div class="spinner-wrap" id="spin-empresas"><div class="spinner"></div><p>Cargando...</p></div>
+          <table id="tabla-empresas" style="display:none">
+            <thead><tr><th>ID</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Entregadas</th><th>Disponibles</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-empresas"></tbody>
+          </table>
+          <div class="sin-datos" id="sin-empresas" style="display:none">No hay empresas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENLACES -->
+    <div class="panel" id="panel-enlaces">
+      <div class="topbar">
+        <div><h1>Enlaces</h1><p>Enlace de registro por empresa</p></div>
+        <button class="btn btn-green btn-sm" onclick="copiarTodos()">📋 Copiar todos</button>
+      </div>
+      <div class="tabla-card">
+        <div class="controles">
+          <input type="search" id="buscar-enlace" placeholder="🔍 Buscar empresa..." oninput="filtrarEnlaces()">
+        </div>
+        <div style="padding:8px 16px 20px" id="lista-enlaces">
+          <div class="spinner-wrap"><div class="spinner"></div><p>Cargando...</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODAL EDITAR EMPRESA (bottom sheet en móvil) -->
 <div class="modal-overlay" id="modal-editar">
   <div class="modal">
+    <div class="modal-handle"></div>
     <h3>✏️ Editar empresa</h3>
     <p class="modal-sub" id="modal-sub">ID: —</p>
     <input type="hidden" id="edit-id">
 
     <div class="form-grupo"><label>Nombre visible</label><input type="text" id="edit-nombre"></div>
     <div class="form-row">
-      <div class="form-grupo"><label>Boleta desde</label><input type="number" id="edit-desde"></div>
-      <div class="form-grupo"><label>Boleta hasta</label><input type="number" id="edit-hasta"></div>
+      <div class="form-grupo"><label>Boleta desde</label><input type="number" id="edit-desde" inputmode="numeric"></div>
+      <div class="form-grupo"><label>Boleta hasta</label><input type="number" id="edit-hasta" inputmode="numeric"></div>
     </div>
 
     <div class="separador"></div>
 
     <div class="form-grupo">
       <label>Boletas entregadas (contador)</label>
-      <input type="number" id="edit-contador" min="0">
-      <div style="font-size:11px;color:#64748b;margin-top:4px">Pon 0 para resetear el contador a cero</div>
+      <input type="number" id="edit-contador" min="0" inputmode="numeric">
+      <div style="font-size:11px;color:#64748b;margin-top:4px">Pon 0 para resetear el contador</div>
     </div>
 
     <div class="form-msg" id="msg-editar"></div>
 
     <div class="modal-footer">
       <button class="btn btn-gray" onclick="cerrarModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarEmpresa()">Guardar cambios</button>
+      <button class="btn btn-primary" onclick="guardarEmpresa()">Guardar</button>
     </div>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, addDoc,
-           orderBy, query, doc, getDoc, setDoc }
+  import { getFirestore, collection, getDocs, orderBy,
+           query, doc, getDoc, setDoc }
     from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -323,7 +401,7 @@
     return f.toString();
   }
 
-  // ── LOGIN ────────────────────────────────────────────────
+  // ── LOGIN ────────────────────────────────────────────
   window.entrar = function () {
     const clave = document.getElementById("clave").value;
     if (clave === CLAVE_ADMIN) {
@@ -335,7 +413,7 @@
     }
   };
 
-  // ── NAVEGACIÓN ───────────────────────────────────────────
+  // ── NAVEGACIÓN ───────────────────────────────────────
   window.irA = function (panel) {
     document.querySelectorAll(".panel").forEach(p => p.classList.remove("activo"));
     document.querySelectorAll(".menu-item").forEach(m => m.classList.remove("activo"));
@@ -343,8 +421,14 @@
     document.querySelectorAll(".menu-item").forEach(m => {
       if (m.getAttribute("onclick").includes("'" + panel + "'")) m.classList.add("activo");
     });
+    // Actualizar label topbar
+    const labels = { dashboard:"Dashboard", registros:"Registros", empresas:"Empresas", enlaces:"Enlaces" };
+    document.getElementById("topbar-seccion").textContent = labels[panel] || "";
+    // Cerrar sidebar
     document.getElementById("sidebar").classList.remove("abierto");
     document.getElementById("overlay").classList.remove("visible");
+    // Scroll arriba
+    window.scrollTo(0, 0);
     if (panel === "registros") cargarRegistros();
     if (panel === "empresas")  cargarEmpresas();
     if (panel === "enlaces")   cargarEmpresasEnlaces();
@@ -355,12 +439,12 @@
     document.getElementById("overlay").classList.toggle("visible");
   };
 
-  // ── RECARGAR ─────────────────────────────────────────────
+  // ── RECARGAR ─────────────────────────────────────────
   window.recargarTodo = async function () {
     await cargarDashboard();
   };
 
-  // ── DASHBOARD ────────────────────────────────────────────
+  // ── DASHBOARD ────────────────────────────────────────
   async function cargarDashboard() {
     document.getElementById("spin-dashboard").style.display  = "block";
     document.getElementById("tabla-dashboard").style.display = "none";
@@ -395,7 +479,7 @@
           <td><strong>${e.nombre || e.id}</strong></td>
           <td>${entregadas} / ${total}</td>
           <td>${e.desde} – ${e.hasta}</td>
-          <td style="min-width:120px">
+          <td style="min-width:110px">
             <div style="font-size:11px;color:#64748b;margin-bottom:3px">${pct}%</div>
             <div class="progreso-bar"><div class="progreso-fill" style="width:${pct}%"></div></div>
           </td>`;
@@ -412,7 +496,7 @@
 
   cargarDashboard();
 
-  // ── REGISTROS ────────────────────────────────────────────
+  // ── REGISTROS ────────────────────────────────────────
   window.cargarRegistros = async function () {
     document.getElementById("spin-registros").style.display  = "block";
     document.getElementById("tabla-registros").style.display = "none";
@@ -461,9 +545,9 @@
     const tbody = document.getElementById("tbody-registros");
     tbody.innerHTML = "";
     f.forEach((r, i) => {
-      const fs = fechaStr(r.fecha);
+      const fs    = fechaStr(r.fecha);
       const fecha = fs ? new Date(fs).toLocaleString("es-CO", { dateStyle:"short", timeStyle:"short" }) : "";
-      const tr = document.createElement("tr");
+      const tr    = document.createElement("tr");
       tr.innerHTML = `<td>${i+1}</td><td><span class="boleta-badge">${r.boleta}</span></td>
         <td><span class="empresa-badge">${r.empresa||""}</span></td>
         <td>${r.nombre||""}</td><td>${r.telefono||""}</td>
@@ -484,19 +568,19 @@
     });
     let csv = "Boleta,Empresa,Nombre,Teléfono,Email,Dirección,Fecha\n";
     f.forEach(r => {
-      const fs = fechaStr(r.fecha);
+      const fs    = fechaStr(r.fecha);
       const fecha = fs ? new Date(fs).toLocaleString("es-CO") : "";
       csv += [r.boleta, r.empresa, r.nombre, r.telefono, r.email, r.direccion, fecha]
         .map(v => `"${(v||"").toString().replace(/"/g,'""')}"`)
         .join(",") + "\n";
     });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"}));
-    a.download = "registros-semana-comercial.csv";
+    const a      = document.createElement("a");
+    a.href       = URL.createObjectURL(new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"}));
+    a.download   = "registros-semana-comercial.csv";
     a.click();
   };
 
-  // ── EMPRESAS ─────────────────────────────────────────────
+  // ── EMPRESAS ─────────────────────────────────────────
   window.cargarEmpresas = async function () {
     document.getElementById("spin-empresas").style.display  = "block";
     document.getElementById("tabla-empresas").style.display = "none";
@@ -525,7 +609,7 @@
         const disponibles = Math.max(0, total - entregadas);
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px">${e.id}</code></td>
+          <td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px">${e.id}</code></td>
           <td><strong>${e.nombre||"-"}</strong></td>
           <td>${e.desde}</td><td>${e.hasta}</td>
           <td>${entregadas}</td>
@@ -552,22 +636,34 @@
     const msg    = document.getElementById("msg-empresa");
     msg.style.display = "none";
 
-    if (!id||!nombre||!desde||!hasta) { msg.textContent="Completa todos los campos"; msg.className="form-msg error"; msg.style.display="block"; return; }
-    if (desde>=hasta) { msg.textContent="'Hasta' debe ser mayor que 'Desde'"; msg.className="form-msg error"; msg.style.display="block"; return; }
+    if (!id||!nombre||!desde||!hasta) {
+      msg.textContent="Completa todos los campos";
+      msg.className="form-msg error"; msg.style.display="block"; return;
+    }
+    if (desde >= hasta) {
+      msg.textContent="'Hasta' debe ser mayor que 'Desde'";
+      msg.className="form-msg error"; msg.style.display="block"; return;
+    }
 
     try {
-      const existe = await getDoc(doc(db,"empresas",id));
-      if (existe.exists()) { msg.textContent="Ya existe una empresa con ese ID"; msg.className="form-msg error"; msg.style.display="block"; return; }
-      await setDoc(doc(db,"empresas",id), { nombre, desde, hasta });
-      msg.textContent=`Empresa "${nombre}" creada correctamente`; msg.className="form-msg ok"; msg.style.display="block";
+      const existe = await getDoc(doc(db, "empresas", id));
+      if (existe.exists()) {
+        msg.textContent="Ya existe una empresa con ese ID";
+        msg.className="form-msg error"; msg.style.display="block"; return;
+      }
+      await setDoc(doc(db, "empresas", id), { nombre, desde, hasta });
+      msg.textContent=`✅ Empresa "${nombre}" creada correctamente`;
+      msg.className="form-msg ok"; msg.style.display="block";
       ["emp-id","emp-nombre","emp-desde","emp-hasta"].forEach(f => document.getElementById(f).value="");
       cargarEmpresas();
     } catch(e) {
-      msg.textContent="Error al crear empresa"; msg.className="form-msg error"; msg.style.display="block";
+      console.error(e);
+      msg.textContent="Error al crear empresa: " + e.message;
+      msg.className="form-msg error"; msg.style.display="block";
     }
   };
 
-  // ── MODAL EDITAR ─────────────────────────────────────────
+  // ── MODAL EDITAR ─────────────────────────────────────
   window.abrirModal = function (id, nombre, desde, hasta, contador) {
     document.getElementById("edit-id").value       = id;
     document.getElementById("edit-nombre").value   = nombre;
@@ -593,33 +689,39 @@
     msg.style.display = "none";
 
     if (!nombre||isNaN(desde)||isNaN(hasta)||isNaN(contador)) {
-      msg.textContent="Completa todos los campos"; msg.className="form-msg error"; msg.style.display="block"; return;
+      msg.textContent="Completa todos los campos";
+      msg.className="form-msg error"; msg.style.display="block"; return;
     }
-    if (desde>=hasta) {
-      msg.textContent="'Hasta' debe ser mayor que 'Desde'"; msg.className="form-msg error"; msg.style.display="block"; return;
+    if (desde >= hasta) {
+      msg.textContent="'Hasta' debe ser mayor que 'Desde'";
+      msg.className="form-msg error"; msg.style.display="block"; return;
     }
-    if (contador<0) {
-      msg.textContent="El contador no puede ser negativo"; msg.className="form-msg error"; msg.style.display="block"; return;
+    if (contador < 0) {
+      msg.textContent="El contador no puede ser negativo";
+      msg.className="form-msg error"; msg.style.display="block"; return;
     }
 
     try {
       await Promise.all([
-        setDoc(doc(db,"empresas",id), { nombre, desde, hasta }, { merge:true }),
-        setDoc(doc(db,"contadores",id), { actual: contador })
+        setDoc(doc(db, "empresas", id), { nombre, desde, hasta }, { merge:true }),
+        setDoc(doc(db, "contadores", id), { actual: contador })
       ]);
-      msg.textContent="✅ Cambios guardados correctamente"; msg.className="form-msg ok"; msg.style.display="block";
+      msg.textContent="✅ Cambios guardados correctamente";
+      msg.className="form-msg ok"; msg.style.display="block";
       setTimeout(() => { cerrarModal(); cargarEmpresas(); cargarDashboard(); }, 1200);
     } catch(e) {
       console.error(e);
-      msg.textContent="Error al guardar: "+e.message; msg.className="form-msg error"; msg.style.display="block";
+      msg.textContent="Error al guardar: " + e.message;
+      msg.className="form-msg error"; msg.style.display="block";
     }
   };
 
-  // ── ENLACES ──────────────────────────────────────────────
+  // ── ENLACES ──────────────────────────────────────────
   window.cargarEmpresasEnlaces = async function () {
-    document.getElementById("lista-enlaces").innerHTML = '<div class="spinner-wrap"><div class="spinner"></div><p>Cargando...</p></div>';
+    document.getElementById("lista-enlaces").innerHTML =
+      '<div class="spinner-wrap"><div class="spinner"></div><p>Cargando...</p></div>';
     try {
-      const snap = await getDocs(collection(db,"empresas"));
+      const snap = await getDocs(collection(db, "empresas"));
       todasLasEmpresas = snap.docs.map(d => ({ id:d.id, ...d.data() }));
       todasLasEmpresas.sort((a,b) => (a.nombre||a.id).localeCompare(b.nombre||b.id));
       renderEnlaces(todasLasEmpresas);
@@ -637,22 +739,24 @@
 
   function renderEnlaces(empresas) {
     const lista = document.getElementById("lista-enlaces");
-    if (empresas.length===0) { lista.innerHTML="<p class='sin-datos'>No hay empresas</p>"; return; }
+    if (empresas.length === 0) { lista.innerHTML="<p class='sin-datos'>No hay empresas</p>"; return; }
     lista.innerHTML = empresas.map(e => {
       const url = BASE_URL + encodeURIComponent(e.id);
       return `<div class="enlace-fila">
-        <span class="enlace-nombre">${e.nombre||e.id}</span>
-        <span class="enlace-rango">${e.desde}–${e.hasta}</span>
-        <span class="enlace-url">${url}</span>
-        <button class="btn-copiar" onclick="copiarEnlace(this,'${url}')">Copiar</button>
+        <div class="enlace-header">
+          <span class="enlace-nombre">${e.nombre||e.id}</span>
+          <span class="enlace-rango">${e.desde}–${e.hasta}</span>
+        </div>
+        <div class="enlace-url">${url}</div>
+        <button class="btn-copiar" onclick="copiarEnlace(this,'${url}')">📋 Copiar enlace</button>
       </div>`;
     }).join("");
   }
 
   window.copiarEnlace = function (btn, url) {
     navigator.clipboard.writeText(url).then(() => {
-      btn.textContent="✓ Copiado"; btn.classList.add("copiado");
-      setTimeout(() => { btn.textContent="Copiar"; btn.classList.remove("copiado"); }, 2000);
+      btn.textContent="✓ ¡Copiado!"; btn.classList.add("copiado");
+      setTimeout(() => { btn.textContent="📋 Copiar enlace"; btn.classList.remove("copiado"); }, 2000);
     });
   };
 
@@ -662,7 +766,6 @@
       .join("\n");
     navigator.clipboard.writeText(texto).then(() => alert("¡Todos los enlaces copiados!"));
   };
-
 </script>
 </body>
 </html>
