@@ -103,7 +103,7 @@
     .page-top p  { font-size: 13px; color: var(--sub); margin-top: 3px; }
 
     /* ══ STATS ═══════════════════════════════════════════ */
-    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; overflow: hidden; }
     .stat {
       background: white; border-radius: 14px; padding: 18px 16px;
       text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -227,9 +227,9 @@
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.abierto { transform: translateX(0); }
-      .main { margin-left: 0; padding: 16px; padding-top: 72px; }
+      .main { margin-left: 0; padding: 16px; padding-top: 76px; }
       .topbar-movil { display: flex; }
-      .stats { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .stats { grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 16px; }
       .stat-val { font-size: 28px; }
       .tabla-scroll table { display: none; }
       .lista-m { display: block; }
@@ -572,7 +572,8 @@
       });
 
       document.getElementById("spin-dash").style.display = "none";
-      document.getElementById("t-dash").style.display    = "table";
+      if(window.innerWidth > 768) document.getElementById("t-dash").style.display = "table";
+      if(window.innerWidth <= 768) document.getElementById("lm-dash").style.display = "block";
 
     } catch(e) {
       console.error(e);
@@ -622,7 +623,7 @@
     document.getElementById("vacio-reg").style.display = f.length===0 ? "block" : "none";
 
     // Escritorio
-    document.getElementById("t-reg").style.display = f.length>0 ? "table" : "none";
+    document.getElementById("t-reg").style.display = (f.length>0 && window.innerWidth>768) ? "table" : "none";
     const tbody = document.getElementById("tb-reg");
     tbody.innerHTML = "";
     f.forEach((r,i) => {
@@ -747,7 +748,8 @@
       });
 
       document.getElementById("spin-emp").style.display = "none";
-      document.getElementById("t-emp").style.display    = "table";
+      if(window.innerWidth > 768) document.getElementById("t-emp").style.display = "table";
+      else document.getElementById("lm-emp").style.display = "block";
     } catch(e) {
       console.error(e);
       document.getElementById("spin-emp").innerHTML = "<p style='color:var(--rojo);padding:20px'>Error al cargar</p>";
