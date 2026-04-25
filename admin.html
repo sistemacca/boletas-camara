@@ -6,294 +6,127 @@
   <title>Panel Admin - Semana Comercial</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #1e293b; }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f0f4f8;
-      color: #1e293b;
-    }
+    /* LOGIN */
+    #login { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
+    .login-card { background:white; border-radius:16px; padding:40px 32px; width:100%; max-width:360px; box-shadow:0 8px 30px rgba(0,0,0,0.1); border-top:6px solid #003366; text-align:center; }
+    .login-card h2 { color:#003366; margin-bottom:6px; font-size:22px; }
+    .login-card p  { color:#64748b; font-size:13px; margin-bottom:24px; }
+    .login-card input { width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; margin-bottom:12px; }
+    .login-card input:focus { outline:none; border-color:#003366; }
+    .login-card button { width:100%; padding:13px; background:#003366; color:white; border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; }
+    .login-card button:hover { background:#002244; }
+    .error-msg { color:#e11d48; font-size:13px; margin-top:10px; }
 
-    /* ── LOGIN ── */
-    #login {
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; padding: 20px; background: #f0f4f8;
-    }
+    /* LAYOUT */
+    #app { display:none; min-height:100vh; }
+    .layout { display:flex; min-height:100vh; }
 
-    .login-card {
-      background: white; border-radius: 16px; padding: 40px 32px;
-      width: 100%; max-width: 360px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-      border-top: 6px solid #003366; text-align: center;
-    }
+    /* SIDEBAR */
+    .sidebar { width:240px; background:#003366; color:white; display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:100; transition:transform 0.3s; }
+    .sidebar-logo { padding:24px 20px 16px; border-bottom:1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo h2 { font-size:15px; font-weight:700; }
+    .sidebar-logo p  { font-size:11px; opacity:0.6; margin-top:3px; }
+    .sidebar-menu { flex:1; padding:12px 0; overflow-y:auto; }
+    .menu-item { display:flex; align-items:center; gap:12px; padding:12px 20px; cursor:pointer; font-size:14px; transition:background 0.15s; border-left:3px solid transparent; }
+    .menu-item:hover { background:rgba(255,255,255,0.08); }
+    .menu-item.activo { background:rgba(255,255,255,0.12); border-left-color:#d4af37; font-weight:600; }
+    .menu-item .icono { font-size:18px; width:24px; text-align:center; }
+    .sidebar-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,0.1); font-size:12px; opacity:0.5; }
 
-    .login-card h2 { color: #003366; margin-bottom: 6px; font-size: 22px; }
-    .login-card p  { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+    /* MAIN */
+    .main { margin-left:240px; flex:1; padding:24px; min-height:100vh; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+    .topbar h1 { font-size:22px; color:#003366; font-weight:700; }
+    .topbar p  { font-size:13px; color:#64748b; margin-top:2px; }
 
-    .login-card input {
-      width: 100%; padding: 12px 14px;
-      border: 1.5px solid #e2e8f0; border-radius: 8px;
-      font-size: 14px; margin-bottom: 12px;
-    }
+    /* STATS */
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:24px; }
+    .stat { background:white; border-radius:12px; padding:18px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); border-top:3px solid #003366; }
+    .stat .valor { font-size:34px; font-weight:700; color:#003366; }
+    .stat .etiqueta { font-size:12px; color:#64748b; margin-top:4px; }
 
-    .login-card input:focus { outline: none; border-color: #003366; }
+    /* PANELS */
+    .panel { display:none; }
+    .panel.activo { display:block; }
 
-    .login-card button {
-      width: 100%; padding: 13px; background: #003366; color: white;
-      border: none; border-radius: 8px; font-size: 15px;
-      font-weight: 600; cursor: pointer;
-    }
+    /* CARDS */
+    .tabla-card { background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden; margin-bottom:20px; }
+    .tabla-card-header { padding:16px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border-bottom:1px solid #f1f5f9; }
+    .tabla-card-header h3 { font-size:15px; color:#003366; }
+    .controles { display:flex; gap:10px; flex-wrap:wrap; align-items:center; padding:14px 20px; border-bottom:1px solid #f1f5f9; }
+    .controles input, .controles select { padding:9px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; flex:1; min-width:150px; }
+    .controles input:focus, .controles select:focus { outline:none; border-color:#003366; }
+    .tabla-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    thead tr { background:#003366; color:white; }
+    thead th { padding:12px 16px; text-align:left; font-weight:500; white-space:nowrap; }
+    tbody tr:nth-child(even) { background:#f8fafc; }
+    tbody tr:hover { background:#e8f0fe; }
+    tbody td { padding:10px 16px; border-bottom:1px solid #f1f5f9; white-space:nowrap; }
+    .boleta-badge { background:#003366; color:white; font-weight:700; padding:3px 10px; border-radius:20px; font-size:13px; }
+    .empresa-badge { background:#e8f0fe; color:#003366; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+    .sin-datos { text-align:center; padding:40px; color:#94a3b8; font-size:14px; }
+    .spinner-wrap { text-align:center; padding:40px; color:#64748b; }
+    .spinner { display:block; width:28px; height:28px; border:3px solid #e2e8f0; border-top-color:#003366; border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 10px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
 
-    .login-card button:hover { background: #002244; }
-    .error-msg { color: #e11d48; font-size: 13px; margin-top: 10px; }
+    /* BOTONES */
+    .btn { padding:9px 18px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s; white-space:nowrap; }
+    .btn-primary { background:#003366; color:white; }
+    .btn-primary:hover { background:#002244; }
+    .btn-green { background:#16a34a; color:white; }
+    .btn-green:hover { background:#15803d; }
+    .btn-gray { background:#f1f5f9; color:#1e293b; }
+    .btn-gray:hover { background:#e2e8f0; }
+    .btn-sm { padding:5px 12px; font-size:12px; }
 
-    /* ── LAYOUT ── */
-    #app { display: none; min-height: 100vh; }
+    /* FORM */
+    .form-card { background:white; border-radius:12px; padding:24px; box-shadow:0 2px 8px rgba(0,0,0,0.06); max-width:500px; margin-bottom:24px; }
+    .form-card h3 { color:#003366; font-size:16px; margin-bottom:20px; }
+    .form-grupo { margin-bottom:14px; }
+    .form-grupo label { display:block; font-size:12px; font-weight:600; color:#003366; margin-bottom:5px; }
+    .form-grupo input { width:100%; padding:11px 13px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; }
+    .form-grupo input:focus { outline:none; border-color:#003366; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-msg { font-size:13px; margin-top:12px; padding:10px 14px; border-radius:8px; display:none; }
+    .form-msg.ok    { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+    .form-msg.error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
 
-    .layout { display: flex; min-height: 100vh; }
+    /* PROGRESO */
+    .progreso-bar { height:6px; background:#e2e8f0; border-radius:3px; margin-top:4px; }
+    .progreso-fill { height:100%; background:#003366; border-radius:3px; }
 
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: 240px; background: #003366; color: white;
-      display: flex; flex-direction: column;
-      position: fixed; top: 0; left: 0;
-      height: 100vh; z-index: 100;
-      transition: transform 0.3s;
-    }
+    /* ENLACES */
+    .enlace-fila { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f1f5f9; flex-wrap:wrap; }
+    .enlace-fila:last-child { border-bottom:none; }
+    .enlace-nombre { font-size:13px; font-weight:600; color:#003366; min-width:160px; }
+    .enlace-rango  { font-size:11px; color:#94a3b8; min-width:70px; }
+    .enlace-url { font-size:12px; color:#64748b; flex:1; word-break:break-all; background:#f8fafc; padding:6px 10px; border-radius:6px; }
+    .btn-copiar { padding:6px 12px; font-size:12px; background:#003366; color:white; border:none; border-radius:6px; cursor:pointer; white-space:nowrap; }
+    .btn-copiar:hover { background:#002244; }
+    .btn-copiar.copiado { background:#16a34a; }
 
-    .sidebar-logo {
-      padding: 24px 20px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:300; align-items:center; justify-content:center; padding:20px; }
+    .modal-overlay.visible { display:flex; }
+    .modal { background:white; border-radius:14px; padding:28px; width:100%; max-width:440px; box-shadow:0 20px 40px rgba(0,0,0,0.2); }
+    .modal h3 { color:#003366; font-size:17px; margin-bottom:6px; }
+    .modal .modal-sub { font-size:12px; color:#64748b; margin-bottom:20px; }
+    .modal-footer { display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
+    .separador { height:1px; background:#f1f5f9; margin:16px 0; }
 
-    .sidebar-logo h2 { font-size: 15px; font-weight: 700; }
-    .sidebar-logo p  { font-size: 11px; opacity: 0.6; margin-top: 3px; }
-
-    .sidebar-menu { flex: 1; padding: 12px 0; overflow-y: auto; }
-
-    .menu-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px 20px; cursor: pointer;
-      font-size: 14px; transition: background 0.15s;
-      border-left: 3px solid transparent;
-    }
-
-    .menu-item:hover { background: rgba(255,255,255,0.08); }
-
-    .menu-item.activo {
-      background: rgba(255,255,255,0.12);
-      border-left-color: #d4af37;
-      font-weight: 600;
-    }
-
-    .menu-item .icono { font-size: 18px; width: 24px; text-align: center; }
-
-    .sidebar-footer {
-      padding: 16px 20px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      font-size: 12px; opacity: 0.5;
-    }
-
-    /* ── MAIN ── */
-    .main {
-      margin-left: 240px; flex: 1;
-      padding: 24px; min-height: 100vh;
-    }
-
-    .topbar {
-      display: flex; align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
-    }
-
-    .topbar h1 { font-size: 22px; color: #003366; font-weight: 700; }
-    .topbar p  { font-size: 13px; color: #64748b; margin-top: 2px; }
-
-    /* ── CARDS STATS ── */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 14px; margin-bottom: 24px;
-    }
-
-    .stat {
-      background: white; border-radius: 12px;
-      padding: 18px; text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      border-top: 3px solid #003366;
-    }
-
-    .stat .valor { font-size: 34px; font-weight: 700; color: #003366; }
-    .stat .etiqueta { font-size: 12px; color: #64748b; margin-top: 4px; }
-
-    /* ── PANELS ── */
-    .panel { display: none; }
-    .panel.activo { display: block; }
-
-    /* ── TABLA ── */
-    .tabla-card {
-      background: white; border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      overflow: hidden;
-    }
-
-    .tabla-card-header {
-      padding: 16px 20px;
-      display: flex; align-items: center;
-      justify-content: space-between; flex-wrap: wrap; gap: 10px;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .tabla-card-header h3 { font-size: 15px; color: #003366; }
-
-    .controles {
-      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-      padding: 14px 20px; border-bottom: 1px solid #f1f5f9;
-    }
-
-    .controles input, .controles select {
-      padding: 9px 12px; border: 1.5px solid #e2e8f0;
-      border-radius: 8px; font-size: 14px; flex: 1; min-width: 150px;
-    }
-
-    .controles input:focus, .controles select:focus {
-      outline: none; border-color: #003366;
-    }
-
-    .tabla-wrap { overflow-x: auto; }
-
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    thead tr { background: #003366; color: white; }
-    thead th { padding: 12px 16px; text-align: left; font-weight: 500; white-space: nowrap; }
-    tbody tr:nth-child(even) { background: #f8fafc; }
-    tbody tr:hover { background: #e8f0fe; }
-    tbody td { padding: 10px 16px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
-
-    .boleta-badge {
-      background: #003366; color: white; font-weight: 700;
-      padding: 3px 10px; border-radius: 20px; font-size: 13px;
-    }
-
-    .empresa-badge {
-      background: #e8f0fe; color: #003366;
-      padding: 3px 10px; border-radius: 20px;
-      font-size: 12px; font-weight: 600;
-    }
-
-    .sin-datos {
-      text-align: center; padding: 40px;
-      color: #94a3b8; font-size: 14px;
-    }
-
-    .spinner-wrap { text-align: center; padding: 40px; color: #64748b; }
-
-    .spinner {
-      display: inline-block; width: 28px; height: 28px;
-      border: 3px solid #e2e8f0; border-top-color: #003366;
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-      margin-bottom: 10px; display: block; margin: 0 auto 10px;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── BOTONES ── */
-    .btn {
-      padding: 9px 18px; border: none; border-radius: 8px;
-      font-size: 14px; font-weight: 600; cursor: pointer;
-      transition: background 0.2s; white-space: nowrap;
-    }
-
-    .btn-primary { background: #003366; color: white; }
-    .btn-primary:hover { background: #002244; }
-    .btn-green { background: #16a34a; color: white; }
-    .btn-green:hover { background: #15803d; }
-    .btn-red { background: #dc2626; color: white; }
-    .btn-red:hover { background: #b91c1c; }
-    .btn-sm { padding: 5px 12px; font-size: 12px; }
-
-    /* ── FORMULARIO EMPRESA ── */
-    .form-card {
-      background: white; border-radius: 12px;
-      padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      max-width: 500px;
-    }
-
-    .form-card h3 { color: #003366; font-size: 16px; margin-bottom: 20px; }
-
-    .form-grupo { margin-bottom: 14px; }
-
-    .form-grupo label {
-      display: block; font-size: 12px; font-weight: 600;
-      color: #003366; margin-bottom: 5px;
-    }
-
-    .form-grupo input {
-      width: 100%; padding: 11px 13px;
-      border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px;
-    }
-
-    .form-grupo input:focus { outline: none; border-color: #003366; }
-
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-    .form-msg { font-size: 13px; margin-top: 12px; padding: 10px 14px; border-radius: 8px; display: none; }
-    .form-msg.ok    { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-    .form-msg.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-
-    /* ── ENLACES ── */
-    .enlace-fila {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 0; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap;
-    }
-
-    .enlace-fila:last-child { border-bottom: none; }
-    .enlace-nombre { font-size: 13px; font-weight: 600; color: #003366; min-width: 160px; }
-    .enlace-rango  { font-size: 11px; color: #94a3b8; min-width: 80px; }
-
-    .enlace-url {
-      font-size: 12px; color: #64748b; flex: 1;
-      word-break: break-all; background: #f8fafc;
-      padding: 6px 10px; border-radius: 6px;
-    }
-
-    .btn-copiar {
-      padding: 6px 12px; font-size: 12px; background: #003366;
-      color: white; border: none; border-radius: 6px;
-      cursor: pointer; white-space: nowrap;
-    }
-
-    .btn-copiar:hover { background: #002244; }
-    .btn-copiar.copiado { background: #16a34a; }
-
-    /* ── PROGRESO EMPRESA ── */
-    .progreso-bar {
-      height: 6px; background: #e2e8f0; border-radius: 3px; margin-top: 4px;
-    }
-
-    .progreso-fill {
-      height: 100%; background: #003366; border-radius: 3px;
-      transition: width 0.3s;
-    }
-
-    /* ── MOBILE ── */
-    .menu-toggle {
-      display: none; position: fixed; top: 14px; left: 14px;
-      z-index: 200; background: #003366; color: white;
-      border: none; border-radius: 8px; padding: 8px 12px;
-      font-size: 18px; cursor: pointer;
-    }
-
-    .overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.4); z-index: 99;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); }
-      .sidebar.abierto { transform: translateX(0); }
-      .main { margin-left: 0; padding: 16px; padding-top: 60px; }
-      .menu-toggle { display: block; }
-      .overlay.visible { display: block; }
-      .form-row { grid-template-columns: 1fr; }
+    /* MOBILE */
+    .menu-toggle { display:none; position:fixed; top:14px; left:14px; z-index:200; background:#003366; color:white; border:none; border-radius:8px; padding:8px 12px; font-size:18px; cursor:pointer; }
+    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:99; }
+    @media (max-width:768px) {
+      .sidebar { transform:translateX(-100%); }
+      .sidebar.abierto { transform:translateX(0); }
+      .main { margin-left:0; padding:16px; padding-top:60px; }
+      .menu-toggle { display:block; }
+      .overlay.visible { display:block; }
+      .form-row { grid-template-columns:1fr; }
     }
   </style>
 </head>
@@ -304,8 +137,7 @@
   <div class="login-card">
     <h2>Panel Admin</h2>
     <p>Cámara de Comercio de Arauca</p>
-    <input type="password" id="clave" placeholder="Contraseña de acceso"
-           onkeydown="if(event.key==='Enter') entrar()">
+    <input type="password" id="clave" placeholder="Contraseña de acceso" onkeydown="if(event.key==='Enter') entrar()">
     <button onclick="entrar()">Entrar</button>
     <div class="error-msg" id="err-login"></div>
   </div>
@@ -317,81 +149,40 @@
   <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
   <div class="layout">
-
-    <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
       <div class="sidebar-logo">
         <h2>Semana Comercial</h2>
         <p>Cámara de Comercio de Arauca</p>
       </div>
       <nav class="sidebar-menu">
-        <div class="menu-item activo" onclick="irA('dashboard')">
-          <span class="icono">📊</span> Dashboard
-        </div>
-        <div class="menu-item" onclick="irA('registros')">
-          <span class="icono">📋</span> Registros
-        </div>
-        <div class="menu-item" onclick="irA('empresas')">
-          <span class="icono">🏢</span> Empresas
-        </div>
-        <div class="menu-item" onclick="irA('enlaces')">
-          <span class="icono">🔗</span> Enlaces
-        </div>
+        <div class="menu-item activo" onclick="irA('dashboard')"><span class="icono">📊</span> Dashboard</div>
+        <div class="menu-item" onclick="irA('registros')"><span class="icono">📋</span> Registros</div>
+        <div class="menu-item" onclick="irA('empresas')"><span class="icono">🏢</span> Empresas</div>
+        <div class="menu-item" onclick="irA('enlaces')"><span class="icono">🔗</span> Enlaces</div>
       </nav>
-      <div class="sidebar-footer">v1.0 — Firebase + GitHub</div>
+      <div class="sidebar-footer">v2.0 — Firebase + GitHub</div>
     </div>
 
-    <!-- MAIN -->
     <div class="main">
 
       <!-- DASHBOARD -->
       <div class="panel activo" id="panel-dashboard">
         <div class="topbar">
-          <div>
-            <h1>Dashboard</h1>
-            <p>Resumen general del evento</p>
-          </div>
+          <div><h1>Dashboard</h1><p>Resumen general del evento</p></div>
           <button class="btn btn-primary" onclick="recargarTodo()">↺ Actualizar</button>
         </div>
-
         <div class="stats">
-          <div class="stat">
-            <div class="valor" id="stat-total">-</div>
-            <div class="etiqueta">Total registros</div>
-          </div>
-          <div class="stat">
-            <div class="valor" id="stat-empresas">-</div>
-            <div class="etiqueta">Empresas activas</div>
-          </div>
-          <div class="stat">
-            <div class="valor" id="stat-hoy">-</div>
-            <div class="etiqueta">Registros hoy</div>
-          </div>
-          <div class="stat">
-            <div class="valor" id="stat-boletas">-</div>
-            <div class="etiqueta">Boletas asignadas</div>
-          </div>
+          <div class="stat"><div class="valor" id="stat-total">-</div><div class="etiqueta">Total registros</div></div>
+          <div class="stat"><div class="valor" id="stat-empresas">-</div><div class="etiqueta">Empresas</div></div>
+          <div class="stat"><div class="valor" id="stat-hoy">-</div><div class="etiqueta">Registros hoy</div></div>
+          <div class="stat"><div class="valor" id="stat-boletas">-</div><div class="etiqueta">Boletas asignadas</div></div>
         </div>
-
-        <!-- Resumen por empresa -->
         <div class="tabla-card">
-          <div class="tabla-card-header">
-            <h3>Progreso por empresa</h3>
-          </div>
+          <div class="tabla-card-header"><h3>Progreso por empresa</h3></div>
           <div class="tabla-wrap">
-            <div class="spinner-wrap" id="spin-dashboard">
-              <div class="spinner"></div>
-              <p>Cargando...</p>
-            </div>
+            <div class="spinner-wrap" id="spin-dashboard"><div class="spinner"></div><p>Cargando...</p></div>
             <table id="tabla-dashboard" style="display:none">
-              <thead>
-                <tr>
-                  <th>Empresa</th>
-                  <th>Boletas vendidas</th>
-                  <th>Rango</th>
-                  <th>Progreso</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Empresa</th><th>Entregadas / Total</th><th>Rango</th><th>Progreso</th></tr></thead>
               <tbody id="tbody-dashboard"></tbody>
             </table>
           </div>
@@ -401,34 +192,19 @@
       <!-- REGISTROS -->
       <div class="panel" id="panel-registros">
         <div class="topbar">
-          <div>
-            <h1>Registros</h1>
-            <p>Todos los usuarios registrados</p>
-          </div>
+          <div><h1>Registros</h1><p>Todos los usuarios registrados</p></div>
           <button class="btn btn-green" onclick="exportarExcel()">⬇ Exportar Excel</button>
         </div>
-
         <div class="tabla-card">
           <div class="controles">
-            <input type="text" id="buscar" placeholder="🔍 Buscar nombre, teléfono o email..."
-                   oninput="filtrar()">
-            <select id="filtro-empresa" onchange="filtrar()">
-              <option value="">Todas las empresas</option>
-            </select>
+            <input type="text" id="buscar" placeholder="🔍 Buscar nombre, teléfono o email..." oninput="filtrar()">
+            <select id="filtro-empresa" onchange="filtrar()"><option value="">Todas las empresas</option></select>
             <button class="btn btn-primary" onclick="cargarRegistros()">↺ Actualizar</button>
           </div>
           <div class="tabla-wrap">
-            <div class="spinner-wrap" id="spin-registros">
-              <div class="spinner"></div><p>Cargando...</p>
-            </div>
+            <div class="spinner-wrap" id="spin-registros"><div class="spinner"></div><p>Cargando...</p></div>
             <table id="tabla-registros" style="display:none">
-              <thead>
-                <tr>
-                  <th>#</th><th>Boleta</th><th>Empresa</th>
-                  <th>Nombre</th><th>Teléfono</th><th>Email</th>
-                  <th>Dirección</th><th>Fecha</th>
-                </tr>
-              </thead>
+              <thead><tr><th>#</th><th>Boleta</th><th>Empresa</th><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th>Fecha</th></tr></thead>
               <tbody id="tbody-registros"></tbody>
             </table>
             <div class="sin-datos" id="sin-registros" style="display:none">No hay registros</div>
@@ -438,55 +214,27 @@
 
       <!-- EMPRESAS -->
       <div class="panel" id="panel-empresas">
-        <div class="topbar">
-          <div>
-            <h1>Empresas</h1>
-            <p>Gestiona las empresas y sus rangos de boletas</p>
-          </div>
-        </div>
-
-        <!-- Crear empresa -->
-        <div class="form-card" style="margin-bottom:24px">
+        <div class="topbar"><div><h1>Empresas</h1><p>Gestiona empresas y rangos de boletas</p></div></div>
+        <div class="form-card">
           <h3>➕ Crear nueva empresa</h3>
-          <div class="form-grupo">
-            <label>ID de empresa (sin espacios)</label>
-            <input type="text" id="emp-id" placeholder="Ej: electromuebles">
-          </div>
-          <div class="form-grupo">
-            <label>Nombre visible</label>
-            <input type="text" id="emp-nombre" placeholder="Ej: Electromuebles S.A.">
-          </div>
+          <div class="form-grupo"><label>ID (sin espacios, sin tildes)</label><input type="text" id="emp-id" placeholder="Ej: electromuebles"></div>
+          <div class="form-grupo"><label>Nombre visible</label><input type="text" id="emp-nombre" placeholder="Ej: Electromuebles S.A."></div>
           <div class="form-row">
-            <div class="form-grupo">
-              <label>Boleta desde</label>
-              <input type="number" id="emp-desde" placeholder="Ej: 1">
-            </div>
-            <div class="form-grupo">
-              <label>Boleta hasta</label>
-              <input type="number" id="emp-hasta" placeholder="Ej: 50">
-            </div>
+            <div class="form-grupo"><label>Boleta desde</label><input type="number" id="emp-desde" placeholder="Ej: 1"></div>
+            <div class="form-grupo"><label>Boleta hasta</label><input type="number" id="emp-hasta" placeholder="Ej: 50"></div>
           </div>
           <button class="btn btn-primary" onclick="crearEmpresa()">Crear empresa</button>
           <div class="form-msg" id="msg-empresa"></div>
         </div>
-
-        <!-- Lista de empresas -->
         <div class="tabla-card">
           <div class="tabla-card-header">
             <h3>Empresas registradas</h3>
             <button class="btn btn-primary btn-sm" onclick="cargarEmpresas()">↺ Actualizar</button>
           </div>
           <div class="tabla-wrap">
-            <div class="spinner-wrap" id="spin-empresas">
-              <div class="spinner"></div><p>Cargando...</p>
-            </div>
+            <div class="spinner-wrap" id="spin-empresas"><div class="spinner"></div><p>Cargando...</p></div>
             <table id="tabla-empresas" style="display:none">
-              <thead>
-                <tr>
-                  <th>ID</th><th>Nombre</th><th>Desde</th>
-                  <th>Hasta</th><th>Entregadas</th><th>Disponibles</th>
-                </tr>
-              </thead>
+              <thead><tr><th>ID</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Entregadas</th><th>Disponibles</th><th>Acciones</th></tr></thead>
               <tbody id="tbody-empresas"></tbody>
             </table>
             <div class="sin-datos" id="sin-empresas" style="display:none">No hay empresas</div>
@@ -497,34 +245,57 @@
       <!-- ENLACES -->
       <div class="panel" id="panel-enlaces">
         <div class="topbar">
-          <div>
-            <h1>Enlaces</h1>
-            <p>Enlace de registro para cada empresa</p>
-          </div>
+          <div><h1>Enlaces</h1><p>Enlace de registro para cada empresa</p></div>
           <button class="btn btn-green" onclick="copiarTodos()">📋 Copiar todos</button>
         </div>
-
         <div class="tabla-card">
           <div class="controles">
-            <input type="text" id="buscar-enlace" placeholder="🔍 Buscar empresa..."
-                   oninput="filtrarEnlaces()">
+            <input type="text" id="buscar-enlace" placeholder="🔍 Buscar empresa..." oninput="filtrarEnlaces()">
           </div>
-          <div style="padding: 8px 20px 20px" id="lista-enlaces">
-            <div class="spinner-wrap">
-              <div class="spinner"></div><p>Cargando...</p>
-            </div>
+          <div style="padding:8px 20px 20px" id="lista-enlaces">
+            <div class="spinner-wrap"><div class="spinner"></div><p>Cargando...</p></div>
           </div>
         </div>
       </div>
 
-    </div><!-- /main -->
-  </div><!-- /layout -->
-</div><!-- /app -->
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR EMPRESA -->
+<div class="modal-overlay" id="modal-editar">
+  <div class="modal">
+    <h3>✏️ Editar empresa</h3>
+    <p class="modal-sub" id="modal-sub">ID: —</p>
+    <input type="hidden" id="edit-id">
+
+    <div class="form-grupo"><label>Nombre visible</label><input type="text" id="edit-nombre"></div>
+    <div class="form-row">
+      <div class="form-grupo"><label>Boleta desde</label><input type="number" id="edit-desde"></div>
+      <div class="form-grupo"><label>Boleta hasta</label><input type="number" id="edit-hasta"></div>
+    </div>
+
+    <div class="separador"></div>
+
+    <div class="form-grupo">
+      <label>Boletas entregadas (contador)</label>
+      <input type="number" id="edit-contador" min="0">
+      <div style="font-size:11px;color:#64748b;margin-top:4px">Pon 0 para resetear el contador a cero</div>
+    </div>
+
+    <div class="form-msg" id="msg-editar"></div>
+
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarEmpresa()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getFirestore, collection, getDocs, addDoc,
-           orderBy, query, doc, getDoc, setDoc, runTransaction }
+           orderBy, query, doc, getDoc, setDoc }
     from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -542,11 +313,10 @@
   const CLAVE_ADMIN = "camara2024";
   const BASE_URL    = "https://sistemacca.github.io/boletas-camara/?empresa=";
 
-  let todosLosRegistros = [];
-  let todasLasEmpresas  = [];
+  let todosLosRegistros  = [];
+  let todasLasEmpresas   = [];
   let todosLosContadores = {};
 
-  // ── HELPERS ─────────────────────────────────────────────
   function fechaStr(f) {
     if (!f) return "";
     if (f.toDate) return f.toDate().toISOString();
@@ -573,14 +343,11 @@
     document.querySelectorAll(".menu-item").forEach(m => {
       if (m.getAttribute("onclick").includes("'" + panel + "'")) m.classList.add("activo");
     });
-    // Cerrar sidebar en móvil
     document.getElementById("sidebar").classList.remove("abierto");
     document.getElementById("overlay").classList.remove("visible");
-
-    // Cargar datos del panel si hace falta
-    if (panel === "registros" && todosLosRegistros.length === 0) cargarRegistros();
-    if (panel === "empresas"  && todasLasEmpresas.length === 0)  cargarEmpresas();
-    if (panel === "enlaces") cargarEmpresasEnlaces();
+    if (panel === "registros") cargarRegistros();
+    if (panel === "empresas")  cargarEmpresas();
+    if (panel === "enlaces")   cargarEmpresasEnlaces();
   };
 
   window.toggleSidebar = function () {
@@ -588,44 +355,41 @@
     document.getElementById("overlay").classList.toggle("visible");
   };
 
-  // ── RECARGAR TODO ────────────────────────────────────────
+  // ── RECARGAR ─────────────────────────────────────────────
   window.recargarTodo = async function () {
-    await Promise.all([cargarDashboard(), cargarRegistros(), cargarEmpresas()]);
+    await cargarDashboard();
   };
 
   // ── DASHBOARD ────────────────────────────────────────────
   async function cargarDashboard() {
-    document.getElementById("spin-dashboard").style.display    = "block";
-    document.getElementById("tabla-dashboard").style.display   = "none";
-
+    document.getElementById("spin-dashboard").style.display  = "block";
+    document.getElementById("tabla-dashboard").style.display = "none";
     try {
       const [snapReg, snapEmp, snapCont] = await Promise.all([
         getDocs(query(collection(db, "registros"), orderBy("fecha", "desc"))),
         getDocs(collection(db, "empresas")),
         getDocs(collection(db, "contadores"))
       ]);
-
       todosLosRegistros  = snapReg.docs.map(d => d.data());
       todasLasEmpresas   = snapEmp.docs.map(d => ({ id: d.id, ...d.data() }));
       todosLosContadores = {};
       snapCont.docs.forEach(d => { todosLosContadores[d.id] = d.data().actual || 0; });
 
-      const hoy = new Date().toISOString().slice(0, 10);
+      const hoy       = new Date().toISOString().slice(0, 10);
       const hoy_count = todosLosRegistros.filter(r => fechaStr(r.fecha).startsWith(hoy)).length;
-      const totalBoletas = Object.values(todosLosContadores).reduce((a, b) => a + b, 0);
+      const totalBol  = Object.values(todosLosContadores).reduce((a, b) => a + b, 0);
 
       document.getElementById("stat-total").textContent    = todosLosRegistros.length;
       document.getElementById("stat-empresas").textContent = todasLasEmpresas.length;
       document.getElementById("stat-hoy").textContent      = hoy_count;
-      document.getElementById("stat-boletas").textContent  = totalBoletas;
+      document.getElementById("stat-boletas").textContent  = totalBol;
 
-      // Tabla de progreso
       const tbody = document.getElementById("tbody-dashboard");
       tbody.innerHTML = "";
       todasLasEmpresas.sort((a,b) => (a.nombre||a.id).localeCompare(b.nombre||b.id)).forEach(e => {
-        const entregadas  = todosLosContadores[e.id] || 0;
-        const total       = (e.hasta || 0) - (e.desde || 0);
-        const pct         = total > 0 ? Math.round((entregadas / total) * 100) : 0;
+        const entregadas = todosLosContadores[e.id] || 0;
+        const total      = (e.hasta || 0) - (e.desde || 0);
+        const pct        = total > 0 ? Math.round((entregadas / total) * 100) : 0;
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td><strong>${e.nombre || e.id}</strong></td>
@@ -633,17 +397,13 @@
           <td>${e.desde} – ${e.hasta}</td>
           <td style="min-width:120px">
             <div style="font-size:11px;color:#64748b;margin-bottom:3px">${pct}%</div>
-            <div class="progreso-bar">
-              <div class="progreso-fill" style="width:${pct}%"></div>
-            </div>
-          </td>
-        `;
+            <div class="progreso-bar"><div class="progreso-fill" style="width:${pct}%"></div></div>
+          </td>`;
         tbody.appendChild(tr);
       });
 
       document.getElementById("spin-dashboard").style.display  = "none";
       document.getElementById("tabla-dashboard").style.display = "table";
-
     } catch (e) {
       console.error(e);
       document.getElementById("spin-dashboard").innerHTML = "<p style='color:#e11d48;padding:20px'>Error al cargar</p>";
@@ -654,29 +414,27 @@
 
   // ── REGISTROS ────────────────────────────────────────────
   window.cargarRegistros = async function () {
-    document.getElementById("spin-registros").style.display    = "block";
-    document.getElementById("tabla-registros").style.display   = "none";
-    document.getElementById("sin-registros").style.display     = "none";
-
+    document.getElementById("spin-registros").style.display  = "block";
+    document.getElementById("tabla-registros").style.display = "none";
+    document.getElementById("sin-registros").style.display   = "none";
     try {
       const snap = await getDocs(query(collection(db, "registros"), orderBy("fecha", "desc")));
       todosLosRegistros = snap.docs.map(d => d.data());
-      poblarFiltroEmpresas();
+      poblarFiltro();
       filtrar();
     } catch (e) {
       document.getElementById("spin-registros").innerHTML = "<p style='color:#e11d48;padding:20px'>Error al cargar</p>";
     }
   };
 
-  function poblarFiltroEmpresas() {
+  function poblarFiltro() {
     const select   = document.getElementById("filtro-empresa");
     const actual   = select.value;
     const empresas = [...new Set(todosLosRegistros.map(r => r.empresa))].sort();
     select.innerHTML = '<option value="">Todas las empresas</option>';
     empresas.forEach(e => {
       const opt = document.createElement("option");
-      opt.value = e; opt.textContent = e;
-      select.appendChild(opt);
+      opt.value = e; opt.textContent = e; select.appendChild(opt);
     });
     select.value = actual;
   }
@@ -684,20 +442,16 @@
   window.filtrar = function () {
     const buscar  = document.getElementById("buscar").value.toLowerCase();
     const empresa = document.getElementById("filtro-empresa").value;
-    const filtrados = todosLosRegistros.filter(r => {
-      const okEmp = !empresa || r.empresa === empresa;
-      const okBus = !buscar  ||
+    const f = todosLosRegistros.filter(r => {
+      const okE = !empresa || r.empresa === empresa;
+      const okB = !buscar  ||
         (r.nombre   && r.nombre.toLowerCase().includes(buscar)) ||
         (r.telefono && r.telefono.includes(buscar)) ||
         (r.email    && r.email.toLowerCase().includes(buscar));
-      return okEmp && okBus;
+      return okE && okB;
     });
-    renderTablaRegistros(filtrados);
-  };
-
-  function renderTablaRegistros(registros) {
     document.getElementById("spin-registros").style.display = "none";
-    if (registros.length === 0) {
+    if (f.length === 0) {
       document.getElementById("tabla-registros").style.display = "none";
       document.getElementById("sin-registros").style.display   = "block";
       return;
@@ -706,46 +460,38 @@
     document.getElementById("sin-registros").style.display   = "none";
     const tbody = document.getElementById("tbody-registros");
     tbody.innerHTML = "";
-    registros.forEach((r, i) => {
-      const f = fechaStr(r.fecha);
-      const fecha = f ? new Date(f).toLocaleString("es-CO", { dateStyle: "short", timeStyle: "short" }) : "";
+    f.forEach((r, i) => {
+      const fs = fechaStr(r.fecha);
+      const fecha = fs ? new Date(fs).toLocaleString("es-CO", { dateStyle:"short", timeStyle:"short" }) : "";
       const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${i + 1}</td>
-        <td><span class="boleta-badge">${r.boleta}</span></td>
-        <td><span class="empresa-badge">${r.empresa || ""}</span></td>
-        <td>${r.nombre    || ""}</td>
-        <td>${r.telefono  || ""}</td>
-        <td>${r.email     || ""}</td>
-        <td>${r.direccion || ""}</td>
-        <td>${fecha}</td>
-      `;
+      tr.innerHTML = `<td>${i+1}</td><td><span class="boleta-badge">${r.boleta}</span></td>
+        <td><span class="empresa-badge">${r.empresa||""}</span></td>
+        <td>${r.nombre||""}</td><td>${r.telefono||""}</td>
+        <td>${r.email||""}</td><td>${r.direccion||""}</td><td>${fecha}</td>`;
       tbody.appendChild(tr);
     });
-  }
+  };
 
-  // ── EXPORTAR ─────────────────────────────────────────────
   window.exportarExcel = function () {
     const buscar  = document.getElementById("buscar").value.toLowerCase();
     const empresa = document.getElementById("filtro-empresa").value;
-    const filtrados = todosLosRegistros.filter(r => {
-      const okEmp = !empresa || r.empresa === empresa;
-      const okBus = !buscar  ||
+    const f = todosLosRegistros.filter(r => {
+      const okE = !empresa || r.empresa === empresa;
+      const okB = !buscar  ||
         (r.nombre   && r.nombre.toLowerCase().includes(buscar)) ||
         (r.telefono && r.telefono.includes(buscar));
-      return okEmp && okBus;
+      return okE && okB;
     });
     let csv = "Boleta,Empresa,Nombre,Teléfono,Email,Dirección,Fecha\n";
-    filtrados.forEach(r => {
-      const f = fechaStr(r.fecha);
-      const fecha = f ? new Date(f).toLocaleString("es-CO") : "";
+    f.forEach(r => {
+      const fs = fechaStr(r.fecha);
+      const fecha = fs ? new Date(fs).toLocaleString("es-CO") : "";
       csv += [r.boleta, r.empresa, r.nombre, r.telefono, r.email, r.direccion, fecha]
         .map(v => `"${(v||"").toString().replace(/"/g,'""')}"`)
         .join(",") + "\n";
     });
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
+    a.href = URL.createObjectURL(new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"}));
     a.download = "registros-semana-comercial.csv";
     a.click();
   };
@@ -755,7 +501,6 @@
     document.getElementById("spin-empresas").style.display  = "block";
     document.getElementById("tabla-empresas").style.display = "none";
     document.getElementById("sin-empresas").style.display   = "none";
-
     try {
       const [snapEmp, snapCont] = await Promise.all([
         getDocs(collection(db, "empresas")),
@@ -764,85 +509,124 @@
       todasLasEmpresas = snapEmp.docs.map(d => ({ id: d.id, ...d.data() }));
       todosLosContadores = {};
       snapCont.docs.forEach(d => { todosLosContadores[d.id] = d.data().actual || 0; });
-
       todasLasEmpresas.sort((a,b) => (a.nombre||a.id).localeCompare(b.nombre||b.id));
 
-      const tbody = document.getElementById("tbody-empresas");
-      tbody.innerHTML = "";
-
       if (todasLasEmpresas.length === 0) {
-        document.getElementById("spin-empresas").style.display  = "none";
-        document.getElementById("sin-empresas").style.display   = "block";
+        document.getElementById("spin-empresas").style.display = "none";
+        document.getElementById("sin-empresas").style.display  = "block";
         return;
       }
 
+      const tbody = document.getElementById("tbody-empresas");
+      tbody.innerHTML = "";
       todasLasEmpresas.forEach(e => {
         const entregadas  = todosLosContadores[e.id] || 0;
-        const total       = (e.hasta || 0) - (e.desde || 0);
+        const total       = (e.hasta||0) - (e.desde||0);
         const disponibles = Math.max(0, total - entregadas);
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px">${e.id}</code></td>
-          <td><strong>${e.nombre || "-"}</strong></td>
-          <td>${e.desde}</td>
-          <td>${e.hasta}</td>
+          <td><strong>${e.nombre||"-"}</strong></td>
+          <td>${e.desde}</td><td>${e.hasta}</td>
           <td>${entregadas}</td>
-          <td><span style="color:${disponibles > 0 ? '#16a34a' : '#dc2626'};font-weight:600">${disponibles}</span></td>
-        `;
+          <td><span style="color:${disponibles>0?'#16a34a':'#dc2626'};font-weight:600">${disponibles}</span></td>
+          <td><button class="btn btn-primary btn-sm"
+            onclick="abrirModal('${e.id}','${(e.nombre||"").replace(/'/g,"\\'")}',${e.desde},${e.hasta},${entregadas})">
+            ✏️ Editar</button></td>`;
         tbody.appendChild(tr);
       });
 
       document.getElementById("spin-empresas").style.display  = "none";
       document.getElementById("tabla-empresas").style.display = "table";
-
     } catch (e) {
+      console.error(e);
       document.getElementById("spin-empresas").innerHTML = "<p style='color:#e11d48;padding:20px'>Error al cargar</p>";
     }
   };
 
   window.crearEmpresa = async function () {
-    const id     = document.getElementById("emp-id").value.trim().toLowerCase().replace(/\s+/g, "");
+    const id     = document.getElementById("emp-id").value.trim().toLowerCase().replace(/\s+/g,"");
     const nombre = document.getElementById("emp-nombre").value.trim();
     const desde  = Number(document.getElementById("emp-desde").value);
     const hasta  = Number(document.getElementById("emp-hasta").value);
     const msg    = document.getElementById("msg-empresa");
-
     msg.style.display = "none";
 
-    if (!id || !nombre || !desde || !hasta) {
-      msg.textContent = "Completa todos los campos"; msg.className = "form-msg error"; msg.style.display = "block"; return;
+    if (!id||!nombre||!desde||!hasta) { msg.textContent="Completa todos los campos"; msg.className="form-msg error"; msg.style.display="block"; return; }
+    if (desde>=hasta) { msg.textContent="'Hasta' debe ser mayor que 'Desde'"; msg.className="form-msg error"; msg.style.display="block"; return; }
+
+    try {
+      const existe = await getDoc(doc(db,"empresas",id));
+      if (existe.exists()) { msg.textContent="Ya existe una empresa con ese ID"; msg.className="form-msg error"; msg.style.display="block"; return; }
+      await setDoc(doc(db,"empresas",id), { nombre, desde, hasta });
+      msg.textContent=`Empresa "${nombre}" creada correctamente`; msg.className="form-msg ok"; msg.style.display="block";
+      ["emp-id","emp-nombre","emp-desde","emp-hasta"].forEach(f => document.getElementById(f).value="");
+      cargarEmpresas();
+    } catch(e) {
+      msg.textContent="Error al crear empresa"; msg.className="form-msg error"; msg.style.display="block";
     }
-    if (desde >= hasta) {
-      msg.textContent = "El valor 'hasta' debe ser mayor que 'desde'"; msg.className = "form-msg error"; msg.style.display = "block"; return;
+  };
+
+  // ── MODAL EDITAR ─────────────────────────────────────────
+  window.abrirModal = function (id, nombre, desde, hasta, contador) {
+    document.getElementById("edit-id").value       = id;
+    document.getElementById("edit-nombre").value   = nombre;
+    document.getElementById("edit-desde").value    = desde;
+    document.getElementById("edit-hasta").value    = hasta;
+    document.getElementById("edit-contador").value = contador;
+    document.getElementById("modal-sub").textContent = "ID: " + id;
+    document.getElementById("msg-editar").style.display = "none";
+    document.getElementById("modal-editar").classList.add("visible");
+  };
+
+  window.cerrarModal = function () {
+    document.getElementById("modal-editar").classList.remove("visible");
+  };
+
+  window.guardarEmpresa = async function () {
+    const id       = document.getElementById("edit-id").value;
+    const nombre   = document.getElementById("edit-nombre").value.trim();
+    const desde    = Number(document.getElementById("edit-desde").value);
+    const hasta    = Number(document.getElementById("edit-hasta").value);
+    const contador = Number(document.getElementById("edit-contador").value);
+    const msg      = document.getElementById("msg-editar");
+    msg.style.display = "none";
+
+    if (!nombre||isNaN(desde)||isNaN(hasta)||isNaN(contador)) {
+      msg.textContent="Completa todos los campos"; msg.className="form-msg error"; msg.style.display="block"; return;
+    }
+    if (desde>=hasta) {
+      msg.textContent="'Hasta' debe ser mayor que 'Desde'"; msg.className="form-msg error"; msg.style.display="block"; return;
+    }
+    if (contador<0) {
+      msg.textContent="El contador no puede ser negativo"; msg.className="form-msg error"; msg.style.display="block"; return;
     }
 
     try {
-      const existe = await getDoc(doc(db, "empresas", id));
-      if (existe.exists()) {
-        msg.textContent = "Ya existe una empresa con ese ID"; msg.className = "form-msg error"; msg.style.display = "block"; return;
-      }
-      await setDoc(doc(db, "empresas", id), { nombre, desde, hasta });
-      msg.textContent = `Empresa "${nombre}" creada correctamente`; msg.className = "form-msg ok"; msg.style.display = "block";
-      ["emp-id","emp-nombre","emp-desde","emp-hasta"].forEach(f => document.getElementById(f).value = "");
-      cargarEmpresas();
-      todasLasEmpresas = []; // forzar recarga en enlaces
-    } catch (e) {
-      msg.textContent = "Error al crear empresa"; msg.className = "form-msg error"; msg.style.display = "block";
+      await Promise.all([
+        setDoc(doc(db,"empresas",id), { nombre, desde, hasta }, { merge:true }),
+        setDoc(doc(db,"contadores",id), { actual: contador })
+      ]);
+      msg.textContent="✅ Cambios guardados correctamente"; msg.className="form-msg ok"; msg.style.display="block";
+      setTimeout(() => { cerrarModal(); cargarEmpresas(); cargarDashboard(); }, 1200);
+    } catch(e) {
+      console.error(e);
+      msg.textContent="Error al guardar: "+e.message; msg.className="form-msg error"; msg.style.display="block";
     }
   };
 
   // ── ENLACES ──────────────────────────────────────────────
-  async function cargarEmpresasEnlaces() {
-    document.getElementById("lista-enlaces").innerHTML = "<div class='spinner-wrap'><div class='spinner'></div><p>Cargando...</p></div>";
+  window.cargarEmpresasEnlaces = async function () {
+    document.getElementById("lista-enlaces").innerHTML = '<div class="spinner-wrap"><div class="spinner"></div><p>Cargando...</p></div>';
     try {
-      const snap = await getDocs(collection(db, "empresas"));
-      todasLasEmpresas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const snap = await getDocs(collection(db,"empresas"));
+      todasLasEmpresas = snap.docs.map(d => ({ id:d.id, ...d.data() }));
       todasLasEmpresas.sort((a,b) => (a.nombre||a.id).localeCompare(b.nombre||b.id));
       renderEnlaces(todasLasEmpresas);
     } catch(e) {
       document.getElementById("lista-enlaces").innerHTML = "<p style='color:#e11d48'>Error al cargar</p>";
     }
-  }
+  };
 
   window.filtrarEnlaces = function () {
     const q = document.getElementById("buscar-enlace").value.toLowerCase();
@@ -853,13 +637,11 @@
 
   function renderEnlaces(empresas) {
     const lista = document.getElementById("lista-enlaces");
-    if (empresas.length === 0) {
-      lista.innerHTML = "<p class='sin-datos'>No hay empresas</p>"; return;
-    }
+    if (empresas.length===0) { lista.innerHTML="<p class='sin-datos'>No hay empresas</p>"; return; }
     lista.innerHTML = empresas.map(e => {
       const url = BASE_URL + encodeURIComponent(e.id);
       return `<div class="enlace-fila">
-        <span class="enlace-nombre">${e.nombre || e.id}</span>
+        <span class="enlace-nombre">${e.nombre||e.id}</span>
         <span class="enlace-rango">${e.desde}–${e.hasta}</span>
         <span class="enlace-url">${url}</span>
         <button class="btn-copiar" onclick="copiarEnlace(this,'${url}')">Copiar</button>
@@ -869,8 +651,8 @@
 
   window.copiarEnlace = function (btn, url) {
     navigator.clipboard.writeText(url).then(() => {
-      btn.textContent = "✓ Copiado"; btn.classList.add("copiado");
-      setTimeout(() => { btn.textContent = "Copiar"; btn.classList.remove("copiado"); }, 2000);
+      btn.textContent="✓ Copiado"; btn.classList.add("copiado");
+      setTimeout(() => { btn.textContent="Copiar"; btn.classList.remove("copiado"); }, 2000);
     });
   };
 
