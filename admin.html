@@ -455,7 +455,26 @@
   const CLAVE = "camara2024";
   const BASE  = "https://sistemacca.github.io/boletas-camara/?empresa=";
 
-  let regs = [], emps = [], conts = {}, autoTimer = null;
+  let regs = [], emps = [], conts = {}, autoTimer = null, inactividadTimer = null;
+  const INACTIVIDAD_MS = 2 * 60 * 1000; // 2 minutos
+
+  // Reinicia el timer de inactividad con cada interacción
+  function resetInactividad() {
+    clearTimeout(inactividadTimer);
+    inactividadTimer = setTimeout(() => {
+      clearInterval(autoTimer);
+      sessionStorage.removeItem("admin_auth");
+      document.getElementById("app").style.display   = "none";
+      document.getElementById("login").style.display = "flex";
+      document.getElementById("clave").value = "";
+      document.getElementById("err-login").textContent = "Sesión cerrada por inactividad (2 min)";
+    }, INACTIVIDAD_MS);
+  }
+
+  // Detectar cualquier actividad del usuario
+  ["click","keydown","touchstart","scroll","mousemove"].forEach(ev =>
+    document.addEventListener(ev, resetInactividad, { passive: true })
+  );
 
   // Convierte Timestamp o string a ISO
   const fstr = f => !f ? "" : f.toDate ? f.toDate().toISOString() : f.toString();
@@ -465,13 +484,18 @@
     .toLowerCase().replace(/[^a-z0-9]/g,"");
 
   // ── LOGIN ─────────────────────────────────────────────
+  function iniciarSesion() {
+    sessionStorage.setItem("admin_auth", "ok");
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display   = "block";
+    cargarDashboard();
+    autoTimer = setInterval(cargarDashboard, 30000);
+    resetInactividad();
+  }
+
   window.entrar = () => {
     if (document.getElementById("clave").value === CLAVE) {
-      document.getElementById("login").style.display = "none";
-      document.getElementById("app").style.display   = "block";
-      cargarDashboard();
-      // Auto-actualización cada 30 segundos
-      autoTimer = setInterval(cargarDashboard, 30000);
+      iniciarSesion();
     } else {
       document.getElementById("err-login").textContent = "Contraseña incorrecta";
     }
@@ -888,3 +912,21 @@
 </script>
 </body>
 </html>
+<script>
+  // ── SESIÓN PERSISTENTE ────────────────────────────────
+  // Al cargar la página, verifica si ya había sesión activa
+  (function() {
+    if (sessionStorage.getItem("admin_auth") === "ok") {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("app").style.display   = "block";
+      // Re-arrancar timers al recargar con sesión activa
+      setTimeout(() => {
+        if (typeof cargarDashboard === "function") {
+          cargarDashboard();
+          autoTimer = setInterval(cargarDashboard, 30000);
+          resetInactividad();
+        }
+      }, 100);
+    }
+  })();
+</script>
