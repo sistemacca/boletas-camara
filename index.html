@@ -353,10 +353,15 @@
       // Mostrar resultado
       resultado.innerHTML = `
         <div class="exito">
-          ¡Registro exitoso!
+          <div style="font-size:15px;font-weight:600;margin-bottom:4px">¡Registro exitoso!</div>
+          <div style="font-size:13px;color:#4b7a5e;margin-bottom:8px">${nombre}</div>
           <span class="numero">${numeroBoleta}</span>
           <span class="sub">Tu número de boleta</span>
-          ${email ? `<p style="margin-top:8px;font-size:12px;color:#4b7a5e">Guarda este número</p>` : ""}
+          <div style="margin-top:16px;background:#dcfce7;border-radius:10px;padding:12px 14px;border:1px solid #86efac">
+            <div style="font-size:22px;margin-bottom:4px">📸</div>
+            <div style="font-size:13px;font-weight:700;color:#166534">Toma captura de pantalla</div>
+            <div style="font-size:12px;color:#166534;margin-top:3px">Este es tu comprobante de registro</div>
+          </div>
         </div>
       `;
 
