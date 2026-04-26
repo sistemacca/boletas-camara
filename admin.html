@@ -2,222 +2,261 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>Panel Admin - Semana Comercial</title>
+  <title>Panel Admin - Semana Comercial Arauca</title>
   <style>
     :root {
-      --azul:#003366; --azul2:#002244; --oro:#d4af37;
-      --verde:#16a34a; --rojo:#dc2626; --bg:#f0f4f8;
-      --borde:#e2e8f0; --sub:#64748b; --texto:#1e293b;
+      --azul: #003366; --azul2: #002244; --oro: #d4af37;
+      --verde: #16a34a; --rojo: #dc2626; --bg: #f0f4f8;
+      --borde: #e2e8f0; --sub: #64748b; --texto: #1e293b;
     }
-    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-    body { font-family:'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(--texto); }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--texto); }
 
-    /* LOGIN */
-    #login { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg,#001f3f 0%,#003366 50%,#004080 100%); padding:24px; }
-    .login-logo { text-align:center; margin-bottom:28px; color:white; }
-    .login-logo img { height:72px; margin-bottom:16px; filter:brightness(0) invert(1); }
-    .login-card { background:white; border-radius:20px; padding:40px 36px; width:100%; max-width:420px; box-shadow:0 24px 64px rgba(0,0,0,0.3); }
-    .login-card h2 { color:var(--azul); font-size:20px; text-align:center; margin-bottom:6px; }
-    .login-card p  { color:var(--sub); font-size:13px; text-align:center; margin-bottom:28px; }
-    .login-label { font-size:12px; font-weight:600; color:var(--azul); display:block; margin-bottom:6px; }
-    .login-input { width:100%; padding:14px 16px; border:1.5px solid var(--borde); border-radius:12px; font-size:16px; margin-bottom:16px; }
-    .login-input:focus { outline:none; border-color:var(--azul); }
-    .login-btn { width:100%; padding:16px; background:var(--azul); color:white; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; }
-    .login-btn:hover { background:var(--azul2); }
-    .login-error { color:var(--rojo); font-size:13px; margin-top:10px; text-align:center; }
-    .login-footer { color:rgba(255,255,255,0.4); font-size:12px; margin-top:24px; }
-
-    /* APP */
-    #app { display:none; }
-
-    /* TOPBAR MÓVIL */
-    .topbar-movil { display:none; position:fixed; top:0; left:0; right:0; height:58px; background:var(--azul); color:white; z-index:200; padding:0 16px; align-items:center; justify-content:space-between; box-shadow:0 2px 10px rgba(0,0,0,0.2); }
-    .topbar-movil .titulo { font-size:15px; font-weight:600; }
-    .topbar-movil .subtitulo { font-size:11px; opacity:0.65; }
-    .btn-menu { background:none; border:none; color:white; font-size:24px; cursor:pointer; padding:6px; }
-
-    /* SIDEBAR */
-    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:299; }
-    .overlay.visible { display:block; }
-    .sidebar { width:256px; background:var(--azul); color:white; position:fixed; top:0; left:0; height:100vh; display:flex; flex-direction:column; z-index:300; transition:transform 0.28s ease; }
-    .sidebar-logo { padding:28px 22px 18px; border-bottom:1px solid rgba(255,255,255,0.1); }
-    .sidebar-logo h2 { font-size:15px; font-weight:700; }
-    .sidebar-logo p  { font-size:11px; opacity:0.55; margin-top:3px; }
-    .sidebar-menu { flex:1; padding:10px 0; overflow-y:auto; }
-    .menu-item { display:flex; align-items:center; gap:14px; padding:14px 22px; cursor:pointer; font-size:14px; border-left:3px solid transparent; transition:background 0.15s; }
-    .menu-item:hover  { background:rgba(255,255,255,0.08); }
-    .menu-item:active { background:rgba(255,255,255,0.15); }
-    .menu-item.activo { background:rgba(255,255,255,0.13); border-left-color:var(--oro); font-weight:600; }
-    .menu-item .ic { font-size:20px; width:26px; text-align:center; }
-    .sidebar-footer {
-      padding:16px 22px;
-      border-top:1px solid rgba(255,255,255,0.1);
-      font-size:11px;
-      opacity:0.4;
+    /* ══ LOGIN ═══════════════════════════════════════════ */
+    #login {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #001f3f 0%, #003366 50%, #004080 100%);
+      padding: 24px;
     }
-    .btn-cerrar {
-      display:flex; align-items:center; gap:10px;
-      padding:12px 22px; cursor:pointer;
-      font-size:13px; color:rgba(255,255,255,0.7);
-      border-top:1px solid rgba(255,255,255,0.1);
-      transition:background 0.15s;
+    .login-logo {
+      text-align: center; margin-bottom: 32px; color: white;
     }
-    .btn-cerrar:hover { background:rgba(255,255,255,0.08); }
+    .login-logo .escudo { font-size: 64px; margin-bottom: 12px; }
+    .login-logo h1 { font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
+    .login-logo p  { font-size: 14px; opacity: 0.7; margin-top: 6px; }
+    .login-card {
+      background: white; border-radius: 20px; padding: 40px 36px;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+    }
+    .login-card h2 { color: var(--azul); font-size: 20px; text-align: center; margin-bottom: 6px; }
+    .login-card p  { color: var(--sub); font-size: 13px; text-align: center; margin-bottom: 28px; }
+    .login-label { font-size: 12px; font-weight: 600; color: var(--azul); display: block; margin-bottom: 6px; }
+    .login-input {
+      width: 100%; padding: 14px 16px; border: 1.5px solid var(--borde);
+      border-radius: 12px; font-size: 16px; margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .login-input:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgba(0,51,102,0.1); }
+    .login-btn {
+      width: 100%; padding: 16px; background: var(--azul); color: white;
+      border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.5px; transition: background 0.2s;
+    }
+    .login-btn:hover { background: var(--azul2); }
+    .login-btn:active { transform: scale(0.98); }
+    .login-error { color: var(--rojo); font-size: 13px; margin-top: 10px; text-align: center; }
+    .login-footer { color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 24px; }
 
-    /* LAYOUT */
-    .layout { display:flex; min-height:100vh; }
-    .main { margin-left:256px; flex:1; padding:28px; min-width:0; }
+    /* ══ APP ══════════════════════════════════════════════ */
+    #app { display: none; }
 
-    /* PANELS */
-    .panel { display:none; }
-    .panel.activo { display:block; }
-    .page-top { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px; }
-    .page-top h1 { font-size:24px; color:var(--azul); font-weight:700; }
-    .page-top p  { font-size:13px; color:var(--sub); margin-top:3px; }
+    /* ══ TOPBAR MÓVIL ════════════════════════════════════ */
+    .topbar-movil {
+      display: none; position: fixed; top: 0; left: 0; right: 0;
+      height: 58px; background: var(--azul); color: white; z-index: 200;
+      padding: 0 16px; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .topbar-movil .titulo { font-size: 15px; font-weight: 600; }
+    .topbar-movil .subtitulo { font-size: 11px; opacity: 0.65; }
+    .btn-menu { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 6px; }
 
-    /* STATS */
-    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
-    .stat { background:white; border-radius:14px; padding:18px 16px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); border-top:3px solid var(--azul); }
-    .stat-val { font-size:34px; font-weight:700; color:var(--azul); line-height:1.1; }
-    .stat-lbl { font-size:12px; color:var(--sub); margin-top:5px; }
+    /* ══ SIDEBAR ═════════════════════════════════════════ */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 299; }
+    .overlay.visible { display: block; }
+    .sidebar {
+      width: 256px; background: var(--azul); color: white;
+      position: fixed; top: 0; left: 0; height: 100vh;
+      display: flex; flex-direction: column; z-index: 300;
+      transition: transform 0.28s ease;
+    }
+    .sidebar-logo { padding: 28px 22px 18px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo h2 { font-size: 15px; font-weight: 700; }
+    .sidebar-logo p  { font-size: 11px; opacity: 0.55; margin-top: 3px; }
+    .sidebar-menu { flex: 1; padding: 10px 0; overflow-y: auto; }
+    .menu-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 22px; cursor: pointer; font-size: 14px;
+      border-left: 3px solid transparent; transition: background 0.15s;
+    }
+    .menu-item:hover  { background: rgba(255,255,255,0.08); }
+    .menu-item:active { background: rgba(255,255,255,0.15); }
+    .menu-item.activo { background: rgba(255,255,255,0.13); border-left-color: var(--oro); font-weight: 600; }
+    .menu-item .ic { font-size: 20px; width: 26px; text-align: center; }
+    .sidebar-foot { padding: 14px 22px; font-size: 11px; opacity: 0.35; border-top: 1px solid rgba(255,255,255,0.1); }
 
-    /* CARDS */
-    .card { background:white; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden; margin-bottom:20px; }
-    .card-head { padding:16px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--borde); }
-    .card-head h3 { font-size:15px; color:var(--azul); font-weight:600; }
+    /* ══ LAYOUT ══════════════════════════════════════════ */
+    .layout { display: flex; min-height: 100vh; }
+    .main { margin-left: 256px; flex: 1; padding: 28px; min-width: 0; }
 
-    /* CONTROLES */
-    .controles { display:flex; gap:10px; flex-wrap:wrap; padding:14px 20px; border-bottom:1px solid var(--borde); }
-    .controles input, .controles select { padding:10px 13px; border:1.5px solid var(--borde); border-radius:10px; font-size:14px; flex:1; min-width:140px; background:white; }
-    .controles input:focus, .controles select:focus { outline:none; border-color:var(--azul); }
+    /* ══ PANELS ══════════════════════════════════════════ */
+    .panel { display: none; }
+    .panel.activo { display: block; }
+    .page-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 24px;
+    }
+    .page-top h1 { font-size: 24px; color: var(--azul); font-weight: 700; }
+    .page-top p  { font-size: 13px; color: var(--sub); margin-top: 3px; }
 
-    /* TABLA */
-    .tabla-scroll { overflow-x:auto; }
-    table { width:100%; border-collapse:collapse; font-size:13px; }
-    thead tr { background:var(--azul); color:white; }
-    thead th { padding:12px 16px; text-align:left; font-weight:500; white-space:nowrap; }
-    tbody tr:nth-child(even) { background:#f8fafc; }
-    tbody tr:hover { background:#e8f0fe; }
-    tbody td { padding:11px 16px; border-bottom:1px solid #f1f5f9; white-space:nowrap; }
+    /* ══ STATS ═══════════════════════════════════════════ */
+    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; overflow: hidden; }
+    .stat {
+      background: white; border-radius: 14px; padding: 18px 16px;
+      text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-top: 3px solid var(--azul);
+    }
+    .stat-val { font-size: 34px; font-weight: 700; color: var(--azul); line-height: 1.1; }
+    .stat-lbl { font-size: 12px; color: var(--sub); margin-top: 5px; }
 
-    /* LISTA MÓVIL */
-    .lista-m { display:none; }
-    .row-m { padding:14px 16px; border-bottom:1px solid var(--borde); }
-    .row-m:last-child { border-bottom:none; }
-    .row-m-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
-    .row-m-nombre { font-weight:600; font-size:14px; }
-    .row-m-meta { font-size:12px; color:var(--sub); }
+    /* ══ CARDS ═══════════════════════════════════════════ */
+    .card { background: white; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 20px; }
+    .card-head {
+      padding: 16px 20px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      border-bottom: 1px solid var(--borde);
+    }
+    .card-head h3 { font-size: 15px; color: var(--azul); font-weight: 600; }
 
-    /* EMP CARD MÓVIL */
-    .emp-card { background:white; border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid var(--azul); }
-    .emp-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
-    .emp-card-nombre { font-size:15px; font-weight:700; color:var(--azul); }
-    .emp-card-id { font-size:11px; color:var(--sub); margin-top:2px; }
-    .emp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px; }
-    .emp-dato { background:#f8fafc; border-radius:8px; padding:8px; text-align:center; }
-    .emp-dato .dv { font-size:20px; font-weight:700; color:var(--azul); }
-    .emp-dato .dl { font-size:10px; color:var(--sub); margin-top:2px; }
+    /* ══ CONTROLES ═══════════════════════════════════════ */
+    .controles { display: flex; gap: 10px; flex-wrap: wrap; padding: 14px 20px; border-bottom: 1px solid var(--borde); }
+    .controles input, .controles select {
+      padding: 10px 13px; border: 1.5px solid var(--borde);
+      border-radius: 10px; font-size: 14px; flex: 1; min-width: 140px; background: white;
+    }
+    .controles input:focus, .controles select:focus { outline: none; border-color: var(--azul); }
 
-    /* BADGES */
-    .badge-b { background:var(--azul); color:white; font-weight:700; padding:4px 12px; border-radius:20px; font-size:13px; }
-    .badge-e { background:#e8f0fe; color:var(--azul); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+    /* ══ TABLA (escritorio) ══════════════════════════════ */
+    .tabla-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: var(--azul); color: white; }
+    thead th { padding: 12px 16px; text-align: left; font-weight: 500; white-space: nowrap; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody tr:hover { background: #e8f0fe; }
+    tbody td { padding: 11px 16px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
 
-    /* PROGRESO */
-    .prog-bar { height:7px; background:var(--borde); border-radius:4px; margin-top:5px; overflow:hidden; }
-    .prog-fill { height:100%; background:var(--azul); border-radius:4px; transition:width 0.4s; }
+    /* ══ LISTA MÓVIL ═════════════════════════════════════ */
+    .lista-m { display: none; }
+    .row-m { padding: 14px 16px; border-bottom: 1px solid var(--borde); }
+    .row-m:last-child { border-bottom: none; }
+    .row-m-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .row-m-nombre { font-weight: 600; font-size: 14px; }
+    .row-m-meta { font-size: 12px; color: var(--sub); }
 
-    /* BOTONES */
-    .btn { padding:10px 20px; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; transition:all 0.15s; }
-    .btn:active { transform:scale(0.97); }
-    .btn-p    { background:var(--azul); color:white; }
-    .btn-p:hover { background:var(--azul2); }
-    .btn-g    { background:var(--verde); color:white; }
-    .btn-g:hover { background:#15803d; }
-    .btn-gray { background:#f1f5f9; color:var(--texto); }
-    .btn-sm   { padding:6px 14px; font-size:12px; border-radius:8px; }
-    .btn-full { width:100%; justify-content:center; padding:14px; font-size:15px; }
+    /* ══ EMP CARD MÓVIL ══════════════════════════════════ */
+    .emp-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid var(--azul); }
+    .emp-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .emp-card-nombre { font-size: 15px; font-weight: 700; color: var(--azul); }
+    .emp-card-id { font-size: 11px; color: var(--sub); margin-top: 2px; }
+    .emp-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 10px; }
+    .emp-dato { background: #f8fafc; border-radius: 8px; padding: 8px; text-align: center; }
+    .emp-dato .dv { font-size: 20px; font-weight: 700; color: var(--azul); }
+    .emp-dato .dl { font-size: 10px; color: var(--sub); margin-top: 2px; }
 
-    /* FORM */
-    .form-card { background:white; border-radius:14px; padding:24px; box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-bottom:20px; }
-    .form-card h3 { color:var(--azul); font-size:16px; margin-bottom:20px; }
-    .fg { margin-bottom:14px; }
-    .fg label { display:block; font-size:12px; font-weight:600; color:var(--azul); margin-bottom:6px; }
-    .fg input { width:100%; padding:13px 15px; border:1.5px solid var(--borde); border-radius:10px; font-size:15px; }
-    .fg input:focus { outline:none; border-color:var(--azul); }
-    .fg .hint { font-size:11px; color:var(--sub); margin-top:5px; }
-    .f2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .fmsg { font-size:13px; margin-top:12px; padding:12px 14px; border-radius:10px; display:none; }
-    .fmsg.ok    { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
-    .fmsg.error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+    /* ══ BADGES ══════════════════════════════════════════ */
+    .badge-b { background: var(--azul); color: white; font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 13px; }
+    .badge-e { background: #e8f0fe; color: var(--azul); padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 
-    /* ENLACES */
-    .enlace-row { padding:12px 0; border-bottom:1px solid var(--borde); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .enlace-row:last-child { border-bottom:none; }
-    .enlace-nombre { font-size:13px; font-weight:600; color:var(--azul); min-width:150px; }
-    .enlace-rango  { font-size:11px; color:var(--sub); min-width:60px; }
-    .enlace-url { font-size:12px; color:var(--sub); flex:1; word-break:break-all; background:#f8fafc; padding:8px 12px; border-radius:8px; }
-    .btn-copy { padding:8px 14px; font-size:12px; font-weight:600; background:var(--azul); color:white; border:none; border-radius:8px; cursor:pointer; white-space:nowrap; }
-    .btn-copy.ok { background:var(--verde); }
+    /* ══ PROGRESO ════════════════════════════════════════ */
+    .prog-bar { height: 7px; background: var(--borde); border-radius: 4px; margin-top: 5px; overflow: hidden; }
+    .prog-fill { height: 100%; background: var(--azul); border-radius: 4px; transition: width 0.4s; }
 
-    /* SPINNER */
-    .spin-wrap { text-align:center; padding:40px; color:var(--sub); }
-    .spin { display:block; width:32px; height:32px; border:3px solid var(--borde); border-top-color:var(--azul); border-radius:50%; animation:giro 0.7s linear infinite; margin:0 auto 12px; }
-    @keyframes giro { to { transform:rotate(360deg); } }
-    .vacio { text-align:center; padding:40px; color:#94a3b8; font-size:14px; }
+    /* ══ BOTONES ═════════════════════════════════════════ */
+    .btn { padding: 10px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .btn:active { transform: scale(0.97); }
+    .btn-p    { background: var(--azul); color: white; }
+    .btn-p:hover { background: var(--azul2); }
+    .btn-g    { background: var(--verde); color: white; }
+    .btn-g:hover { background: #15803d; }
+    .btn-gray { background: #f1f5f9; color: var(--texto); }
+    .btn-sm   { padding: 6px 14px; font-size: 12px; border-radius: 8px; }
+    .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
 
-    /* REFRESH BADGE */
-    .refresh-badge { display:inline-flex; align-items:center; gap:6px; background:#f0fdf4; color:var(--verde); border:1px solid #bbf7d0; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; }
-    .refresh-dot { width:7px; height:7px; background:var(--verde); border-radius:50%; animation:pulso 1.5s ease-in-out infinite; }
+    /* ══ FORMULARIO ══════════════════════════════════════ */
+    .form-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    .form-card h3 { color: var(--azul); font-size: 16px; margin-bottom: 20px; }
+    .fg { margin-bottom: 14px; }
+    .fg label { display: block; font-size: 12px; font-weight: 600; color: var(--azul); margin-bottom: 6px; }
+    .fg input { width: 100%; padding: 13px 15px; border: 1.5px solid var(--borde); border-radius: 10px; font-size: 15px; }
+    .fg input:focus { outline: none; border-color: var(--azul); }
+    .fg .hint { font-size: 11px; color: var(--sub); margin-top: 5px; }
+    .f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .fmsg { font-size: 13px; margin-top: 12px; padding: 12px 14px; border-radius: 10px; display: none; }
+    .fmsg.ok    { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .fmsg.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* ══ ENLACES ═════════════════════════════════════════ */
+    .enlace-row { padding: 12px 0; border-bottom: 1px solid var(--borde); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .enlace-row:last-child { border-bottom: none; }
+    .enlace-nombre { font-size: 13px; font-weight: 600; color: var(--azul); min-width: 150px; }
+    .enlace-rango  { font-size: 11px; color: var(--sub); min-width: 60px; }
+    .enlace-url { font-size: 12px; color: var(--sub); flex: 1; word-break: break-all; background: #f8fafc; padding: 8px 12px; border-radius: 8px; }
+    .btn-copy { padding: 8px 14px; font-size: 12px; font-weight: 600; background: var(--azul); color: white; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+    .btn-copy:active { background: var(--azul2); }
+    .btn-copy.ok { background: var(--verde); }
+
+    /* ══ SPINNER ═════════════════════════════════════════ */
+    .spin-wrap { text-align: center; padding: 40px; color: var(--sub); }
+    .spin { display: block; width: 32px; height: 32px; border: 3px solid var(--borde); border-top-color: var(--azul); border-radius: 50%; animation: giro 0.7s linear infinite; margin: 0 auto 12px; }
+    @keyframes giro { to { transform: rotate(360deg); } }
+    .vacio { text-align: center; padding: 40px; color: #94a3b8; font-size: 14px; }
+
+    /* ══ MODAL ═══════════════════════════════════════════ */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 400; align-items: flex-end; justify-content: center; }
+    .modal-bg.visible { display: flex; }
+    .modal { background: white; border-radius: 20px 20px 0 0; padding: 10px 24px 36px; width: 100%; max-width: 500px; max-height: 92vh; overflow-y: auto; }
+    .modal-handle { width: 40px; height: 4px; background: var(--borde); border-radius: 2px; margin: 12px auto 20px; }
+    .modal h3 { color: var(--azul); font-size: 18px; margin-bottom: 4px; }
+    .modal-id { font-size: 12px; color: var(--sub); margin-bottom: 20px; }
+    .sep { height: 1px; background: var(--borde); margin: 16px 0; }
+    .modal-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+
+    /* ══ AUTO-REFRESH BADGE ══════════════════════════════ */
+    .refresh-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #f0fdf4; color: var(--verde); border: 1px solid #bbf7d0;
+      padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    }
+    .refresh-dot { width: 7px; height: 7px; background: var(--verde); border-radius: 50%; animation: pulso 1.5s ease-in-out infinite; }
     @keyframes pulso { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
 
-    /* MODAL */
-    .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:400; align-items:flex-end; justify-content:center; }
-    .modal-bg.visible { display:flex; }
-    .modal { background:white; border-radius:20px 20px 0 0; padding:10px 24px 36px; width:100%; max-width:500px; max-height:92vh; overflow-y:auto; }
-    .modal-handle { width:40px; height:4px; background:var(--borde); border-radius:2px; margin:12px auto 20px; }
-    .modal h3 { color:var(--azul); font-size:18px; margin-bottom:4px; }
-    .modal-id { font-size:12px; color:var(--sub); margin-bottom:20px; }
-    .sep { height:1px; background:var(--borde); margin:16px 0; }
-    .modal-btns { display:flex; flex-direction:column; gap:10px; margin-top:20px; }
-
-    /* RESPONSIVE */
-    @media (max-width:768px) {
-      .sidebar { transform:translateX(-100%); }
-      .sidebar.abierto { transform:translateX(0); }
-      .main { margin-left:0; padding:16px; padding-top:76px; }
-      .topbar-movil { display:flex; }
-      .stats { grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
-      .stat-val { font-size:28px; }
-      .tabla-scroll table { display:none; }
-      .lista-m { display:block; }
-      .f2 { grid-template-columns:1fr; }
-      .enlace-row { flex-direction:column; align-items:flex-start; }
-      .enlace-url { width:100%; }
-      .btn-copy { width:100%; text-align:center; padding:10px; }
-      .page-top { flex-direction:column; }
+    /* ══ RESPONSIVE ══════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.abierto { transform: translateX(0); }
+      .main { margin-left: 0; padding: 16px; padding-top: 76px; }
+      .topbar-movil { display: flex; }
+      .stats { grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 16px; }
+      .stat-val { font-size: 28px; }
+      .tabla-scroll table { display: none; }
+      .lista-m { display: block; }
+      .f2 { grid-template-columns: 1fr; }
+      .enlace-row { flex-direction: column; align-items: flex-start; }
+      .enlace-url { width: 100%; }
+      .btn-copy { width: 100%; text-align: center; padding: 10px; }
+      .page-top { flex-direction: column; }
     }
-    @media (min-width:769px) {
-      .modal-bg { align-items:center; padding:20px; }
-      .modal { border-radius:20px; }
-      .modal-btns { flex-direction:row; justify-content:flex-end; }
-      .modal-btns .btn { min-width:130px; justify-content:center; }
+    @media (min-width: 769px) {
+      .modal-bg { align-items: center; padding: 20px; }
+      .modal { border-radius: 20px; }
+      .modal-btns { flex-direction: row; justify-content: flex-end; }
+      .modal-btns .btn { min-width: 130px; justify-content: center; }
     }
   </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ══ LOGIN ════════════════════════════════════════════ -->
 <div id="login">
   <div class="login-logo">
-    <img src="https://sistemacca.github.io/boletas-camara/logo.png" alt="Logo">
+    <img src="https://sistemacca.github.io/boletas-camara/logo.png" style="height:80px;margin-bottom:8px;filter:brightness(0) invert(1)">
   </div>
   <div class="login-card">
     <h2>Bienvenido</h2>
-    <p>Semana Comercial 2026</p>
+    <p>Semana Comercial 2025</p>
     <label class="login-label" for="clave">Contraseña de acceso</label>
     <input class="login-input" type="password" id="clave"
            placeholder="••••••••" onkeydown="if(event.key==='Enter') entrar()">
@@ -227,8 +266,9 @@
   <p class="login-footer">Acceso exclusivo para personal autorizado</p>
 </div>
 
-<!-- APP -->
+<!-- ══ APP ══════════════════════════════════════════════ -->
 <div id="app">
+
   <div class="topbar-movil">
     <button class="btn-menu" onclick="toggleSidebar()">☰</button>
     <div style="text-align:center">
@@ -241,6 +281,8 @@
   <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
   <div class="layout">
+
+    <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
       <div class="sidebar-logo">
         <h2>Semana Comercial</h2>
@@ -252,16 +294,19 @@
         <div class="menu-item" onclick="irA('empresas','Empresas')"><span class="ic">🏢</span>Empresas</div>
         <div class="menu-item" onclick="irA('enlaces','Enlaces')"><span class="ic">🔗</span>Enlaces</div>
       </nav>
-      <div class="btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</div>
-      <div class="sidebar-footer">v3.0 — Firebase + GitHub Pages</div>
+      <div class="sidebar-foot">v3.0 — Firebase + GitHub Pages</div>
     </div>
 
+    <!-- MAIN -->
     <div class="main">
 
-      <!-- DASHBOARD -->
+      <!-- ── DASHBOARD ─────────────────────────────────── -->
       <div class="panel activo" id="panel-dashboard">
         <div class="page-top">
-          <div><h1>Dashboard</h1><p>Actualización automática cada 30 segundos</p></div>
+          <div>
+            <h1>Dashboard</h1>
+            <p>Actualización automática cada 30 segundos</p>
+          </div>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <span class="refresh-badge"><span class="refresh-dot"></span>En vivo</span>
             <button class="btn btn-p btn-sm" onclick="cargarDashboard()">↺ Actualizar</button>
@@ -286,7 +331,7 @@
         </div>
       </div>
 
-      <!-- REGISTROS -->
+      <!-- ── REGISTROS ──────────────────────────────────── -->
       <div class="panel" id="panel-registros">
         <div class="page-top">
           <div><h1>Registros</h1><p>Todos los usuarios registrados</p></div>
@@ -310,14 +355,15 @@
         </div>
       </div>
 
-      <!-- EMPRESAS -->
+      <!-- ── EMPRESAS ───────────────────────────────────── -->
       <div class="panel" id="panel-empresas">
         <div class="page-top"><div><h1>Empresas</h1><p>Gestiona empresas y rangos de boletas</p></div></div>
+
         <div class="form-card">
           <h3>➕ Crear nueva empresa</h3>
           <div class="fg">
             <label>Nombre de la empresa</label>
-            <input type="text" id="e-nombre" placeholder="Ej: El Descuento, Piña Express">
+            <input type="text" id="e-nombre" placeholder="Ej: El Descuento, Piña Express, Bestbuy">
             <div class="hint">El ID se genera automáticamente desde el nombre</div>
           </div>
           <div class="f2">
@@ -327,6 +373,7 @@
           <button class="btn btn-p btn-full" onclick="crearEmpresa()">Crear empresa</button>
           <div class="fmsg" id="msg-emp"></div>
         </div>
+
         <div class="card">
           <div class="card-head">
             <h3>Empresas registradas</h3>
@@ -340,11 +387,11 @@
             </table>
           </div>
           <div class="lista-m" id="lm-emp" style="padding:12px"></div>
-          <div class="vacio" id="vacio-emp" style="display:none">No hay empresas</div>
+          <div class="vacio" id="vacio-emp" style="display:none">No hay empresas creadas</div>
         </div>
       </div>
 
-      <!-- ENLACES -->
+      <!-- ── ENLACES ────────────────────────────────────── -->
       <div class="panel" id="panel-enlaces">
         <div class="page-top">
           <div><h1>Enlaces</h1><p>Enlace de registro para cada empresa</p></div>
@@ -364,7 +411,7 @@
   </div>
 </div>
 
-<!-- MODAL EDITAR -->
+<!-- ══ MODAL EDITAR ══════════════════════════════════════ -->
 <div class="modal-bg" id="modal">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -378,9 +425,9 @@
     </div>
     <div class="sep"></div>
     <div class="fg">
-      <label>Boletas entregadas (contador)</label>
+      <label>Boletas entregadas (contador actual)</label>
       <input type="number" id="m-contador" min="0">
-      <div class="hint">Escribe 0 para resetear el contador</div>
+      <div class="hint">Escribe 0 para resetear el contador a cero</div>
     </div>
     <div class="fmsg" id="msg-modal"></div>
     <div class="modal-btns">
@@ -404,16 +451,14 @@
     appId:             "1:52687643666:web:48e7106b88b2f2c2b364cb"
   };
 
-  const db    = getFirestore(initializeApp(cfg));
-  const CLAVE = "CCA2026";
+  const db   = getFirestore(initializeApp(cfg));
+  const CLAVE = "camara2024";
   const BASE  = "https://sistemacca.github.io/boletas-camara/?empresa=";
 
   let regs = [], emps = [], conts = {}, autoTimer = null, inactividadTimer = null;
   const INACTIVIDAD_MS = 2 * 60 * 1000; // 2 minutos
 
-  const fstr  = f => !f ? "" : f.toDate ? f.toDate().toISOString() : f.toString();
-  const genId = n => n.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
-
+  // Reinicia el timer de inactividad con cada interacción
   function resetInactividad() {
     clearTimeout(inactividadTimer);
     inactividadTimer = setTimeout(() => {
@@ -426,22 +471,26 @@
     }, INACTIVIDAD_MS);
   }
 
+  // Detectar cualquier actividad del usuario
   ["click","keydown","touchstart","scroll","mousemove"].forEach(ev =>
-    document.addEventListener(ev, resetInactividad, { passive:true })
+    document.addEventListener(ev, resetInactividad, { passive: true })
   );
 
+  // Convierte Timestamp o string a ISO
+  const fstr = f => !f ? "" : f.toDate ? f.toDate().toISOString() : f.toString();
+
+  // Genera ID desde nombre: "El Descuento" → "eldescuento"
+  const genId = nombre => nombre.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase().replace(/[^a-z0-9]/g,"");
+
+  // ── LOGIN ─────────────────────────────────────────────
   function iniciarSesion() {
-    sessionStorage.setItem("admin_auth","ok");
+    sessionStorage.setItem("admin_auth", "ok");
     document.getElementById("login").style.display = "none";
     document.getElementById("app").style.display   = "block";
     cargarDashboard();
     autoTimer = setInterval(cargarDashboard, 30000);
     resetInactividad();
-  }
-
-  // Verificar sesión al cargar página
-  if (sessionStorage.getItem("admin_auth") === "ok") {
-    iniciarSesion();
   }
 
   window.entrar = () => {
@@ -452,23 +501,13 @@
     }
   };
 
-  window.cerrarSesion = () => {
-    clearInterval(autoTimer);
-    clearTimeout(inactividadTimer);
-    sessionStorage.removeItem("admin_auth");
-    document.getElementById("app").style.display   = "none";
-    document.getElementById("login").style.display = "flex";
-    document.getElementById("clave").value = "";
-    document.getElementById("err-login").textContent = "";
-  };
-
+  // ── NAVEGACIÓN ────────────────────────────────────────
   window.irA = (panel, nombre) => {
     document.querySelectorAll(".panel").forEach(p => p.classList.remove("activo"));
     document.querySelectorAll(".menu-item").forEach(m => m.classList.remove("activo"));
     document.getElementById("panel-" + panel).classList.add("activo");
     document.querySelectorAll(".menu-item").forEach(m => {
-      if (m.getAttribute("onclick") && m.getAttribute("onclick").includes("'" + panel + "'"))
-        m.classList.add("activo");
+      if (m.getAttribute("onclick").includes("'" + panel + "'")) m.classList.add("activo");
     });
     document.getElementById("panel-titulo-movil").textContent = nombre;
     document.getElementById("sidebar").classList.remove("abierto");
@@ -483,7 +522,7 @@
     document.getElementById("overlay").classList.toggle("visible");
   };
 
-  // DASHBOARD
+  // ── DASHBOARD (auto-actualizable) ─────────────────────
   window.cargarDashboard = async () => {
     try {
       const [sR, sE, sC] = await Promise.all([
@@ -492,7 +531,7 @@
         getDocs(collection(db,"contadores"))
       ]);
       regs  = sR.docs.map(d => d.data());
-      emps  = sE.docs.map(d => ({ id:d.id, ...d.data() }));
+      emps  = sE.docs.map(d => ({ id: d.id, ...d.data() }));
       conts = {};
       sC.docs.forEach(d => { conts[d.id] = d.data().actual || 0; });
 
@@ -506,18 +545,20 @@
       document.getElementById("s-bol").textContent   = totB;
 
       const sorted = [...emps].sort((a,b) => (a.nombre||a.id).localeCompare(b.nombre||b.id));
-      const isMobile = window.innerWidth <= 768;
 
       // Escritorio
       const tbody = document.getElementById("tb-dash");
       tbody.innerHTML = "";
       sorted.forEach(e => {
         const ent   = conts[e.id] || 0;
-        const total = Number(e.hasta) - Number(e.desde) + 1;
+        const total = Number(e.hasta) - Number(e.desde) + 1;  // total boletas del rango
         const disp  = Math.max(0, total - ent);
         const pct   = total > 0 ? Math.min(100, Math.round((ent/total)*100)) : 0;
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td><strong>${e.nombre||e.id}</strong></td><td>${ent}</td><td>${total}</td>
+        tr.innerHTML = `
+          <td><strong>${e.nombre||e.id}</strong></td>
+          <td>${ent}</td>
+          <td>${total}</td>
           <td><span style="color:${disp>0?'var(--verde)':'var(--rojo)'};font-weight:700">${disp}</span></td>
           <td style="min-width:160px">
             <div style="font-size:11px;color:var(--sub);margin-bottom:3px">${pct}% (${ent}/${total})</div>
@@ -553,22 +594,22 @@
       });
 
       document.getElementById("spin-dash").style.display = "none";
-      if (!isMobile) document.getElementById("t-dash").style.display = "table";
-      if (isMobile)  document.getElementById("lm-dash").style.display = "block";
+      if(window.innerWidth > 768) document.getElementById("t-dash").style.display = "table";
+      if(window.innerWidth <= 768) document.getElementById("lm-dash").style.display = "block";
 
     } catch(e) {
       console.error(e);
-      document.getElementById("spin-dash").innerHTML = "<p style='color:var(--rojo);padding:20px'>Error al cargar</p>";
+      document.getElementById("spin-dash").innerHTML = "<p style='color:var(--rojo);padding:20px'>Error al cargar. Reintentando...</p>";
     }
   };
 
   cargarDashboard();
 
-  // REGISTROS
+  // ── REGISTROS ─────────────────────────────────────────
   window.cargarRegistros = async () => {
-    document.getElementById("spin-reg").style.display  = "block";
-    document.getElementById("t-reg").style.display     = "none";
-    document.getElementById("lm-reg").innerHTML        = "";
+    document.getElementById("spin-reg").style.display = "block";
+    document.getElementById("t-reg").style.display    = "none";
+    document.getElementById("lm-reg").innerHTML       = "";
     document.getElementById("vacio-reg").style.display = "none";
     try {
       const snap = await getDocs(query(collection(db,"registros"), orderBy("fecha","desc")));
@@ -600,19 +641,19 @@
         (r.email    && r.email.toLowerCase().includes(b));
       return okE && okB;
     });
-    const isMobile = window.innerWidth <= 768;
-    document.getElementById("spin-reg").style.display  = "none";
+    document.getElementById("spin-reg").style.display = "none";
     document.getElementById("vacio-reg").style.display = f.length===0 ? "block" : "none";
 
     // Escritorio
-    document.getElementById("t-reg").style.display = (f.length>0 && !isMobile) ? "table" : "none";
+    document.getElementById("t-reg").style.display = (f.length>0 && window.innerWidth>768) ? "table" : "none";
     const tbody = document.getElementById("tb-reg");
     tbody.innerHTML = "";
     f.forEach((r,i) => {
       const fs2  = fstr(r.fecha);
       const fecha = fs2 ? new Date(fs2).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"}) : "";
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${i+1}</td><td><span class="badge-b">${r.boleta}</span></td>
+      tr.innerHTML = `<td>${i+1}</td>
+        <td><span class="badge-b">${r.boleta}</span></td>
         <td><span class="badge-e">${r.empresa||""}</span></td>
         <td>${r.nombre||""}</td><td>${r.telefono||""}</td>
         <td>${r.email||""}</td><td>${fecha}</td>`;
@@ -622,22 +663,20 @@
     // Móvil
     const lm = document.getElementById("lm-reg");
     lm.innerHTML = "";
-    if (isMobile) {
-      f.forEach(r => {
-        const fs2  = fstr(r.fecha);
-        const fecha = fs2 ? new Date(fs2).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"}) : "";
-        const d = document.createElement("div");
-        d.className = "row-m";
-        d.innerHTML = `
-          <div class="row-m-top">
-            <div><div class="row-m-nombre">${r.nombre||""}</div>
-            <div class="row-m-meta">${r.empresa||""} · ${fecha}</div></div>
-            <span class="badge-b">${r.boleta}</span>
-          </div>
-          <div class="row-m-meta" style="margin-top:4px">📱 ${r.telefono||"-"} · ✉️ ${r.email||"-"}</div>`;
-        lm.appendChild(d);
-      });
-    }
+    f.forEach(r => {
+      const fs2  = fstr(r.fecha);
+      const fecha = fs2 ? new Date(fs2).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"}) : "";
+      const d = document.createElement("div");
+      d.className = "row-m";
+      d.innerHTML = `
+        <div class="row-m-top">
+          <div><div class="row-m-nombre">${r.nombre||""}</div>
+          <div class="row-m-meta">${r.empresa||""} · ${fecha}</div></div>
+          <span class="badge-b">${r.boleta}</span>
+        </div>
+        <div class="row-m-meta" style="margin-top:4px">📱 ${r.telefono||"-"} · ✉️ ${r.email||"-"}</div>`;
+      lm.appendChild(d);
+    });
   };
 
   window.exportarExcel = () => {
@@ -661,7 +700,7 @@
     a.download = "registros-semana-comercial.csv"; a.click();
   };
 
-  // EMPRESAS
+  // ── EMPRESAS ──────────────────────────────────────────
   window.cargarEmpresas = async () => {
     document.getElementById("spin-emp").style.display  = "block";
     document.getElementById("t-emp").style.display     = "none";
@@ -677,13 +716,11 @@
       sC.docs.forEach(d=>{conts[d.id]=d.data().actual||0;});
       emps.sort((a,b)=>(a.nombre||a.id).localeCompare(b.nombre||b.id));
 
-      if (emps.length===0) {
+      if (emps.length===0){
         document.getElementById("spin-emp").style.display  = "none";
         document.getElementById("vacio-emp").style.display = "block";
         return;
       }
-
-      const isMobile = window.innerWidth <= 768;
 
       // Escritorio
       const tbody = document.getElementById("tb-emp");
@@ -707,36 +744,34 @@
       // Móvil
       const lm = document.getElementById("lm-emp");
       lm.innerHTML = "";
-      if (isMobile) {
-        emps.forEach(e => {
-          const ent  = conts[e.id]||0;
-          const tot  = Number(e.hasta) - Number(e.desde) + 1;
-          const disp = Math.max(0, tot-ent);
-          const d = document.createElement("div");
-          d.className = "emp-card";
-          d.innerHTML = `
-            <div class="emp-card-top">
-              <div>
-                <div class="emp-card-nombre">${e.nombre||e.id}</div>
-                <div class="emp-card-id">ID: ${e.id} · Rango: ${e.desde}–${e.hasta}</div>
-              </div>
-              <button class="btn btn-p btn-sm"
-                onclick="abrirModal('${e.id}','${(e.nombre||"").replace(/'/g,"\\'")}',${e.desde},${e.hasta},${ent})">
-                ✏️ Editar</button>
+      emps.forEach(e => {
+        const ent  = conts[e.id]||0;
+        const tot  = Number(e.hasta) - Number(e.desde) + 1;
+        const disp = Math.max(0, tot-ent);
+        const d = document.createElement("div");
+        d.className = "emp-card";
+        d.innerHTML = `
+          <div class="emp-card-top">
+            <div>
+              <div class="emp-card-nombre">${e.nombre||e.id}</div>
+              <div class="emp-card-id">ID: ${e.id} · Rango: ${e.desde}–${e.hasta}</div>
             </div>
-            <div class="emp-grid">
-              <div class="emp-dato"><div class="dv">${ent}</div><div class="dl">Entregadas</div></div>
-              <div class="emp-dato"><div class="dv" style="color:${disp>0?'var(--verde)':'var(--rojo)'}">${disp}</div><div class="dl">Disponibles</div></div>
-              <div class="emp-dato"><div class="dv">${tot}</div><div class="dl">Total</div></div>
-            </div>
-            <div class="prog-bar"><div class="prog-fill" style="width:${tot>0?Math.min(100,Math.round(ent/tot*100)):0}%"></div></div>`;
-          lm.appendChild(d);
-        });
-      }
+            <button class="btn btn-p btn-sm"
+              onclick="abrirModal('${e.id}','${(e.nombre||"").replace(/'/g,"\\'")}',${e.desde},${e.hasta},${ent})">
+              ✏️ Editar</button>
+          </div>
+          <div class="emp-grid">
+            <div class="emp-dato"><div class="dv">${ent}</div><div class="dl">Entregadas</div></div>
+            <div class="emp-dato"><div class="dv" style="color:${disp>0?'var(--verde)':'var(--rojo)'}">${disp}</div><div class="dl">Disponibles</div></div>
+            <div class="emp-dato"><div class="dv">${tot}</div><div class="dl">Total</div></div>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" style="width:${tot>0?Math.min(100,Math.round(ent/tot*100)):0}%"></div></div>`;
+        lm.appendChild(d);
+      });
 
       document.getElementById("spin-emp").style.display = "none";
-      if (!isMobile) document.getElementById("t-emp").style.display = "table";
-
+      if(window.innerWidth > 768) document.getElementById("t-emp").style.display = "table";
+      else document.getElementById("lm-emp").style.display = "block";
     } catch(e) {
       console.error(e);
       document.getElementById("spin-emp").innerHTML = "<p style='color:var(--rojo);padding:20px'>Error al cargar</p>";
@@ -749,21 +784,41 @@
     const hasta  = Number(document.getElementById("e-hasta").value);
     const msg    = document.getElementById("msg-emp");
     msg.style.display = "none";
-    if (!nombre||!desde||!hasta){ msg.textContent="Completa todos los campos"; msg.className="fmsg error"; msg.style.display="block"; return; }
-    if (desde>=hasta){ msg.textContent="'Hasta' debe ser mayor que 'Desde'"; msg.className="fmsg error"; msg.style.display="block"; return; }
+
+    if (!nombre||!desde||!hasta){
+      msg.textContent="Completa todos los campos";
+      msg.className="fmsg error"; msg.style.display="block"; return;
+    }
+    if (desde>=hasta){
+      msg.textContent="'Hasta' debe ser mayor que 'Desde'";
+      msg.className="fmsg error"; msg.style.display="block"; return;
+    }
+
+    // Generar ID automático desde nombre
     const id = genId(nombre);
-    if (!id){ msg.textContent="Nombre inválido"; msg.className="fmsg error"; msg.style.display="block"; return; }
+    if (!id){
+      msg.textContent="Nombre inválido";
+      msg.className="fmsg error"; msg.style.display="block"; return;
+    }
+
     try {
       const ex = await getDoc(doc(db,"empresas",id));
-      if (ex.exists()){ msg.textContent=`Ya existe una empresa con ID "${id}"`; msg.className="fmsg error"; msg.style.display="block"; return; }
-      await setDoc(doc(db,"empresas",id),{nombre,desde,hasta});
-      msg.textContent=`✅ Empresa "${nombre}" creada con ID "${id}"`; msg.className="fmsg ok"; msg.style.display="block";
+      if (ex.exists()){
+        msg.textContent=`Ya existe una empresa con ID "${id}". Cambia el nombre.`;
+        msg.className="fmsg error"; msg.style.display="block"; return;
+      }
+      await setDoc(doc(db,"empresas",id), { nombre, desde, hasta });
+      msg.textContent=`✅ Empresa "${nombre}" creada con ID "${id}"`;
+      msg.className="fmsg ok"; msg.style.display="block";
       ["e-nombre","e-desde","e-hasta"].forEach(f=>document.getElementById(f).value="");
       cargarEmpresas();
-    } catch(e){ msg.textContent="Error: "+e.message; msg.className="fmsg error"; msg.style.display="block"; }
+    } catch(e){
+      msg.textContent="Error al crear: "+e.message;
+      msg.className="fmsg error"; msg.style.display="block";
+    }
   };
 
-  // MODAL
+  // ── MODAL ─────────────────────────────────────────────
   window.abrirModal = (id, nombre, desde, hasta, contador) => {
     document.getElementById("m-id").value       = id;
     document.getElementById("m-nombre").value   = nombre;
@@ -787,20 +842,29 @@
     const contador = Number(document.getElementById("m-contador").value);
     const msg      = document.getElementById("msg-modal");
     msg.style.display = "none";
-    if (!nombre||isNaN(desde)||isNaN(hasta)||isNaN(contador)){ msg.textContent="Completa todos los campos"; msg.className="fmsg error"; msg.style.display="block"; return; }
-    if (desde>=hasta){ msg.textContent="'Hasta' debe ser mayor que 'Desde'"; msg.className="fmsg error"; msg.style.display="block"; return; }
-    if (contador<0){ msg.textContent="El contador no puede ser negativo"; msg.className="fmsg error"; msg.style.display="block"; return; }
+
+    if (!nombre||isNaN(desde)||isNaN(hasta)||isNaN(contador)){
+      msg.textContent="Completa todos los campos"; msg.className="fmsg error"; msg.style.display="block"; return;
+    }
+    if (desde>=hasta){
+      msg.textContent="'Hasta' debe ser mayor que 'Desde'"; msg.className="fmsg error"; msg.style.display="block"; return;
+    }
+    if (contador<0){
+      msg.textContent="El contador no puede ser negativo"; msg.className="fmsg error"; msg.style.display="block"; return;
+    }
     try {
       await Promise.all([
-        setDoc(doc(db,"empresas",id),{nombre,desde,hasta},{merge:true}),
-        setDoc(doc(db,"contadores",id),{actual:contador})
+        setDoc(doc(db,"empresas",id), {nombre,desde,hasta}, {merge:true}),
+        setDoc(doc(db,"contadores",id), {actual:contador})
       ]);
       msg.textContent="✅ Cambios guardados"; msg.className="fmsg ok"; msg.style.display="block";
       setTimeout(()=>{ cerrarModal(); cargarEmpresas(); cargarDashboard(); }, 1000);
-    } catch(e){ msg.textContent="Error: "+e.message; msg.className="fmsg error"; msg.style.display="block"; }
+    } catch(e){
+      msg.textContent="Error: "+e.message; msg.className="fmsg error"; msg.style.display="block";
+    }
   };
 
-  // ENLACES
+  // ── ENLACES ───────────────────────────────────────────
   window.cargarEnlaces = async () => {
     document.getElementById("lista-enlaces").innerHTML =
       '<div class="spin-wrap"><div class="spin"></div><p>Cargando...</p></div>';
@@ -848,3 +912,21 @@
 </script>
 </body>
 </html>
+<script>
+  // ── SESIÓN PERSISTENTE ────────────────────────────────
+  // Al cargar la página, verifica si ya había sesión activa
+  (function() {
+    if (sessionStorage.getItem("admin_auth") === "ok") {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("app").style.display   = "block";
+      // Re-arrancar timers al recargar con sesión activa
+      setTimeout(() => {
+        if (typeof cargarDashboard === "function") {
+          cargarDashboard();
+          autoTimer = setInterval(cargarDashboard, 30000);
+          resetInactividad();
+        }
+      }, 100);
+    }
+  })();
+</script>
