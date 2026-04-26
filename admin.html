@@ -256,7 +256,7 @@
   </div>
   <div class="login-card">
     <h2>Bienvenido</h2>
-    <p>Semana Comercial 2026</p>
+    <p>Semana Comercial 2025</p>
     <label class="login-label" for="clave">Contraseña de acceso</label>
     <input class="login-input" type="password" id="clave"
            placeholder="••••••••" onkeydown="if(event.key==='Enter') entrar()">
@@ -294,6 +294,9 @@
         <div class="menu-item" onclick="irA('empresas','Empresas')"><span class="ic">🏢</span>Empresas</div>
         <div class="menu-item" onclick="irA('enlaces','Enlaces')"><span class="ic">🔗</span>Enlaces</div>
       </nav>
+      <div style="padding:12px 22px;border-top:1px solid rgba(255,255,255,0.1)">
+        <button onclick="cerrarSesion()" style="width:100%;padding:10px;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">🚪 Cerrar sesión</button>
+      </div>
       <div class="sidebar-foot">v3.0 — Firebase + GitHub Pages</div>
     </div>
 
@@ -452,7 +455,7 @@
   };
 
   const db   = getFirestore(initializeApp(cfg));
-  const CLAVE = "camara2026";
+  const CLAVE = "camara2024";
   const BASE  = "https://sistemacca.github.io/boletas-camara/?empresa=";
 
   let regs = [], emps = [], conts = {}, autoTimer = null, inactividadTimer = null;
@@ -828,6 +831,16 @@
     document.getElementById("modal-id").textContent = "ID: " + id;
     document.getElementById("msg-modal").style.display = "none";
     document.getElementById("modal").classList.add("visible");
+  };
+
+  window.cerrarSesion = () => {
+    clearInterval(autoTimer);
+    clearTimeout(inactividadTimer);
+    sessionStorage.removeItem("admin_auth");
+    document.getElementById("app").style.display   = "none";
+    document.getElementById("login").style.display = "flex";
+    document.getElementById("clave").value = "";
+    document.getElementById("err-login").textContent = "";
   };
 
   window.cerrarModal = () => {
