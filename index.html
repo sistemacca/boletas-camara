@@ -180,7 +180,7 @@
 </head>
 <body>
 
-<div class="card">
+<div class="card" id="card-formulario">
   <div class="logo">
     <img src="https://sistemacca.github.io/boletas-camara/logo.png" style="height:50px;margin-bottom:12px"><br><h2>Semana Comercial</h2>
     <span class="empresa-nombre" id="empresa-label">Cargando...</span>
@@ -217,6 +217,8 @@
 
   <div class="resultado" id="resultado"></div>
 </div>
+
+<div id="comprobante-externo" style="display:none;width:100%;max-width:420px;margin:0 auto"></div>
 
 <script type="module">
   import { initializeApp }       from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -353,11 +355,11 @@
       // Mostrar resultado
       const empresaNombre = document.getElementById("empresa-label").textContent || EMPRESA;
 
-      // Ocultar formulario y mostrar solo el comprobante
-      document.getElementById("formulario").style.display = "none";
-      document.getElementById("empresa-label").style.display = "none";
-
-      resultado.innerHTML = `
+      // Ocultar card entera y mostrar comprobante fuera
+      document.getElementById("card-formulario").style.display = "none";
+      const compExt = document.getElementById("comprobante-externo");
+      compExt.style.display = "block";
+      compExt.innerHTML = `
         <div class="exito" id="comprobante">
           <div style="font-size:13px;color:#4b7a5e;margin-bottom:4px">Semana Comercial 2026</div>
           <div style="font-size:15px;font-weight:700;color:#003366;margin-bottom:2px">${empresaNombre}</div>
@@ -375,6 +377,7 @@
         </div>
       `;
 
+      resultado.innerHTML = '';
       // Scroll al inicio para que el comprobante sea lo primero visible
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -401,8 +404,9 @@
 
     try {
       const empresa = document.getElementById("empresa-label") ? document.getElementById("empresa-label").textContent : "";
-      const nombreEl = document.querySelector(".nombre-usuario");
-      const boletaEl = document.querySelector(".numero");
+      const contenedor = document.getElementById("comprobante-externo") || document.getElementById("resultado");
+      const nombreEl = contenedor.querySelector(".nombre-usuario");
+      const boletaEl = contenedor.querySelector(".numero");
       const nombre = nombreEl ? nombreEl.textContent : "";
       const boleta = boletaEl ? boletaEl.textContent : "";
 
@@ -474,19 +478,25 @@
       ctx.fillStyle = "#64748b";
       ctx.fillText("Conserva este documento como soporte", W/2, 360);
 
-      // Descargar
-      const link = document.createElement("a");
-      link.download = "boleta-" + boleta + "-semana-comercial.jpg";
-      link.href = cv.toDataURL("image/jpeg", 0.95);
-      link.click();
+      // Descargar — compatible PC y móvil
+      cv.toBlob(function(blob) {
+        const url  = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href     = url;
+        link.download = "boleta-" + boleta + "-semana-comercial.jpg";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-      btn.innerHTML = "✓ Descargado";
-      btn.style.background = "#16a34a";
-      setTimeout(() => {
-        btn.innerHTML = "⬇ Descargar comprobante";
-        btn.style.background = "#003366";
-        btn.disabled = false;
-      }, 2500);
+        btn.innerHTML = "✓ Descargado";
+        btn.style.background = "#16a34a";
+        setTimeout(() => {
+          btn.innerHTML = "⬇ Descargar comprobante";
+          btn.style.background = "#003366";
+          btn.disabled = false;
+        }, 2500);
+      }, "image/jpeg", 0.95);
 
     } catch(e) {
       console.error(e);
