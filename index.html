@@ -428,12 +428,10 @@
     btn.disabled = true;
 
     try {
-      const empresa = document.getElementById("empresa-label") ? document.getElementById("empresa-label").textContent : "";
+      const empresa  = document.getElementById("empresa-label") ? document.getElementById("empresa-label").textContent : "";
       const contenedor = document.getElementById("comprobante-externo") || document.getElementById("resultado");
-      const nombreEl = contenedor.querySelector(".nombre-usuario");
-      const boletaEl = contenedor.querySelector(".numero");
-      const nombre = nombreEl ? nombreEl.textContent : "";
-      const boleta = boletaEl ? boletaEl.textContent : "";
+      const nombre   = contenedor.querySelector(".nombre-usuario") ? contenedor.querySelector(".nombre-usuario").textContent : "";
+      const boleta   = contenedor.querySelector(".numero") ? contenedor.querySelector(".numero").textContent : "";
 
       const W = 600, H = 400;
       const cv = document.createElement("canvas");
@@ -477,7 +475,7 @@
       // Nombre
       ctx.font = "16px Arial";
       ctx.fillStyle = "#1e293b";
-      ctx.fillText(nombreUsuario, W/2, 155);
+      ctx.fillText(nombre, W/2, 155);
 
       // Número boleta
       ctx.font = "bold 90px Arial";
