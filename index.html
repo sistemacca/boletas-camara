@@ -385,6 +385,108 @@
     btn.disabled  = false;
     btn.innerHTML = "Registrar";
   };
+
+  window.descargarJPG = function() {
+    const btn = document.getElementById("btn-descargar");
+    btn.textContent = "Generando...";
+    btn.disabled = true;
+
+    try {
+      const empresa = document.getElementById("empresa-label") ? document.getElementById("empresa-label").textContent : "";
+      const nombreEl = document.querySelector(".nombre-usuario");
+      const boletaEl = document.querySelector(".numero");
+      const nombre = nombreEl ? nombreEl.textContent : "";
+      const boleta = boletaEl ? boletaEl.textContent : "";
+
+      const W = 600, H = 400;
+      const cv = document.createElement("canvas");
+      cv.width = W; cv.height = H;
+      const ctx = cv.getContext("2d");
+
+      // Fondo blanco
+      ctx.fillStyle = "#f0fdf4";
+      ctx.fillRect(0, 0, W, H);
+
+      // Borde superior azul
+      ctx.fillStyle = "#003366";
+      ctx.fillRect(0, 0, W, 8);
+
+      // Borde inferior dorado
+      ctx.fillStyle = "#d4af37";
+      ctx.fillRect(0, H - 6, W, 6);
+
+      // Encabezado
+      ctx.fillStyle = "#003366";
+      ctx.font = "bold 20px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Cámara de Comercio de Arauca", W/2, 52);
+
+      ctx.font = "14px Arial";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText("Semana Comercial 2026", W/2, 76);
+
+      // Separador
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(40, 95); ctx.lineTo(W-40, 95);
+      ctx.stroke();
+
+      // Empresa
+      ctx.font = "bold 15px Arial";
+      ctx.fillStyle = "#003366";
+      ctx.fillText(empresa, W/2, 125);
+
+      // Nombre
+      ctx.font = "16px Arial";
+      ctx.fillStyle = "#1e293b";
+      ctx.fillText(nombre, W/2, 155);
+
+      // Número boleta
+      ctx.font = "bold 90px Arial";
+      ctx.fillStyle = "#003366";
+      ctx.fillText(boleta, W/2, 260);
+
+      ctx.font = "14px Arial";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText("Número de boleta", W/2, 288);
+
+      // Separador
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.beginPath();
+      ctx.moveTo(40, 308); ctx.lineTo(W-40, 308);
+      ctx.stroke();
+
+      // Pie
+      ctx.font = "bold 13px Arial";
+      ctx.fillStyle = "#166534";
+      ctx.fillText("✓ Comprobante oficial de registro", W/2, 338);
+
+      ctx.font = "12px Arial";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText("Conserva este documento como soporte", W/2, 360);
+
+      // Descargar
+      const link = document.createElement("a");
+      link.download = "boleta-" + boleta + "-semana-comercial.jpg";
+      link.href = cv.toDataURL("image/jpeg", 0.95);
+      link.click();
+
+      btn.innerHTML = "✓ Descargado";
+      btn.style.background = "#16a34a";
+      setTimeout(() => {
+        btn.innerHTML = "⬇ Descargar comprobante";
+        btn.style.background = "#003366";
+        btn.disabled = false;
+      }, 2500);
+
+    } catch(e) {
+      console.error(e);
+      btn.innerHTML = "⬇ Descargar comprobante";
+      btn.disabled = false;
+      alert("No se pudo generar. Toma una captura de pantalla.");
+    }
+  };
 </script>
 
 </body>
