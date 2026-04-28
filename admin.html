@@ -161,12 +161,40 @@
     @keyframes pulso { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
 
     /* PAGINACIÓN */
-    .paginacion { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 16px 20px; flex-wrap: wrap; border-top: 1px solid var(--borde); }
-    .pag-btn { padding: 7px 13px; border: 1.5px solid var(--borde); border-radius: 8px; background: white; color: var(--texto); font-size: 13px; cursor: pointer; min-width: 38px; text-align: center; transition: all 0.15s; }
-    .pag-btn:hover:not(:disabled) { border-color: var(--azul); color: var(--azul); }
-    .pag-btn.activo { background: var(--azul); color: white; border-color: var(--azul); font-weight: 600; }
-    .pag-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-    .pag-info { font-size: 12px; color: var(--sub); padding: 0 6px; }
+    /* PAGINACIÓN PROFESIONAL */
+    .pag-wrap { border-top: 1px solid var(--borde); padding: 14px 20px; background: #f8fafc; }
+    .pag-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .pag-info { font-size: 13px; color: var(--sub); }
+    .pag-info strong { color: var(--texto); }
+    .pag-btns { display: flex; align-items: center; gap: 4px; }
+    .pag-btn { padding: 6px 12px; border: 1.5px solid var(--borde); border-radius: 8px; background: white; color: var(--texto); font-size: 13px; cursor: pointer; min-width: 36px; text-align: center; transition: all 0.15s; font-weight: 500; }
+    .pag-btn:hover:not(:disabled) { border-color: var(--azul); color: var(--azul); background: #f0faf4; }
+    .pag-btn.activo { background: var(--azul); color: white; border-color: var(--azul); font-weight: 700; }
+    .pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .pag-btn.nav { padding: 6px 14px; font-size: 13px; }
+    .pag-dots { padding: 6px 4px; color: var(--sub); font-size: 13px; }
+    /* Slider de páginas */
+    .pag-slider-wrap { display: flex; align-items: center; gap: 10px; }
+    .pag-slider-label { font-size: 12px; color: var(--sub); white-space: nowrap; }
+    .pag-slider {
+      -webkit-appearance: none; appearance: none;
+      flex: 1; height: 5px; border-radius: 3px;
+      background: var(--borde); outline: none; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .pag-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--azul); cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      transition: transform 0.15s;
+    }
+    .pag-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .pag-slider::-moz-range-thumb {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--azul); cursor: pointer; border: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
 
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
@@ -293,7 +321,7 @@
           </div>
           <div class="lista-m" id="lm-reg"></div>
           <div class="vacio" id="vacio-reg" style="display:none">No hay registros</div>
-          <div class="paginacion" id="pag-reg" style="display:none"></div>
+          <div id="pag-reg" style="display:none"></div>
         </div>
       </div>
 
@@ -634,23 +662,37 @@
       });
     }
 
-    // Paginación
+    // Paginación profesional con slider
     if (total > POR_PAGINA) {
       const pag = document.getElementById("pag-reg");
       pag.innerHTML = "";
 
-      const info = document.createElement("span");
-      info.className   = "pag-info";
-      info.textContent = `${inicio+1}–${fin} de ${total}`;
-      pag.appendChild(info);
+      const wrap = document.createElement("div");
+      wrap.className = "pag-wrap";
 
+      // Fila superior: info + botones de número
+      const top = document.createElement("div");
+      top.className = "pag-top";
+
+      // Info registros
+      const info = document.createElement("div");
+      info.className = "pag-info";
+      info.innerHTML = `Mostrando <strong>${inicio+1}–${fin}</strong> de <strong>${total}</strong> registros · Página <strong>${paginaActual}</strong> de <strong>${totalPag}</strong>`;
+      top.appendChild(info);
+
+      // Botones numéricos
+      const btns = document.createElement("div");
+      btns.className = "pag-btns";
+
+      // Anterior
       const prev = document.createElement("button");
-      prev.className   = "pag-btn";
-      prev.textContent = "← Ant";
+      prev.className   = "pag-btn nav";
+      prev.innerHTML   = "&#8592; Anterior";
       prev.disabled    = paginaActual === 1;
       prev.onclick     = () => { paginaActual--; renderPagina(); window.scrollTo({top:0,behavior:"smooth"}); };
-      pag.appendChild(prev);
+      btns.appendChild(prev);
 
+      // Números con puntos suspensivos
       const rango = 2;
       for (let p = 1; p <= totalPag; p++) {
         if (p === 1 || p === totalPag || (p >= paginaActual-rango && p <= paginaActual+rango)) {
@@ -658,21 +700,71 @@
           btn.className   = "pag-btn" + (p === paginaActual ? " activo" : "");
           btn.textContent = p;
           btn.onclick     = ((pg) => () => { paginaActual = pg; renderPagina(); window.scrollTo({top:0,behavior:"smooth"}); })(p);
-          pag.appendChild(btn);
+          btns.appendChild(btn);
         } else if (p === paginaActual-rango-1 || p === paginaActual+rango+1) {
           const pts = document.createElement("span");
-          pts.className   = "pag-info";
-          pts.textContent = "...";
-          pag.appendChild(pts);
+          pts.className   = "pag-dots";
+          pts.textContent = "···";
+          btns.appendChild(pts);
         }
       }
 
+      // Siguiente
       const next = document.createElement("button");
-      next.className   = "pag-btn";
-      next.textContent = "Sig →";
+      next.className   = "pag-btn nav";
+      next.innerHTML   = "Siguiente &#8594;";
       next.disabled    = paginaActual === totalPag;
       next.onclick     = () => { paginaActual++; renderPagina(); window.scrollTo({top:0,behavior:"smooth"}); };
-      pag.appendChild(next);
+      btns.appendChild(next);
+
+      top.appendChild(btns);
+      wrap.appendChild(top);
+
+      // Slider de desplazamiento rápido
+      if (totalPag > 2) {
+        const sliderWrap = document.createElement("div");
+        sliderWrap.className = "pag-slider-wrap";
+
+        const lblIni = document.createElement("span");
+        lblIni.className   = "pag-slider-label";
+        lblIni.textContent = "Pág 1";
+
+        const slider = document.createElement("input");
+        slider.type      = "range";
+        slider.className = "pag-slider";
+        slider.min       = 1;
+        slider.max       = totalPag;
+        slider.value     = paginaActual;
+        slider.title     = "Desliza para ir a cualquier página";
+
+        // Actualizar color del track según posición
+        const pct = ((paginaActual - 1) / (totalPag - 1)) * 100;
+        slider.style.background = `linear-gradient(to right, var(--azul) ${pct}%, var(--borde) ${pct}%)`;
+
+        slider.addEventListener("input", function() {
+          const p = Number(this.value);
+          const p2 = ((p - 1) / (totalPag - 1)) * 100;
+          this.style.background = `linear-gradient(to right, var(--azul) ${p2}%, var(--borde) ${p2}%)`;
+          lblFin.textContent = "Pág " + p;
+        });
+
+        slider.addEventListener("change", function() {
+          paginaActual = Number(this.value);
+          renderPagina();
+          window.scrollTo({top:0,behavior:"smooth"});
+        });
+
+        const lblFin = document.createElement("span");
+        lblFin.className   = "pag-slider-label";
+        lblFin.textContent = "Pág " + totalPag;
+
+        sliderWrap.appendChild(lblIni);
+        sliderWrap.appendChild(slider);
+        sliderWrap.appendChild(lblFin);
+        wrap.appendChild(sliderWrap);
+      }
+
+      pag.appendChild(wrap);
     }
   }
 
@@ -712,7 +804,8 @@
       conts = {};
       sC.docs.forEach(d=>{conts[d.id]=d.data().actual||0;});
       // Orden descendente: más reciente primero (último creado aparece arriba)
-      emps.reverse();
+      // Ordenar por rango desde: menor a mayor
+      emps.sort((a,b) => Number(b.desde) - Number(a.desde));
 
       if (emps.length===0) {
         document.getElementById("spin-emp").style.display  = "none";
@@ -800,7 +893,7 @@
       });
       if (conflicto) {
         const ec = conflicto.data();
-        msg.textContent = "El rango " + desde + "-" + hasta + " se solapa con \"" + (ec.nombre || conflicto.id) + "\" (rango " + ec.desde + "-" + ec.hasta + "). Usa números que no estén ocupados.";
+        msg.textContent = "El rango ingresado (" + desde + "–" + hasta + ") no está disponible porque se cruza con rangos ya asignados. Por favor ingresa un rango completamente disponible.";
         msg.className="fmsg error"; msg.style.display="block"; return;
       }
 
