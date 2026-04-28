@@ -388,7 +388,7 @@
             <!-- Botón descargar -->
             <button id="btn-descargar" onclick="descargarJPG()"
               style="width:100%;padding:14px;background:#007d42;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;letter-spacing:0.3px;text-align:center">
-              ⬇ Descargar comprobante
+              Descargar comprobante
             </button>
 
             <!-- Captura -->
@@ -512,10 +512,10 @@
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-        btn.innerHTML = "✓ Descargado";
+        btn.innerHTML = "Descargado";
         btn.style.background = "#16a34a";
         setTimeout(() => {
-          btn.innerHTML = "⬇ Descargar comprobante";
+          btn.innerHTML = "Descargar comprobante";
           btn.style.background = "#007d42";
           btn.disabled = false;
         }, 2500);
@@ -523,7 +523,7 @@
 
     } catch(e) {
       console.error(e);
-      btn.innerHTML = "⬇ Descargar comprobante";
+      btn.innerHTML = "Descargar comprobante";
       btn.disabled = false;
       alert("No se pudo generar. Toma una captura de pantalla.");
     }
