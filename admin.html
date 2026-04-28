@@ -800,7 +800,7 @@
       });
       if (conflicto) {
         const ec = conflicto.data();
-        msg.textContent = \`El rango \${desde}–\${hasta} se solapa con "\${ec.nombre || conflicto.id}" (rango \${ec.desde}–\${ec.hasta}). Usa números que no estén ocupados.\`;
+        msg.textContent = "El rango " + desde + "-" + hasta + " se solapa con \"" + (ec.nombre || conflicto.id) + "\" (rango " + ec.desde + "-" + ec.hasta + "). Usa números que no estén ocupados.";
         msg.className="fmsg error"; msg.style.display="block"; return;
       }
 
