@@ -29,7 +29,7 @@
       width: 100%;
       max-width: 500px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-      border-top: 6px solid #003366;
+      border-top: 6px solid #007d42;
     }
 
     .logo {
@@ -37,13 +37,13 @@
       margin-bottom: 24px;
     }
 
-    .logo h2 { color: #003366; font-size: 22px; margin-bottom: 4px; }
+    .logo h2 { color: #007d42; font-size: 22px; margin-bottom: 4px; }
     .logo p  { color: #64748b; font-size: 13px; }
     .logo .empresa-nombre {
       display: inline-block;
       margin-top: 8px;
-      background: #e8f0fe;
-      color: #003366;
+      background: #e6f4ec;
+      color: #007d42;
       font-size: 13px;
       font-weight: 600;
       padding: 4px 12px;
@@ -56,7 +56,7 @@
       display: block;
       font-size: 12px;
       font-weight: 600;
-      color: #003366;
+      color: #007d42;
       margin-bottom: 5px;
     }
 
@@ -73,8 +73,8 @@
 
     input:focus {
       outline: none;
-      border-color: #003366;
-      box-shadow: 0 0 0 3px rgba(0,51,102,0.08);
+      border-color: #007d42;
+      box-shadow: 0 0 0 3px rgba(0,125,66,0.08);
     }
 
     input.error { border-color: #e11d48; }
@@ -89,7 +89,7 @@
     button {
       width: 100%;
       padding: 13px;
-      background: #003366;
+      background: #007d42;
       color: white;
       border: none;
       border-radius: 8px;
@@ -100,7 +100,7 @@
       transition: background 0.2s;
     }
 
-    button:hover:not(:disabled) { background: #002244; }
+    button:hover:not(:disabled) { background: #005a30; }
     button:disabled { background: #94a3b8; cursor: not-allowed; }
 
     .resultado { margin-top: 20px; text-align: center; }
@@ -116,7 +116,7 @@
     .exito .numero {
       font-size: 52px;
       font-weight: 700;
-      color: #003366;
+      color: #007d42;
       display: block;
       margin: 8px 0 4px;
     }
@@ -154,7 +154,7 @@
       display: inline-block;
       width: 20px; height: 20px;
       border: 2px solid #cbd5e1;
-      border-top-color: #003366;
+      border-top-color: #007d42;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       margin-bottom: 10px;
@@ -164,7 +164,7 @@
 
     @media (max-width: 600px) {
       body { padding: 0; align-items: flex-start; justify-content: flex-start; }
-      .card { max-width: 100%; min-height: 100vh; border-radius: 0; border-top: 6px solid #003366; box-shadow: none; padding: 28px 20px; }
+      .card { max-width: 100%; min-height: 100vh; border-radius: 0; border-top: 6px solid #007d42; box-shadow: none; padding: 28px 20px; }
       input { font-size: 16px; }
       button { font-size: 16px; padding: 15px; }
     }
@@ -360,9 +360,9 @@
       const compExt = document.getElementById("comprobante-externo");
       compExt.style.display = "block";
       compExt.innerHTML = `
-        <div id="comprobante" style="background:white;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,0.1);border-top:6px solid #003366;overflow:hidden;text-align:center;width:100%;max-width:420px;margin:0 auto;font-family:'Segoe UI',Arial,sans-serif">
+        <div id="comprobante" style="background:white;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,0.1);border-top:6px solid #007d42;overflow:hidden;text-align:center;width:100%;max-width:420px;margin:0 auto;font-family:'Segoe UI',Arial,sans-serif">
           <!-- ENCABEZADO -->
-          <div style="background:#003366;padding:24px 20px 20px;text-align:center;display:block">
+          <div style="background:#007d42;padding:24px 20px 20px;text-align:center;display:block">
             <img src="https://sistemacca.github.io/boletas-camara/logo.png"
                  style="height:52px;filter:brightness(0) invert(1);margin-bottom:10px">
             <div style="color:rgba(255,255,255,0.8);font-size:12px;letter-spacing:1px;text-transform:uppercase">Semana Comercial 2026</div>
@@ -376,18 +376,18 @@
 
             <div style="font-size:13px;font-weight:600;color:#16a34a;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Registro exitoso</div>
 
-            <div style="font-size:15px;font-weight:700;color:#003366;margin-bottom:4px">${empresaNombre}</div>
+            <div style="font-size:15px;font-weight:700;color:#007d42;margin-bottom:4px">${empresaNombre}</div>
             <div class="nombre-usuario" style="font-size:16px;font-weight:600;color:#1e293b;margin-bottom:20px;text-align:center">${nombre}</div>
 
             <!-- Número de boleta -->
-            <div style="background:#f0f4f8;border-radius:14px;padding:20px;margin-bottom:20px;border:2px dashed #003366">
+            <div style="background:#f0f4f8;border-radius:14px;padding:20px;margin-bottom:20px;border:2px dashed #007d42">
               <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Tu número de boleta</div>
-              <div class="numero" style="font-size:64px;font-weight:700;color:#003366;line-height:1">${numeroBoleta}</div>
+              <div class="numero" style="font-size:64px;font-weight:700;color:#007d42;line-height:1">${numeroBoleta}</div>
             </div>
 
             <!-- Botón descargar -->
             <button id="btn-descargar" onclick="descargarJPG()"
-              style="width:100%;padding:14px;background:#003366;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;letter-spacing:0.3px;text-align:center">
+              style="width:100%;padding:14px;background:#007d42;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;letter-spacing:0.3px;text-align:center">
               ⬇ Descargar comprobante
             </button>
 
@@ -443,7 +443,7 @@
       ctx.fillRect(0, 0, W, H);
 
       // Borde superior azul
-      ctx.fillStyle = "#003366";
+      ctx.fillStyle = "#007d42";
       ctx.fillRect(0, 0, W, 8);
 
       // Borde inferior dorado
@@ -451,7 +451,7 @@
       ctx.fillRect(0, H - 6, W, 6);
 
       // Encabezado
-      ctx.fillStyle = "#003366";
+      ctx.fillStyle = "#007d42";
       ctx.font = "bold 20px Arial";
       ctx.textAlign = "center";
       ctx.fillText("Cámara de Comercio de Arauca", W/2, 52);
@@ -469,7 +469,7 @@
 
       // Empresa
       ctx.font = "bold 15px Arial";
-      ctx.fillStyle = "#003366";
+      ctx.fillStyle = "#007d42";
       ctx.fillText(empresa, W/2, 125);
 
       // Nombre
@@ -479,7 +479,7 @@
 
       // Número boleta
       ctx.font = "bold 90px Arial";
-      ctx.fillStyle = "#003366";
+      ctx.fillStyle = "#007d42";
       ctx.fillText(boleta, W/2, 260);
 
       ctx.font = "14px Arial";
@@ -516,7 +516,7 @@
         btn.style.background = "#16a34a";
         setTimeout(() => {
           btn.innerHTML = "⬇ Descargar comprobante";
-          btn.style.background = "#003366";
+          btn.style.background = "#007d42";
           btn.disabled = false;
         }, 2500);
       }, "image/jpeg", 0.95);
