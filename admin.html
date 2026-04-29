@@ -14,12 +14,12 @@
       --borde: #e2e8f0; --sub: #64748b; --texto: #1e293b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--texto); }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #007d42; background-image: url('https://sistemacca.github.io/boletas-camara/fondo_login.jpg'); background-size: cover; background-position: center; background-attachment: fixed; color: var(--texto); }
 
     #login {
       min-height: 100vh; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      background: linear-gradient(135deg, #003d21 0%, #007d42 50%, #009a52 100%);
+      background: url('https://sistemacca.github.io/boletas-camara/fondo_login.jpg') center center / cover no-repeat; position: relative;
       padding: 24px;
     }
     .login-logo { text-align: center; margin-bottom: 32px; color: white; }
@@ -160,40 +160,47 @@
     .refresh-dot { width: 7px; height: 7px; background: var(--verde); border-radius: 50%; animation: pulso 1.5s ease-in-out infinite; }
     @keyframes pulso { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
 
-    /* PAGINACIÓN */
-    /* PAGINACIÓN PROFESIONAL */
-    .pag-wrap { border-top: 1px solid var(--borde); padding: 14px 20px; background: #f8fafc; }
-    .pag-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
-    .pag-info { font-size: 13px; color: var(--sub); }
-    .pag-info strong { color: var(--texto); }
-    .pag-btns { display: flex; align-items: center; gap: 4px; }
-    .pag-btn { padding: 6px 12px; border: 1.5px solid var(--borde); border-radius: 8px; background: white; color: var(--texto); font-size: 13px; cursor: pointer; min-width: 36px; text-align: center; transition: all 0.15s; font-weight: 500; }
-    .pag-btn:hover:not(:disabled) { border-color: var(--azul); color: var(--azul); background: #f0faf4; }
-    .pag-btn.activo { background: var(--azul); color: white; border-color: var(--azul); font-weight: 700; }
-    .pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .pag-btn.nav { padding: 6px 14px; font-size: 13px; }
-    .pag-dots { padding: 6px 4px; color: var(--sub); font-size: 13px; }
-    /* Slider de páginas */
-    .pag-slider-wrap { display: flex; align-items: center; gap: 10px; }
-    .pag-slider-label { font-size: 12px; color: var(--sub); white-space: nowrap; }
-    .pag-slider {
-      -webkit-appearance: none; appearance: none;
-      flex: 1; height: 5px; border-radius: 3px;
-      background: var(--borde); outline: none; cursor: pointer;
-      transition: background 0.2s;
+        /* PAGINACIÓN */
+    .pag-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-top: 1px solid var(--borde);
+      background: #fafafa; flex-wrap: wrap; gap: 10px;
     }
-    .pag-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; appearance: none;
-      width: 18px; height: 18px; border-radius: 50%;
-      background: var(--azul); cursor: pointer;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      transition: transform 0.15s;
+    .pag-size-wrap { display: flex; align-items: center; gap: 8px; }
+    .pag-size-wrap label { font-size: 12px; color: var(--sub); }
+    .pag-size-select {
+      height: 30px; padding: 0 8px; border: 1px solid var(--borde);
+      border-radius: 6px; font-size: 12px; color: var(--texto);
+      background: white; cursor: pointer; outline: none;
     }
-    .pag-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
-    .pag-slider::-moz-range-thumb {
-      width: 18px; height: 18px; border-radius: 50%;
-      background: var(--azul); cursor: pointer; border: none;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    .pag-size-select:focus { border-color: var(--azul); }
+    .pag-meta-txt { font-size: 12px; color: var(--sub); }
+    .pag-meta-txt b { color: var(--texto); }
+    .pag-btns-wrap { display: flex; align-items: center; gap: 2px; }
+    .pb {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 30px; height: 30px; padding: 0 6px;
+      border: 1px solid var(--borde); border-radius: 6px;
+      background: white; color: var(--texto);
+      font-size: 12px; font-weight: 500; cursor: pointer;
+      transition: all 0.12s; user-select: none;
+    }
+    .pb:hover:not(:disabled) { background: #f0faf4; border-color: var(--azul); color: var(--azul); }
+    .pb.current { background: var(--azul); color: white; border-color: var(--azul); font-weight: 700; cursor: default; }
+    .pb:disabled { opacity: 0.3; cursor: default; }
+    .pb-dots { border: none; background: none; cursor: default; color: var(--sub); font-size: 13px; min-width: 20px; }
+    .pb-dots:hover { background: none; border: none; color: var(--sub); }
+    .tabla-box { overflow-y: auto; max-height: 480px; }
+    .tabla-box::-webkit-scrollbar { width: 6px; }
+    .tabla-box::-webkit-scrollbar-track { background: #f1f5f9; }
+    .tabla-box::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .tabla-box::-webkit-scrollbar-thumb:hover { background: var(--azul); }
+    .tabla-box table thead tr { position: sticky; top: 0; z-index: 2; }
+
+@media (max-width: 768px) {
+      .pag-wrap { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .pag-ir { display: none; }
+      .pag-btn.nav span { display: none; }
     }
 
     @media (max-width: 768px) {
@@ -219,15 +226,17 @@
       .modal-btns .btn { min-width: 130px; justify-content: center; }
     }
   </style>
+  <link rel="preload" as="image" href="https://sistemacca.github.io/boletas-camara/fondo_login.jpg">
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="login">
-  <div class="login-logo">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.45);z-index:0"></div>
+  <div class="login-logo" style="position:relative;z-index:1">
     <img src="https://sistemacca.github.io/boletas-camara/logo.png" style="height:80px;margin-bottom:8px;filter:brightness(0) invert(1)">
   </div>
-  <div class="login-card">
+  <div class="login-card" style="position:relative;z-index:1">
     <h2>Bienvenido</h2>
     <p>Semana Comercial 2026</p>
     <label class="login-label" for="clave">Contraseña de acceso</label>
@@ -236,7 +245,7 @@
     <button class="login-btn" onclick="entrar()">Ingresar al Panel</button>
     <div class="login-error" id="err-login"></div>
   </div>
-  <p class="login-footer">Acceso exclusivo para personal autorizado</p>
+  <p class="login-footer" style="position:relative;z-index:1">Acceso exclusivo para personal autorizado</p>
 </div>
 
 <!-- APP -->
@@ -313,7 +322,7 @@
             <button class="btn btn-p btn-sm" onclick="cargarRegistros()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></button>
           </div>
           <div class="spin-wrap" id="spin-reg"><div class="spin"></div><p>Cargando...</p></div>
-          <div class="tabla-scroll">
+          <div class="tabla-box" id="tabla-box-reg">
             <table id="t-reg" style="display:none">
               <thead><tr><th>#</th><th>Boleta</th><th>Empresa</th><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Fecha</th></tr></thead>
               <tbody id="tb-reg"></tbody>
@@ -625,7 +634,7 @@
     document.getElementById("spin-reg").style.display  = "none";
     document.getElementById("vacio-reg").style.display = total === 0 ? "block" : "none";
     document.getElementById("t-reg").style.display     = (total > 0 && !isMobile) ? "table" : "none";
-    document.getElementById("pag-reg").style.display   = total > POR_PAGINA ? "flex" : "none";
+    document.getElementById("pag-reg").style.display   = total > POR_PAGINA ? "block" : "none";
 
     // Tabla escritorio
     const tbody = document.getElementById("tb-reg");
@@ -662,106 +671,111 @@
       });
     }
 
-    // Paginación profesional con slider
+    // Paginación profesional
     if (total > POR_PAGINA) {
       const pag = document.getElementById("pag-reg");
+      pag.style.display = "block";
       pag.innerHTML = "";
 
+      const ir = (pg) => {
+        paginaActual = pg;
+        renderPagina();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
       const wrap = document.createElement("div");
-      wrap.className = "pag-wrap";
+      wrap.className = "pag-container";
 
-      // Fila superior: info + botones de número
-      const top = document.createElement("div");
-      top.className = "pag-top";
+      // Info izquierda
+      const meta = document.createElement("div");
+      meta.className = "pag-meta";
+      meta.innerHTML = `<b>${inicio+1}–${fin}</b> de <b>${total}</b> registros &nbsp;|&nbsp; Página <b>${paginaActual}</b> de <b>${totalPag}</b>`;
+      wrap.appendChild(meta);
 
-      // Info registros
-      const info = document.createElement("div");
-      info.className = "pag-info";
-      info.innerHTML = `Mostrando <strong>${inicio+1}–${fin}</strong> de <strong>${total}</strong> registros · Página <strong>${paginaActual}</strong> de <strong>${totalPag}</strong>`;
-      top.appendChild(info);
+      // Controles centrales
+      const ctrl = document.createElement("div");
+      ctrl.className = "pag-controls";
 
-      // Botones numéricos
-      const btns = document.createElement("div");
-      btns.className = "pag-btns";
+      // Botón primera página
+      const first = document.createElement("button");
+      first.className = "pag-nav";
+      first.disabled  = paginaActual === 1;
+      first.title     = "Primera página";
+      first.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>`;
+      first.onclick   = () => ir(1);
+      ctrl.appendChild(first);
 
-      // Anterior
+      // Botón anterior
       const prev = document.createElement("button");
-      prev.className   = "pag-btn nav";
-      prev.innerHTML   = "&#8592; Anterior";
-      prev.disabled    = paginaActual === 1;
-      prev.onclick     = () => { paginaActual--; renderPagina(); window.scrollTo({top:0,behavior:"smooth"}); };
-      btns.appendChild(prev);
+      prev.className = "pag-nav";
+      prev.disabled  = paginaActual === 1;
+      prev.title     = "Página anterior";
+      prev.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Anterior`;
+      prev.onclick   = () => ir(paginaActual - 1);
+      ctrl.appendChild(prev);
 
-      // Números con puntos suspensivos
-      const rango = 2;
+      // Números de página
+      const r = 2;
+      let lastP = 0;
       for (let p = 1; p <= totalPag; p++) {
-        if (p === 1 || p === totalPag || (p >= paginaActual-rango && p <= paginaActual+rango)) {
+        const visible = p === 1 || p === totalPag || (p >= paginaActual - r && p <= paginaActual + r);
+        if (visible) {
+          if (lastP && p - lastP > 1) {
+            const dots = document.createElement("span");
+            dots.className   = "pag-dots-span";
+            dots.textContent = "···";
+            ctrl.appendChild(dots);
+          }
           const btn = document.createElement("button");
-          btn.className   = "pag-btn" + (p === paginaActual ? " activo" : "");
+          btn.className   = "pag-num" + (p === paginaActual ? " on" : "");
           btn.textContent = p;
-          btn.onclick     = ((pg) => () => { paginaActual = pg; renderPagina(); window.scrollTo({top:0,behavior:"smooth"}); })(p);
-          btns.appendChild(btn);
-        } else if (p === paginaActual-rango-1 || p === paginaActual+rango+1) {
-          const pts = document.createElement("span");
-          pts.className   = "pag-dots";
-          pts.textContent = "···";
-          btns.appendChild(pts);
+          btn.onclick     = ((pg) => () => ir(pg))(p);
+          ctrl.appendChild(btn);
+          lastP = p;
         }
       }
 
-      // Siguiente
+      // Botón siguiente
       const next = document.createElement("button");
-      next.className   = "pag-btn nav";
-      next.innerHTML   = "Siguiente &#8594;";
-      next.disabled    = paginaActual === totalPag;
-      next.onclick     = () => { paginaActual++; renderPagina(); window.scrollTo({top:0,behavior:"smooth"}); };
-      btns.appendChild(next);
+      next.className = "pag-nav";
+      next.disabled  = paginaActual === totalPag;
+      next.title     = "Página siguiente";
+      next.innerHTML = `Siguiente <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+      next.onclick   = () => ir(paginaActual + 1);
+      ctrl.appendChild(next);
 
-      top.appendChild(btns);
-      wrap.appendChild(top);
+      // Botón última página
+      const last = document.createElement("button");
+      last.className = "pag-nav";
+      last.disabled  = paginaActual === totalPag;
+      last.title     = "Última página";
+      last.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>`;
+      last.onclick   = () => ir(totalPag);
+      ctrl.appendChild(last);
 
-      // Slider de desplazamiento rápido
-      if (totalPag > 2) {
-        const sliderWrap = document.createElement("div");
-        sliderWrap.className = "pag-slider-wrap";
+      wrap.appendChild(ctrl);
 
-        const lblIni = document.createElement("span");
-        lblIni.className   = "pag-slider-label";
-        lblIni.textContent = "Pág 1";
-
-        const slider = document.createElement("input");
-        slider.type      = "range";
-        slider.className = "pag-slider";
-        slider.min       = 1;
-        slider.max       = totalPag;
-        slider.value     = paginaActual;
-        slider.title     = "Desliza para ir a cualquier página";
-
-        // Actualizar color del track según posición
-        const pct = ((paginaActual - 1) / (totalPag - 1)) * 100;
-        slider.style.background = `linear-gradient(to right, var(--azul) ${pct}%, var(--borde) ${pct}%)`;
-
-        slider.addEventListener("input", function() {
-          const p = Number(this.value);
-          const p2 = ((p - 1) / (totalPag - 1)) * 100;
-          this.style.background = `linear-gradient(to right, var(--azul) ${p2}%, var(--borde) ${p2}%)`;
-          lblFin.textContent = "Pág " + p;
+      // Ir a página (solo si hay más de 5 páginas)
+      if (totalPag > 5) {
+        const jump = document.createElement("div");
+        jump.className = "pag-jump";
+        const lbl = document.createElement("span");
+        lbl.textContent = "Ir a página";
+        const inp = document.createElement("input");
+        inp.type = "number"; inp.min = 1; inp.max = totalPag; inp.value = paginaActual;
+        const btn = document.createElement("button");
+        btn.textContent = "Ir";
+        btn.onclick = () => {
+          const v = parseInt(inp.value);
+          if (v >= 1 && v <= totalPag) ir(v);
+        };
+        inp.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") btn.onclick();
         });
-
-        slider.addEventListener("change", function() {
-          paginaActual = Number(this.value);
-          renderPagina();
-          window.scrollTo({top:0,behavior:"smooth"});
-        });
-
-        const lblFin = document.createElement("span");
-        lblFin.className   = "pag-slider-label";
-        lblFin.textContent = "Pág " + totalPag;
-
-        sliderWrap.appendChild(lblIni);
-        sliderWrap.appendChild(slider);
-        sliderWrap.appendChild(lblFin);
-        wrap.appendChild(sliderWrap);
+        jump.appendChild(lbl);
+        jump.appendChild(inp);
+        jump.appendChild(btn);
+        wrap.appendChild(jump);
       }
 
       pag.appendChild(wrap);
