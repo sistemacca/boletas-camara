@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Comprobante - Semana Comercial</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      border-top: 6px solid #007d42;
+      overflow: hidden;
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+    }
+    .header {
+      background: #007d42;
+      padding: 24px 20px 20px;
+    }
+    .header img {
+      height: 52px;
+      filter: brightness(0) invert(1);
+      margin-bottom: 10px;
+    }
+    .header .subtitulo {
+      color: rgba(255,255,255,0.8);
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .body { padding: 28px 24px; }
+    .check {
+      width: 52px;
+      height: 52px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      font-size: 24px;
+    }
+    .badge-success {
+      font-size: 13px;
+      font-weight: 600;
+      color: #16a34a;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+    .empresa {
+      font-size: 15px;
+      font-weight: 700;
+      color: #007d42;
+      margin-bottom: 4px;
+    }
+    .nombre-usuario {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 20px;
+    }
+    .boleta-box {
+      background: #f0f4f8;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 2px dashed #007d42;
+    }
+    .boleta-label {
+      font-size: 11px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .numero {
+      font-size: 64px;
+      font-weight: 700;
+      color: #007d42;
+      line-height: 1;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #007d42;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+    .btn:hover { background: #005a30; }
+    .captura-box {
+      background: #f0fdf4;
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid #bbf7d0;
+    }
+    .footer-text {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 20px;
+    }
+    @media (max-width: 480px) {
+      .body { padding: 20px 16px; }
+      .numero { font-size: 52px; }
+      .btn { padding: 15px; font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <img src="https://sistemacca.github.io/boletas-camara/logo.png">
+    <div class="subtitulo">Semana Comercial 2026</div>
+  </div>
+  <div class="body">
+    <div class="check">✅</div>
+    <div class="badge-success">Registro exitoso</div>
+    <div class="empresa" id="empresa"></div>
+    <div class="nombre-usuario" id="nombre"></div>
+
+    <div class="boleta-box">
+      <div class="boleta-label">Tu número de boleta</div>
+      <div class="numero" id="boleta"></div>
+    </div>
+
+    <button class="btn" id="btn-descargar" onclick="descargarJPG()">
+      📸 Descargar comprobante
+    </button>
+
+    <div class="captura-box">
+      <div style="font-size:18px; margin-bottom:3px">📱</div>
+      <div style="font-size:12px; font-weight:600; color:#166534">O toma captura de pantalla</div>
+      <div style="font-size:11px; color:#4b7a5e; margin-top:2px">Guarda este número como comprobante</div>
+    </div>
+    <div class="footer-text">Este comprobante es tu única prueba de participación</div>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const nombre = decodeURIComponent(urlParams.get("nombre") || "");
+  const boleta = urlParams.get("boleta") || "";
+  const empresa = decodeURIComponent(urlParams.get("empresa") || "");
+
+  document.getElementById("nombre").textContent = nombre;
+  document.getElementById("boleta").textContent = boleta;
+  document.getElementById("empresa").textContent = empresa;
+
+  window.descargarJPG = function() {
+    const btn = document.getElementById("btn-descargar");
+    btn.textContent = "Generando...";
+    btn.disabled = true;
+
+    try {
+      const W = 600, H = 400;
+      const cv = document.createElement("canvas");
+      cv.width = W; cv.height = H;
+      const ctx = cv.getContext("2d");
+
+      ctx.fillStyle = "#f0fdf4";
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#007d42";
+      ctx.fillRect(0, 0, W, 8);
+      ctx.fillStyle = "#d4af37";
+      ctx.fillRect(0, H - 6, W, 6);
+      ctx.fillStyle = "#007d42";
+      ctx.font = "bold 20px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Cámara de Comercio de Arauca", W/2, 52);
+      ctx.font = "14px Arial";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText("Semana Comercial 2026", W/2, 76);
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.beginPath();
+      ctx.moveTo(40, 95); ctx.lineTo(W-40, 95);
+      ctx.stroke();
+      ctx.font = "bold 15px Arial";
+      ctx.fillStyle = "#007d42";
+      ctx.fillText(empresa, W/2, 125);
+      ctx.font = "16px Arial";
+      ctx.fillStyle = "#1e293b";
+      ctx.fillText(nombre, W/2, 155);
+      ctx.font = "bold 90px Arial";
+      ctx.fillStyle = "#007d42";
+      ctx.fillText(boleta, W/2, 260);
+      ctx.font = "14px Arial";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText("Número de boleta", W/2, 288);
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.beginPath();
+      ctx.moveTo(40, 308); ctx.lineTo(W-40, 308);
+      ctx.stroke();
+      ctx.font = "bold 13px Arial";
+      ctx.fillStyle = "#166534";
+      ctx.fillText("✓ Comprobante oficial de registro", W/2, 338);
+      ctx.font = "12px Arial";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText("Conserva este documento como soporte", W/2, 360);
+
+      cv.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "boleta-" + boleta + "-semana-comercial.jpg";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        btn.innerHTML = "✓ Descargado";
+        btn.style.background = "#16a34a";
+        setTimeout(() => {
+          btn.innerHTML = "📸 Descargar comprobante";
+          btn.style.background = "#007d42";
+          btn.disabled = false;
+        }, 2500);
+      }, "image/jpeg", 0.95);
+    } catch(e) {
+      btn.innerHTML = "📸 Descargar comprobante";
+      btn.disabled = false;
+      alert("Toma una captura de pantalla.");
+    }
+  };
+</script>
+</body>
+</html>
