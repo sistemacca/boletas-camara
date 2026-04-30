@@ -469,6 +469,16 @@
   );
 
   const fstr  = f => !f ? "" : f.toDate ? f.toDate().toISOString() : f.toString();
+  // Resuelve el nombre visible de una empresa dado su ID/código
+  function empNombre(id) {
+    if (!id) return "";
+    // Buscar en el array emps (cargado por dashboard y empresas)
+    const found = emps.find(e => e.id === id);
+    if (found) return found.nombre || id;
+    // Fallback al mapa empNombres (cargado al abrir registros)
+    return empNombres[id] || id;
+  }
+
   const genId = n => n.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
 
   function iniciarSesion() {
@@ -628,7 +638,7 @@
     emp.forEach(e => {
       const o = document.createElement("option");
       o.value = e;
-      o.textContent = empNombres[e] || e; // mostrar nombre, no código
+      o.textContent = empNombre(e);
       sel.appendChild(o);
     });
     sel.value = act;
@@ -671,7 +681,10 @@
       const tr    = document.createElement("tr");
       tr.innerHTML = `<td>${inicio+i+1}</td>
         <td><span class="badge-b">${r.boleta}</span></td>
-        <td><span class="badge-e">${empNombres[r.empresa] || r.empresa || ""}</span></td>
+        <td>
+            <span class="badge-e">${empNombre(r.empresa)}</span>
+            <div style="font-size:10px;color:#94a3b8;margin-top:2px">${r.empresa||""}</div>
+          </td>
         <td>${r.nombre||""}</td><td>${r.telefono||""}</td>
         <td>${r.email||""}</td><td>${fecha}</td>`;
       tbody.appendChild(tr);
@@ -689,7 +702,7 @@
         d.innerHTML = `
           <div class="row-m-top">
             <div><div class="row-m-nombre">${r.nombre||""}</div>
-            <div class="row-m-meta">${empNombres[r.empresa] || r.empresa || ""} · ${fecha}</div></div>
+            <div class="row-m-meta">${empNombre(r.empresa)} · ${fecha}</div></div>
             <span class="badge-b">${r.boleta}</span>
           </div>
           <div class="row-m-meta" style="margin-top:4px">${r.telefono||"-"} · ${r.email||"-"}</div>`;
