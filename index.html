@@ -246,10 +246,8 @@
         fecha: new Date().toISOString()
       });
 
-      const empresaNombre = document.getElementById("empresa-label").textContent || EMPRESA;
-
-      // 🔥 REDIRIGIR A LA PÁGINA DE COMPROBANTE 🔥
-      const urlComprobante = `comprobante.html?nombre=${encodeURIComponent(nombre)}&boleta=${numeroBoleta}&empresa=${encodeURIComponent(empresaNombre)}`;
+      // ✅ Enviar EMPRESA (código interno) — no el nombre visible
+      const urlComprobante = `comprobante.html?nombre=${encodeURIComponent(nombre)}&boleta=${numeroBoleta}&empresa=${encodeURIComponent(EMPRESA)}`;
       window.location.href = urlComprobante;
 
     } catch (err) {
