@@ -447,7 +447,7 @@
   const CLAVE = "CCA2026";
   const BASE  = "https://sistemacca.github.io/boletas-camara/?empresa=";
 
-  let regs = [], emps = [], conts = {}, autoTimer = null, inactividadTimer = null;
+  let regs = [], emps = [], conts = {}, empNombres = {}, autoTimer = null, inactividadTimer = null;
   let regsCache = [], paginaActual = 1;
   const POR_PAGINA = 50;
   const INACTIVIDAD_MS = 2 * 60 * 1000;
@@ -605,8 +605,14 @@
     document.getElementById("vacio-reg").style.display = "none";
     document.getElementById("pag-reg").style.display   = "none";
     try {
-      const snap = await getDocs(query(collection(db,"registros"), orderBy("fecha","desc")));
-      regs = snap.docs.map(d => d.data());
+      const [snapR, snapE] = await Promise.all([
+        getDocs(query(collection(db,"registros"), orderBy("fecha","desc"))),
+        getDocs(collection(db,"empresas"))
+      ]);
+      // Mapa código → nombre visible
+      empNombres = {};
+      snapE.docs.forEach(d => { empNombres[d.id] = d.data().nombre || d.id; });
+      regs = snapR.docs.map(d => d.data());
       poblarFiltro();
       filtrar();
     } catch(e) {
@@ -619,7 +625,12 @@
     const act = sel.value;
     const emp = [...new Set(regs.map(r => r.empresa))].sort();
     sel.innerHTML = '<option value="">Todas las empresas</option>';
-    emp.forEach(e => { const o = document.createElement("option"); o.value=e; o.textContent=e; sel.appendChild(o); });
+    emp.forEach(e => {
+      const o = document.createElement("option");
+      o.value = e;
+      o.textContent = empNombres[e] || e; // mostrar nombre, no código
+      sel.appendChild(o);
+    });
     sel.value = act;
   }
 
@@ -660,7 +671,7 @@
       const tr    = document.createElement("tr");
       tr.innerHTML = `<td>${inicio+i+1}</td>
         <td><span class="badge-b">${r.boleta}</span></td>
-        <td><span class="badge-e">${r.empresa||""}</span></td>
+        <td><span class="badge-e">${empNombres[r.empresa] || r.empresa || ""}</span></td>
         <td>${r.nombre||""}</td><td>${r.telefono||""}</td>
         <td>${r.email||""}</td><td>${fecha}</td>`;
       tbody.appendChild(tr);
@@ -678,7 +689,7 @@
         d.innerHTML = `
           <div class="row-m-top">
             <div><div class="row-m-nombre">${r.nombre||""}</div>
-            <div class="row-m-meta">${r.empresa||""} · ${fecha}</div></div>
+            <div class="row-m-meta">${empNombres[r.empresa] || r.empresa || ""} · ${fecha}</div></div>
             <span class="badge-b">${r.boleta}</span>
           </div>
           <div class="row-m-meta" style="margin-top:4px">${r.telefono||"-"} · ${r.email||"-"}</div>`;
