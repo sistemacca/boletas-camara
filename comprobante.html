@@ -115,6 +115,22 @@
       color: #94a3b8;
       margin-top: 20px;
     }
+
+    /* Estado: cargando */
+    #estado-cargando { display: flex; flex-direction: column; align-items: center; padding: 48px 24px; gap: 16px; }
+    .spin { width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #007d42; border-radius: 50%; animation: giro 0.7s linear infinite; }
+    @keyframes giro { to { transform: rotate(360deg); } }
+    #estado-cargando p { font-size: 14px; color: #64748b; }
+
+    /* Estado: error */
+    #estado-error { display: none; padding: 36px 24px; }
+    .error-icon { font-size: 48px; margin-bottom: 12px; }
+    .error-titulo { font-size: 18px; font-weight: 700; color: #dc2626; margin-bottom: 8px; }
+    .error-msg { font-size: 13px; color: #64748b; line-height: 1.6; }
+
+    /* Estado: comprobante */
+    #estado-ok { display: none; }
+
     @media (max-width: 480px) {
       .body { padding: 20px 16px; }
       .numero { font-size: 52px; }
@@ -129,41 +145,132 @@
     <img src="https://sistemacca.github.io/boletas-camara/logo.png">
     <div class="subtitulo">Semana Comercial 2026</div>
   </div>
-  <div class="body">
-    <div class="check">✅</div>
-    <div class="badge-success">Registro exitoso</div>
-    <div class="empresa" id="empresa"></div>
-    <div class="nombre-usuario" id="nombre"></div>
 
-    <div class="boleta-box">
-      <div class="boleta-label">Tu número de boleta</div>
-      <div class="numero" id="boleta"></div>
+  <!-- CARGANDO -->
+  <div id="estado-cargando">
+    <div class="spin"></div>
+    <p>Verificando registro...</p>
+  </div>
+
+  <!-- ERROR / INVÁLIDO -->
+  <div id="estado-error" class="body">
+    <div class="error-icon">❌</div>
+    <div class="error-titulo">Comprobante no válido</div>
+    <div class="error-msg" id="error-detalle">
+      Este enlace no corresponde a un registro real en el sistema.
     </div>
+  </div>
 
-    <button class="btn" id="btn-descargar" onclick="descargarJPG()">
-      📸 Descargar comprobante
-    </button>
+  <!-- COMPROBANTE VÁLIDO -->
+  <div id="estado-ok">
+    <div class="body">
+      <div class="check">✅</div>
+      <div class="badge-success">Registro exitoso</div>
+      <div class="empresa" id="empresa"></div>
+      <div class="nombre-usuario" id="nombre"></div>
 
-    <div class="captura-box">
-      <div style="font-size:18px; margin-bottom:3px">📱</div>
-      <div style="font-size:12px; font-weight:600; color:#166534">O toma captura de pantalla</div>
-      <div style="font-size:11px; color:#4b7a5e; margin-top:2px">Guarda este número como comprobante</div>
+      <div class="boleta-box">
+        <div class="boleta-label">Tu número de boleta</div>
+        <div class="numero" id="boleta"></div>
+      </div>
+
+      <button class="btn" id="btn-descargar" onclick="descargarJPG()">
+        📸 Descargar comprobante
+      </button>
+
+      <div class="captura-box">
+        <div style="font-size:18px; margin-bottom:3px">📱</div>
+        <div style="font-size:12px; font-weight:600; color:#166534">O toma captura de pantalla</div>
+        <div style="font-size:11px; color:#4b7a5e; margin-top:2px">Guarda este número como comprobante</div>
+      </div>
+      <div class="footer-text">Este comprobante es tu única prueba de participación</div>
     </div>
-    <div class="footer-text">Este comprobante es tu única prueba de participación</div>
   </div>
 </div>
 
-<script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const nombre = decodeURIComponent(urlParams.get("nombre") || "");
-  const boleta = urlParams.get("boleta") || "";
-  const empresa = decodeURIComponent(urlParams.get("empresa") || "");
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getFirestore, collection, query, where, getDocs }
+    from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-  document.getElementById("nombre").textContent = nombre;
-  document.getElementById("boleta").textContent = boleta;
-  document.getElementById("empresa").textContent = empresa;
+  const cfg = {
+    apiKey:            "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
+    authDomain:        "semana-comercial.firebaseapp.com",
+    projectId:         "semana-comercial",
+    storageBucket:     "semana-comercial.firebasestorage.app",
+    messagingSenderId: "52687643666",
+    appId:             "1:52687643666:web:48e7106b88b2f2c2b364cb"
+  };
 
+  const db = getFirestore(initializeApp(cfg));
+
+  function mostrarError(msg) {
+    document.getElementById("estado-cargando").style.display = "none";
+    document.getElementById("estado-error").style.display   = "block";
+    if (msg) document.getElementById("error-detalle").textContent = msg;
+  }
+
+  function mostrarComprobante(nombre, boleta, empresa) {
+    document.getElementById("estado-cargando").style.display = "none";
+    document.getElementById("estado-ok").style.display       = "block";
+    document.getElementById("nombre").textContent  = nombre;
+    document.getElementById("boleta").textContent  = boleta;
+    document.getElementById("empresa").textContent = empresa;
+  }
+
+  // ── Leer y sanear parámetros ──────────────────────────────────────────────
+  const params  = new URLSearchParams(window.location.search);
+  const pNombre = (params.get("nombre") || "").trim();
+  const pBoleta = (params.get("boleta") || "").trim();
+  const pEmpresa= (params.get("empresa") || "").trim();
+
+  // Si falta algún parámetro, ni siquiera consultamos Firebase
+  if (!pNombre || !pBoleta || !pEmpresa) {
+    mostrarError("El enlace está incompleto o mal formado.");
+  } else {
+    // ── Consultar Firebase ────────────────────────────────────────────────
+    (async () => {
+      try {
+        // Buscar por número de boleta (campo "boleta") dentro de la empresa
+        const snap = await getDocs(
+          query(
+            collection(db, "registros"),
+            where("boleta",  "==", Number(pBoleta)),
+            where("empresa", "==", pEmpresa)
+          )
+        );
+
+        if (snap.empty) {
+          mostrarError("No se encontró un registro con este número de boleta y empresa. El enlace puede haber sido modificado.");
+          return;
+        }
+
+        // Tomar el primer documento que coincide
+        const datos = snap.docs[0].data();
+
+        // Verificar también que el nombre coincida (insensible a mayúsculas/tildes)
+        const normalizar = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+        if (normalizar(datos.nombre || "") !== normalizar(pNombre)) {
+          mostrarError("Los datos del enlace no coinciden con el registro almacenado.");
+          return;
+        }
+
+        // Todo OK → mostrar comprobante con los datos de Firebase (no de la URL)
+        mostrarComprobante(datos.nombre, datos.boleta, datos.empresa);
+
+      } catch(e) {
+        mostrarError("Error al verificar el registro. Intenta de nuevo más tarde.");
+        console.error(e);
+      }
+    })();
+  }
+
+  // ── Descarga JPG ──────────────────────────────────────────────────────────
   window.descargarJPG = function() {
+    const nombreV  = document.getElementById("nombre").textContent;
+    const boletaV  = document.getElementById("boleta").textContent;
+    const empresaV = document.getElementById("empresa").textContent;
+
     const btn = document.getElementById("btn-descargar");
     btn.textContent = "Generando...";
     btn.disabled = true;
@@ -193,13 +300,13 @@
       ctx.stroke();
       ctx.font = "bold 15px Arial";
       ctx.fillStyle = "#007d42";
-      ctx.fillText(empresa, W/2, 125);
+      ctx.fillText(empresaV, W/2, 125);
       ctx.font = "16px Arial";
       ctx.fillStyle = "#1e293b";
-      ctx.fillText(nombre, W/2, 155);
+      ctx.fillText(nombreV, W/2, 155);
       ctx.font = "bold 90px Arial";
       ctx.fillStyle = "#007d42";
-      ctx.fillText(boleta, W/2, 260);
+      ctx.fillText(boletaV, W/2, 260);
       ctx.font = "14px Arial";
       ctx.fillStyle = "#64748b";
       ctx.fillText("Número de boleta", W/2, 288);
@@ -218,12 +325,11 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = "boleta-" + boleta + "-semana-comercial.jpg";
+        link.download = "boleta-" + boletaV + "-semana-comercial.jpg";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-
         btn.innerHTML = "✓ Descargado";
         btn.style.background = "#16a34a";
         setTimeout(() => {
