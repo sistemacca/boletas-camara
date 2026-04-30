@@ -90,13 +90,15 @@
     tbody td { padding: 11px 16px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
 
     .lista-m { display: none; }
-    .row-m { padding: 14px 16px; border-bottom: 1px solid var(--borde); }
+    .row-m { padding: 14px 16px; border-bottom: 1px solid var(--borde); transition: background 0.1s; }
+    .row-m:hover { background: #f0faf4; }
     .row-m:last-child { border-bottom: none; }
-    .row-m-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-    .row-m-nombre { font-weight: 600; font-size: 14px; }
-    .row-m-meta { font-size: 12px; color: var(--sub); }
+    .row-m-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px; }
+    .row-m-nombre { font-weight: 700; font-size: 14px; color: var(--texto); }
+    .row-m-meta { font-size: 12px; color: var(--sub); margin-top: 2px; }
 
-    .emp-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid var(--azul); }
+    .emp-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border-left: 4px solid #007D42; transition: box-shadow 0.2s; }
+    .emp-card:hover { box-shadow: 0 4px 16px rgba(0,125,66,0.15); }
     .emp-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
     .emp-card-nombre { font-size: 15px; font-weight: 700; color: var(--azul); }
     .emp-card-id { font-size: 11px; color: var(--sub); margin-top: 2px; }
@@ -108,8 +110,15 @@
     .badge-b { background: var(--azul); color: white; font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 13px; }
     .badge-e { background: #e6f4ec; color: var(--azul); padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 
-    .prog-bar { height: 7px; background: var(--borde); border-radius: 4px; margin-top: 5px; overflow: hidden; }
-    .prog-fill { height: 100%; background: var(--azul); border-radius: 4px; transition: width 0.4s; }
+    .prog-bar {
+      height: 8px; background: #d1e8da; border-radius: 10px;
+      margin-top: 5px; overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .prog-fill {
+      height: 100%; border-radius: 10px; transition: width 0.5s ease;
+      background: linear-gradient(90deg, #007D42 0%, #00a855 100%);
+    }
 
     .btn { padding: 10px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
     .btn:active { transform: scale(0.97); }
@@ -179,16 +188,22 @@
     .pag-btns-wrap { display: flex; align-items: center; gap: 2px; }
     .pb {
       display: inline-flex; align-items: center; justify-content: center;
-      min-width: 30px; height: 30px; padding: 0 6px;
-      border: 1px solid var(--borde); border-radius: 6px;
+      min-width: 34px; height: 34px; padding: 0 8px;
+      border: 1.5px solid var(--borde); border-radius: 8px;
       background: white; color: var(--texto);
-      font-size: 12px; font-weight: 500; cursor: pointer;
-      transition: all 0.12s; user-select: none;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all 0.15s; user-select: none;
     }
-    .pb:hover:not(:disabled) { background: #f0faf4; border-color: var(--azul); color: var(--azul); }
-    .pb.current { background: var(--azul); color: white; border-color: var(--azul); font-weight: 700; cursor: default; }
+    .pb:hover:not(:disabled) {
+      background: #e6f4ec; border-color: #007D42; color: #007D42;
+    }
+    .pb.current {
+      background: #007D42; color: white; border-color: #007D42;
+      font-weight: 700; cursor: default;
+      box-shadow: 0 2px 6px rgba(0,125,66,0.3);
+    }
     .pb:disabled { opacity: 0.3; cursor: default; }
-    .pb-dots { border: none; background: none; cursor: default; color: var(--sub); font-size: 13px; min-width: 20px; }
+    .pb-dots { border: none; background: none; cursor: default; color: var(--sub); font-size: 14px; min-width: 24px; letter-spacing: 1px; }
     .pb-dots:hover { background: none; border: none; color: var(--sub); }
     .tabla-box { overflow-y: auto; max-height: 480px; }
     .tabla-box::-webkit-scrollbar { width: 6px; }
