@@ -2,14 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Semana Comercial - Cámara de Comercio de Arauca</title>
+  <title>Comprobante - Semana Comercial</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
       background: #f0f4f8;
@@ -17,249 +13,239 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0;
+      padding: 20px;
     }
     .card {
       background: white;
-      border-radius: 16px;
-      padding: 28px 20px;
-      width: 100%;
-      max-width: 500px;
+      border-radius: 20px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.1);
       border-top: 6px solid #007d42;
-    }
-    .logo { text-align: center; margin-bottom: 24px; }
-    .logo h2 { color: #007d42; font-size: 22px; margin-bottom: 4px; }
-    .logo p { color: #64748b; font-size: 13px; }
-    .logo .empresa-nombre {
-      display: inline-block;
-      margin-top: 8px;
-      background: #e6f4ec;
-      color: #007d42;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-    .campo { margin-bottom: 14px; }
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: #007d42;
-      margin-bottom: 5px;
-    }
-    label span { color: #e11d48; }
-    input {
+      overflow: hidden;
+      text-align: center;
       width: 100%;
-      padding: 11px 13px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.2s;
+      max-width: 420px;
     }
-    input:focus {
-      outline: none;
-      border-color: #007d42;
-      box-shadow: 0 0 0 3px rgba(0,125,66,0.08);
-    }
-    input.error { border-color: #e11d48; }
-    .msg-error {
-      font-size: 11px;
-      color: #e11d48;
-      margin-top: 4px;
-      display: none;
-    }
-    button {
-      width: 100%;
-      padding: 13px;
-      background: #007d42;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: background 0.2s;
-    }
-    button:hover:not(:disabled) { background: #005a30; }
-    button:disabled { background: #94a3b8; cursor: not-allowed; }
-    .resultado { margin-top: 20px; text-align: center; }
-    .fallo {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 8px;
-      padding: 12px;
-      color: #991b1b;
-      font-size: 14px;
-    }
-    .spinner {
-      display: inline-block;
-      width: 16px; height: 16px;
-      border: 2px solid #ffffff55;
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @media (max-width: 600px) {
-      body { padding: 0; align-items: flex-start; justify-content: flex-start; }
-      .card { max-width: 100%; min-height: 100vh; border-radius: 0; border-top: 6px solid #007d42; box-shadow: none; padding: 28px 20px; }
-      input { font-size: 16px; }
-      button { font-size: 16px; padding: 15px; }
-    }
+    .header { background: #007d42; padding: 24px 20px 20px; }
+    .header img { height: 52px; filter: brightness(0) invert(1); margin-bottom: 10px; }
+    .header .subtitulo { color: rgba(255,255,255,0.8); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+    .body { padding: 28px 24px; }
+    .check { width: 52px; height: 52px; background: #dcfce7; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 24px; }
+    .badge-success { font-size: 13px; font-weight: 600; color: #16a34a; margin-bottom: 4px; text-transform: uppercase; }
+    .empresa { font-size: 15px; font-weight: 700; color: #007d42; margin-bottom: 4px; }
+    .nombre-usuario { font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 20px; }
+    .boleta-box { background: #f0f4f8; border-radius: 14px; padding: 20px; margin-bottom: 20px; border: 2px dashed #007d42; }
+    .boleta-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .numero { font-size: 64px; font-weight: 700; color: #007d42; line-height: 1; }
+    .btn { width: 100%; padding: 14px; background: #007d42; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
+    .btn:hover { background: #005a30; }
+    .captura-box { background: #f0fdf4; border-radius: 10px; padding: 12px; border: 1px solid #bbf7d0; }
+    .footer-text { font-size: 11px; color: #94a3b8; margin-top: 20px; }
+
+    #estado-cargando { display: flex; flex-direction: column; align-items: center; padding: 48px 24px; gap: 16px; }
+    .spin { width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #007d42; border-radius: 50%; animation: giro 0.7s linear infinite; }
+    @keyframes giro { to { transform: rotate(360deg); } }
+    #estado-cargando p { font-size: 14px; color: #64748b; }
+
+    #estado-error { display: none; padding: 36px 24px; }
+    .error-icon { font-size: 48px; margin-bottom: 12px; }
+    .error-titulo { font-size: 18px; font-weight: 700; color: #dc2626; margin-bottom: 8px; }
+    .error-msg { font-size: 13px; color: #64748b; line-height: 1.6; }
+
+    #estado-ok { display: none; }
+
     @media (max-width: 480px) {
-      body { padding: 12px; align-items: flex-start; padding-top: 20px; }
-      .card { border-radius: 12px; padding: 24px 16px; }
-      .logo h2 { font-size: 19px; }
-      input { font-size: 16px; padding: 13px; }
-      button { font-size: 16px; padding: 15px; }
+      .body { padding: 20px 16px; }
+      .numero { font-size: 52px; }
+      .btn { padding: 15px; font-size: 16px; }
     }
   </style>
 </head>
 <body>
-
-<div class="card" id="card-formulario">
-  <div class="logo">
-    <img src="https://sistemacca.github.io/boletas-camara/logo.png" style="height:50px;margin-bottom:12px"><br><h2>Semana Comercial</h2>
-    <span class="empresa-nombre" id="empresa-label">Cargando...</span>
+<div class="card">
+  <div class="header">
+    <img src="https://sistemacca.github.io/boletas-camara/logo.png">
+    <div class="subtitulo">Semana Comercial 2026</div>
   </div>
 
-  <div id="formulario" style="display:none">
-    <div class="campo">
-      <label for="nombre">Nombre completo <span>*</span></label>
-      <input type="text" id="nombre" autocomplete="name" placeholder="Tu nombre completo">
-      <div class="msg-error" id="err-nombre">Ingresa tu nombre</div>
-    </div>
-    <div class="campo">
-      <label for="telefono">Teléfono <span>*</span></label>
-      <input type="tel" id="telefono" inputmode="numeric" autocomplete="tel" placeholder="3XXXXXXXXX" maxlength="12">
-      <div class="msg-error" id="err-telefono">Ingresa un número de 10 dígitos</div>
-    </div>
-    <div class="campo">
-      <label for="email">Email</label>
-      <input type="email" id="email" autocomplete="email" placeholder="correo@ejemplo.com">
-      <div class="msg-error" id="err-email">Ingresa un email válido</div>
-    </div>
-    <div class="campo">
-      <label for="direccion">Dirección</label>
-      <input type="text" id="direccion" autocomplete="street-address" placeholder="Opcional">
-    </div>
-    <button id="btn" onclick="registrar()">Registrar</button>
+  <div id="estado-cargando">
+    <div class="spin"></div>
+    <p>Verificando registro...</p>
   </div>
 
-  <div class="resultado" id="resultado"></div>
+  <div id="estado-error" class="body">
+    <div class="error-icon">❌</div>
+    <div class="error-titulo">Comprobante no válido</div>
+    <div class="error-msg" id="error-detalle">Este enlace no corresponde a un registro real en el sistema.</div>
+  </div>
+
+  <div id="estado-ok">
+    <div class="body">
+      <div class="check">✅</div>
+      <div class="badge-success">Registro exitoso</div>
+      <div class="empresa" id="empresa"></div>
+      <div class="nombre-usuario" id="nombre"></div>
+      <div class="boleta-box">
+        <div class="boleta-label">Tu número de boleta</div>
+        <div class="numero" id="boleta"></div>
+      </div>
+      <button class="btn" id="btn-descargar" onclick="descargarJPG()">📸 Descargar comprobante</button>
+      <div class="captura-box">
+        <div style="font-size:18px;margin-bottom:3px">📱</div>
+        <div style="font-size:12px;font-weight:600;color:#166534">O toma captura de pantalla</div>
+        <div style="font-size:11px;color:#4b7a5e;margin-top:2px">Guarda este número como comprobante</div>
+      </div>
+      <div class="footer-text">Este comprobante es tu única prueba de participación</div>
+    </div>
+  </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, runTransaction, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getFirestore, collection, query, where, getDocs, doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
-    authDomain: "semana-comercial.firebaseapp.com",
-    projectId: "semana-comercial",
-    storageBucket: "semana-comercial.firebasestorage.app",
+  const cfg = {
+    apiKey:            "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
+    authDomain:        "semana-comercial.firebaseapp.com",
+    projectId:         "semana-comercial",
+    storageBucket:     "semana-comercial.firebasestorage.app",
     messagingSenderId: "52687643666",
-    appId: "1:52687643666:web:48e7106b88b2f2c2b364cb"
+    appId:             "1:52687643666:web:48e7106b88b2f2c2b364cb"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  const db = getFirestore(initializeApp(cfg));
 
-  const EMPRESA = new URLSearchParams(window.location.search).get("empresa") || "";
-
-  async function cargarEmpresa() {
-    const resultado = document.getElementById("resultado");
-    if (!EMPRESA) {
-      resultado.innerHTML = '<p class="fallo">Enlace sin empresa. Contacta al organizador.</p>';
-      document.getElementById("empresa-label").textContent = "Sin empresa";
-      return;
-    }
-    try {
-      const snap = await getDoc(doc(db, "empresas", EMPRESA));
-      if (!snap.exists()) {
-        resultado.innerHTML = '<p class="fallo">Empresa no registrada. Contacta al organizador.</p>';
-        document.getElementById("empresa-label").textContent = "No encontrada";
-        return;
-      }
-      const data = snap.data();
-      document.getElementById("empresa-label").textContent = data.nombre || EMPRESA;
-      document.getElementById("formulario").style.display = "block";
-    } catch (e) {
-      resultado.innerHTML = '<p class="fallo">Error al cargar. Intenta de nuevo.</p>';
-    }
+  function mostrarError(msg) {
+    document.getElementById("estado-cargando").style.display = "none";
+    document.getElementById("estado-error").style.display   = "block";
+    if (msg) document.getElementById("error-detalle").textContent = msg;
   }
 
-  cargarEmpresa();
+  function mostrarComprobante(nombre, boleta, empresaNombre) {
+    document.getElementById("estado-cargando").style.display = "none";
+    document.getElementById("estado-ok").style.display       = "block";
+    document.getElementById("nombre").textContent  = nombre;
+    document.getElementById("boleta").textContent  = boleta;
+    document.getElementById("empresa").textContent = empresaNombre;
+  }
 
-  function esEmailValido(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
-  function esTelefonoValido(t) { let l = t.replace(/\D/g, ""); if (l.length === 12 && l.startsWith("57")) l = l.substring(2); return l.length === 10; }
-  function marcar(inputId, errId, valido) { document.getElementById(inputId).classList.toggle("error", !valido); document.getElementById(errId).style.display = valido ? "none" : "block"; return valido; }
+  // Convierte cualquier string al formato de ID legacy (ej: "EMPRESA NUEVA" → "empresanueva")
+  function aId(s) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
+  }
 
-  window.registrar = async function () {
-    const nombre = document.getElementById("nombre").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const direccion = document.getElementById("direccion").value.trim();
-    const btn = document.getElementById("btn");
-    const resultado = document.getElementById("resultado");
+  const params  = new URLSearchParams(window.location.search);
+  const pNombre = (params.get("nombre")  || "").trim();
+  const pBoleta = (params.get("boleta")  || "").trim();
+  const pRaw    = (params.get("empresa") || "").trim(); // lo que viene en la URL
+  const pNorm   = aId(pRaw);                            // versión normalizada (IDs legacy)
 
-    resultado.innerHTML = "";
+  if (!pNombre || !pBoleta || !pRaw) {
+    mostrarError("El enlace está incompleto o mal formado.");
+  } else {
+    (async () => {
+      try {
+        // ── Paso 1: encontrar el ID real de la empresa en Firebase ──────────
+        // Intentar con el valor exacto de la URL primero (códigos nuevos: "x7k2m9qr")
+        // Si no existe, intentar con la versión normalizada (IDs legacy: "empresanueva")
+        let empSnap = await getDoc(doc(db, "empresas", pRaw));
+        let idEmpresa = pRaw;
 
-    let ok = true;
-    ok = marcar("nombre", "err-nombre", nombre.length >= 2) && ok;
-    ok = marcar("telefono", "err-telefono", esTelefonoValido(telefono)) && ok;
-    if (email) ok = marcar("email", "err-email", esEmailValido(email)) && ok;
-    if (!ok) return;
+        if (!empSnap.exists()) {
+          empSnap = await getDoc(doc(db, "empresas", pNorm));
+          idEmpresa = pNorm;
+        }
 
+        if (!empSnap.exists()) {
+          mostrarError("La empresa de este enlace no existe en el sistema.");
+          return;
+        }
+
+        const empresaNombre = empSnap.data().nombre || idEmpresa;
+
+        // ── Paso 2: buscar el registro por boleta + ID real de empresa ──────
+        let snap = await getDocs(
+          query(
+            collection(db, "registros"),
+            where("boleta",  "==", Number(pBoleta)),
+            where("empresa", "==", idEmpresa)
+          )
+        );
+
+        // Fallback: boleta guardada como string
+        if (snap.empty) {
+          snap = await getDocs(
+            query(
+              collection(db, "registros"),
+              where("boleta",  "==", pBoleta),
+              where("empresa", "==", idEmpresa)
+            )
+          );
+        }
+
+        if (snap.empty) {
+          mostrarError("No se encontró un registro con estos datos. El enlace puede haber sido modificado.");
+          return;
+        }
+
+        // ── Paso 3: mostrar con datos de Firebase, nunca de la URL ──────────
+        const datos = snap.docs[0].data();
+        mostrarComprobante(datos.nombre, datos.boleta, empresaNombre);
+
+      } catch(e) {
+        mostrarError("Error al verificar el registro. Intenta de nuevo más tarde.");
+        console.error(e);
+      }
+    })();
+  }
+
+  window.descargarJPG = function() {
+    const nombreV  = document.getElementById("nombre").textContent;
+    const boletaV  = document.getElementById("boleta").textContent;
+    const empresaV = document.getElementById("empresa").textContent;
+    const btn = document.getElementById("btn-descargar");
+    btn.textContent = "Generando...";
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Procesando...';
-
     try {
-      const empresaRef = doc(db, "empresas", EMPRESA);
-      const contadorRef = doc(db, "contadores", EMPRESA);
-      let numeroBoleta;
-
-      await runTransaction(db, async (tx) => {
-        const empSnap = await tx.get(empresaRef);
-        if (!empSnap.exists()) throw new Error("Empresa no encontrada");
-        const { desde, hasta } = empSnap.data();
-        const contSnap = await tx.get(contadorRef);
-        const actual = contSnap.exists() ? contSnap.data().actual : 0;
-        const siguiente = desde + actual;
-        if (siguiente > hasta) throw new Error("Boletas agotadas para esta empresa");
-        numeroBoleta = siguiente;
-        tx.set(contadorRef, { actual: actual + 1 });
-      });
-
-      await addDoc(collection(db, "registros"), {
-        empresa: EMPRESA,
-        boleta: numeroBoleta,
-        nombre,
-        telefono,
-        email: email || "",
-        direccion: direccion || "",
-        fecha: new Date().toISOString()
-      });
-
-      const empresaNombre = document.getElementById("empresa-label").textContent || EMPRESA;
-
-      // 🔥 REDIRIGIR A LA PÁGINA DE COMPROBANTE 🔥
-      const urlComprobante = `comprobante.html?nombre=${encodeURIComponent(nombre)}&boleta=${numeroBoleta}&empresa=${encodeURIComponent(empresaNombre)}`;
-      window.location.href = urlComprobante;
-
-    } catch (err) {
-      resultado.innerHTML = `<p class="fallo">${err.message === "Boletas agotadas para esta empresa" ? "Ya no hay boletas disponibles para esta empresa." : "Error al registrar. Intenta de nuevo."}</p>`;
-      console.error(err);
-      btn.disabled = false;
-      btn.innerHTML = "Registrar";
+      const W = 600, H = 400;
+      const cv = document.createElement("canvas");
+      cv.width = W; cv.height = H;
+      const ctx = cv.getContext("2d");
+      ctx.fillStyle = "#f0fdf4"; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#007d42"; ctx.fillRect(0, 0, W, 8);
+      ctx.fillStyle = "#d4af37"; ctx.fillRect(0, H - 6, W, 6);
+      ctx.fillStyle = "#007d42"; ctx.font = "bold 20px Arial"; ctx.textAlign = "center";
+      ctx.fillText("Cámara de Comercio de Arauca", W/2, 52);
+      ctx.font = "14px Arial"; ctx.fillStyle = "#64748b";
+      ctx.fillText("Semana Comercial 2026", W/2, 76);
+      ctx.strokeStyle = "#e2e8f0"; ctx.beginPath(); ctx.moveTo(40, 95); ctx.lineTo(W-40, 95); ctx.stroke();
+      ctx.font = "bold 15px Arial"; ctx.fillStyle = "#007d42";
+      ctx.fillText(empresaV, W/2, 125);
+      ctx.font = "16px Arial"; ctx.fillStyle = "#1e293b";
+      ctx.fillText(nombreV, W/2, 155);
+      ctx.font = "bold 90px Arial"; ctx.fillStyle = "#007d42";
+      ctx.fillText(boletaV, W/2, 260);
+      ctx.font = "14px Arial"; ctx.fillStyle = "#64748b";
+      ctx.fillText("Número de boleta", W/2, 288);
+      ctx.strokeStyle = "#e2e8f0"; ctx.beginPath(); ctx.moveTo(40, 308); ctx.lineTo(W-40, 308); ctx.stroke();
+      ctx.font = "bold 13px Arial"; ctx.fillStyle = "#166534";
+      ctx.fillText("✓ Comprobante oficial de registro", W/2, 338);
+      ctx.font = "12px Arial"; ctx.fillStyle = "#64748b";
+      ctx.fillText("Conserva este documento como soporte", W/2, 360);
+      cv.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url; link.download = "boleta-" + boletaV + "-semana-comercial.jpg";
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        btn.innerHTML = "✓ Descargado"; btn.style.background = "#16a34a";
+        setTimeout(() => { btn.innerHTML = "📸 Descargar comprobante"; btn.style.background = "#007d42"; btn.disabled = false; }, 2500);
+      }, "image/jpeg", 0.95);
+    } catch(e) {
+      btn.innerHTML = "📸 Descargar comprobante"; btn.disabled = false;
+      alert("Toma una captura de pantalla.");
     }
   };
 </script>
-
 </body>
 </html>
