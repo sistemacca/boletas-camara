@@ -6,8 +6,25 @@
   <title>Comprobante - Semana Comercial</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .card { background: white; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); border-top: 6px solid #007d42; overflow: hidden; text-align: center; width: 100%; max-width: 420px; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      border-top: 6px solid #007d42;
+      overflow: hidden;
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+    }
     .header { background: #007d42; padding: 24px 20px 20px; }
     .header img { height: 52px; filter: brightness(0) invert(1); margin-bottom: 10px; }
     .header .subtitulo { color: rgba(255,255,255,0.8); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
@@ -20,15 +37,30 @@
     .boleta-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
     .numero { font-size: 64px; font-weight: 700; color: #007d42; line-height: 1; }
     .btn { width: 100%; padding: 14px; background: #007d42; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
-    
-    #estado-cargando { padding: 48px 24px; }
+    .btn:hover { background: #005a30; }
+    .captura-box { background: #f0fdf4; border-radius: 10px; padding: 12px; border: 1px solid #bbf7d0; }
+    .footer-text { font-size: 11px; color: #94a3b8; margin-top: 20px; }
+
+    #estado-cargando { display: flex; flex-direction: column; align-items: center; padding: 48px 24px; gap: 16px; }
+    .spin { width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #007d42; border-radius: 50%; animation: giro 0.7s linear infinite; }
+    @keyframes giro { to { transform: rotate(360deg); } }
+    #estado-cargando p { font-size: 14px; color: #64748b; }
+
     #estado-error { display: none; padding: 36px 24px; }
+    .error-icon { font-size: 48px; margin-bottom: 12px; }
+    .error-titulo { font-size: 18px; font-weight: 700; color: #dc2626; margin-bottom: 8px; }
+    .error-msg { font-size: 13px; color: #64748b; line-height: 1.6; }
+
     #estado-ok { display: none; }
-    .error-titulo { color: #dc2626; font-weight: bold; margin-bottom: 10px; }
+
+    @media (max-width: 480px) {
+      .body { padding: 20px 16px; }
+      .numero { font-size: 52px; }
+      .btn { padding: 15px; font-size: 16px; }
+    }
   </style>
 </head>
 <body>
-
 <div class="card">
   <div class="header">
     <img src="https://sistemacca.github.io/boletas-camara/logo.png">
@@ -36,13 +68,14 @@
   </div>
 
   <div id="estado-cargando">
+    <div class="spin"></div>
     <p>Verificando registro...</p>
   </div>
 
   <div id="estado-error" class="body">
-    <div style="font-size: 40px; margin-bottom: 10px;">❌</div>
-    <div class="error-titulo">Error de Verificación</div>
-    <div id="error-detalle" style="font-size: 14px; color: #64748b;"></div>
+    <div class="error-icon">❌</div>
+    <div class="error-titulo">Comprobante no válido</div>
+    <div class="error-msg" id="error-detalle">Este enlace no corresponde a un registro real en el sistema.</div>
   </div>
 
   <div id="estado-ok">
@@ -52,78 +85,148 @@
       <div class="empresa" id="empresa"></div>
       <div class="nombre-usuario" id="nombre"></div>
       <div class="boleta-box">
-        <div class="boleta-label">Número de boleta</div>
+        <div class="boleta-label">Tu número de boleta</div>
         <div class="numero" id="boleta"></div>
       </div>
-      <button class="btn" onclick="location.reload()">Refrescar</button>
+      <button class="btn" id="btn-descargar" onclick="descargarJPG()">📸 Descargar comprobante</button>
+      <div class="captura-box">
+        <div style="font-size:18px;margin-bottom:3px">📱</div>
+        <div style="font-size:12px;font-weight:600;color:#166534">O toma captura de pantalla</div>
+        <div style="font-size:11px;color:#4b7a5e;margin-top:2px">Guarda este número como comprobante</div>
+      </div>
+      <div class="footer-text">Este comprobante es tu única prueba de participación</div>
     </div>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getFirestore, collection, query, where, getDocs, doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const cfg = {
-    apiKey: "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
-    authDomain: "semana-comercial.firebaseapp.com",
-    projectId: "semana-comercial",
-    storageBucket: "semana-comercial.firebasestorage.app",
+    apiKey:            "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
+    authDomain:        "semana-comercial.firebaseapp.com",
+    projectId:         "semana-comercial",
+    storageBucket:     "semana-comercial.firebasestorage.app",
     messagingSenderId: "52687643666",
-    appId: "1:52687643666:web:48e7106b88b2f2c2b364cb"
+    appId:             "1:52687643666:web:48e7106b88b2f2c2b364cb"
   };
 
   const db = getFirestore(initializeApp(cfg));
 
   function mostrarError(msg) {
     document.getElementById("estado-cargando").style.display = "none";
-    document.getElementById("estado-error").style.display = "block";
-    document.getElementById("error-detalle").textContent = msg;
+    document.getElementById("estado-error").style.display   = "block";
+    if (msg) document.getElementById("error-detalle").textContent = msg;
   }
 
-  const params = new URLSearchParams(window.location.search);
-  const pBoleta = params.get("boleta");
-  const pEmpresa = params.get("empresa");
+  function mostrarComprobante(nombre, boleta, empresaNombre) {
+    document.getElementById("estado-cargando").style.display = "none";
+    document.getElementById("estado-ok").style.display       = "block";
+    document.getElementById("nombre").textContent  = nombre;
+    document.getElementById("boleta").textContent  = boleta;
+    document.getElementById("empresa").textContent = empresaNombre;
+  }
+
+  // Convierte cualquier string al formato de ID legacy (ej: "EMPRESA NUEVA" → "empresanueva")
+  function aId(s) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
+  }
+
+  const params  = new URLSearchParams(window.location.search);
+  const pBoleta = (params.get("boleta")  || "").trim();
+  const pEmpresa = (params.get("empresa") || "").trim();
 
   if (!pBoleta || !pEmpresa) {
-    mostrarError("El enlace no tiene los datos de boleta o empresa.");
+    mostrarError("El enlace está incompleto o mal formado.");
   } else {
     (async () => {
       try {
-        // 1. Buscamos el registro por Boleta y Empresa
-        const q = query(
-          collection(db, "registros"), 
-          where("boleta", "==", Number(pBoleta)),
-          where("empresa", "==", pEmpresa)
+        // Paso 1: verificar que la empresa existe
+        const empSnap = await getDoc(doc(db, "empresas", pEmpresa));
+        if (!empSnap.exists()) {
+          mostrarError("La empresa de este enlace no existe en el sistema.");
+          return;
+        }
+        const empresaNombre = empSnap.data().nombre || pEmpresa;
+
+        // Paso 2: buscar el registro SOLO por número de boleta
+        // La boleta es única globalmente — no necesita índice compuesto
+        const snap = await getDocs(
+          query(collection(db, "registros"), where("boleta", "==", Number(pBoleta)))
         );
-        
-        const snap = await getDocs(q);
 
         if (snap.empty) {
-          mostrarError("No se encontró ninguna boleta " + pBoleta + " para esta empresa.");
+          mostrarError("No se encontró un registro con este número de boleta. El enlace puede haber sido modificado.");
           return;
         }
 
         const datos = snap.docs[0].data();
 
-        // 2. Buscamos el nombre de la empresa para que se vea bonito
-        const empSnap = await getDoc(doc(db, "empresas", pEmpresa));
-        const nombreEmpresa = empSnap.exists() ? empSnap.data().nombre : pEmpresa;
+        // Paso 3: verificar que la boleta pertenece a la empresa del enlace
+        if (datos.empresa !== pEmpresa) {
+          mostrarError("Este comprobante no es válido. Los datos no coinciden.");
+          return;
+        }
 
-        // 3. Mostramos los resultados
-        document.getElementById("nombre").textContent = datos.nombre;
-        document.getElementById("boleta").textContent = datos.boleta;
-        document.getElementById("empresa").textContent = nombreEmpresa;
+        // Paso 4: mostrar con datos de Firebase — nunca con datos de la URL
+        mostrarComprobante(datos.nombre, datos.boleta, empresaNombre);
 
-        document.getElementById("estado-cargando").style.display = "none";
-        document.getElementById("estado-ok").style.display = "block";
-
-      } catch (e) {
-        mostrarError("Error al conectar con la base de datos.");
+      } catch(e) {
+        mostrarError("Error al verificar el registro. Intenta de nuevo más tarde.");
         console.error(e);
       }
     })();
   }
+
+  window.descargarJPG = function() {
+    const nombreV  = document.getElementById("nombre").textContent;
+    const boletaV  = document.getElementById("boleta").textContent;
+    const empresaV = document.getElementById("empresa").textContent;
+    const btn = document.getElementById("btn-descargar");
+    btn.textContent = "Generando...";
+    btn.disabled = true;
+    try {
+      const W = 600, H = 400;
+      const cv = document.createElement("canvas");
+      cv.width = W; cv.height = H;
+      const ctx = cv.getContext("2d");
+      ctx.fillStyle = "#f0fdf4"; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#007d42"; ctx.fillRect(0, 0, W, 8);
+      ctx.fillStyle = "#d4af37"; ctx.fillRect(0, H - 6, W, 6);
+      ctx.fillStyle = "#007d42"; ctx.font = "bold 20px Arial"; ctx.textAlign = "center";
+      ctx.fillText("Cámara de Comercio de Arauca", W/2, 52);
+      ctx.font = "14px Arial"; ctx.fillStyle = "#64748b";
+      ctx.fillText("Semana Comercial 2026", W/2, 76);
+      ctx.strokeStyle = "#e2e8f0"; ctx.beginPath(); ctx.moveTo(40, 95); ctx.lineTo(W-40, 95); ctx.stroke();
+      ctx.font = "bold 15px Arial"; ctx.fillStyle = "#007d42";
+      ctx.fillText(empresaV, W/2, 125);
+      ctx.font = "16px Arial"; ctx.fillStyle = "#1e293b";
+      ctx.fillText(nombreV, W/2, 155);
+      ctx.font = "bold 90px Arial"; ctx.fillStyle = "#007d42";
+      ctx.fillText(boletaV, W/2, 260);
+      ctx.font = "14px Arial"; ctx.fillStyle = "#64748b";
+      ctx.fillText("Número de boleta", W/2, 288);
+      ctx.strokeStyle = "#e2e8f0"; ctx.beginPath(); ctx.moveTo(40, 308); ctx.lineTo(W-40, 308); ctx.stroke();
+      ctx.font = "bold 13px Arial"; ctx.fillStyle = "#166534";
+      ctx.fillText("✓ Comprobante oficial de registro", W/2, 338);
+      ctx.font = "12px Arial"; ctx.fillStyle = "#64748b";
+      ctx.fillText("Conserva este documento como soporte", W/2, 360);
+      cv.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url; link.download = "boleta-" + boletaV + "-semana-comercial.jpg";
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        btn.innerHTML = "✓ Descargado"; btn.style.background = "#16a34a";
+        setTimeout(() => { btn.innerHTML = "📸 Descargar comprobante"; btn.style.background = "#007d42"; btn.disabled = false; }, 2500);
+      }, "image/jpeg", 0.95);
+    } catch(e) {
+      btn.innerHTML = "📸 Descargar comprobante"; btn.disabled = false;
+      alert("Toma una captura de pantalla.");
+    }
+  };
 </script>
 </body>
 </html>
