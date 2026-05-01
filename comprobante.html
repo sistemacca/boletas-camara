@@ -135,61 +135,42 @@
   }
 
   const params  = new URLSearchParams(window.location.search);
-  const pNombre = (params.get("nombre")  || "").trim();
   const pBoleta = (params.get("boleta")  || "").trim();
-  const pRaw    = (params.get("empresa") || "").trim(); // lo que viene en la URL
-  const pNorm   = aId(pRaw);                            // versión normalizada (IDs legacy)
+  const pEmpresa = (params.get("empresa") || "").trim();
 
-  if (!pNombre || !pBoleta || !pRaw) {
+  if (!pBoleta || !pEmpresa) {
     mostrarError("El enlace está incompleto o mal formado.");
   } else {
     (async () => {
       try {
-        // ── Paso 1: encontrar el ID real de la empresa en Firebase ──────────
-        // Intentar con el valor exacto de la URL primero (códigos nuevos: "x7k2m9qr")
-        // Si no existe, intentar con la versión normalizada (IDs legacy: "empresanueva")
-        let empSnap = await getDoc(doc(db, "empresas", pRaw));
-        let idEmpresa = pRaw;
-
-        if (!empSnap.exists()) {
-          empSnap = await getDoc(doc(db, "empresas", pNorm));
-          idEmpresa = pNorm;
-        }
-
+        // Paso 1: verificar que la empresa existe
+        const empSnap = await getDoc(doc(db, "empresas", pEmpresa));
         if (!empSnap.exists()) {
           mostrarError("La empresa de este enlace no existe en el sistema.");
           return;
         }
+        const empresaNombre = empSnap.data().nombre || pEmpresa;
 
-        const empresaNombre = empSnap.data().nombre || idEmpresa;
-
-        // ── Paso 2: buscar el registro por boleta + ID real de empresa ──────
-        let snap = await getDocs(
-          query(
-            collection(db, "registros"),
-            where("boleta",  "==", Number(pBoleta)),
-            where("empresa", "==", idEmpresa)
-          )
+        // Paso 2: buscar el registro SOLO por número de boleta
+        // La boleta es única globalmente — no necesita índice compuesto
+        const snap = await getDocs(
+          query(collection(db, "registros"), where("boleta", "==", Number(pBoleta)))
         );
 
-        // Fallback: boleta guardada como string
         if (snap.empty) {
-          snap = await getDocs(
-            query(
-              collection(db, "registros"),
-              where("boleta",  "==", pBoleta),
-              where("empresa", "==", idEmpresa)
-            )
-          );
-        }
-
-        if (snap.empty) {
-          mostrarError("No se encontró un registro con estos datos. El enlace puede haber sido modificado.");
+          mostrarError("No se encontró un registro con este número de boleta. El enlace puede haber sido modificado.");
           return;
         }
 
-        // ── Paso 3: mostrar con datos de Firebase, nunca de la URL ──────────
         const datos = snap.docs[0].data();
+
+        // Paso 3: verificar que la boleta pertenece a la empresa del enlace
+        if (datos.empresa !== pEmpresa) {
+          mostrarError("Este comprobante no es válido. Los datos no coinciden.");
+          return;
+        }
+
+        // Paso 4: mostrar con datos de Firebase — nunca con datos de la URL
         mostrarComprobante(datos.nombre, datos.boleta, empresaNombre);
 
       } catch(e) {
