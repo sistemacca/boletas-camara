@@ -134,11 +134,17 @@
     return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
   }
 
-  const params  = new URLSearchParams(window.location.search);
-  const pBoleta = (params.get("boleta")  || "").trim();
-  const pEmpresa = (params.get("empresa") || "").trim();
+  // Normaliza texto para comparación: sin tildes, sin mayúsculas, sin espacios extra
+  function normalizar(s) {
+    return (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/\s+/g, " ");
+  }
 
-  if (!pBoleta || !pEmpresa) {
+  const params   = new URLSearchParams(window.location.search);
+  const pBoleta  = (params.get("boleta")  || "").trim();
+  const pEmpresa = (params.get("empresa") || "").trim();
+  const pNombre  = (params.get("nombre")  || "").trim();
+
+  if (!pBoleta || !pEmpresa || !pNombre) {
     mostrarError("El enlace está incompleto o mal formado.");
   } else {
     (async () => {
@@ -170,7 +176,14 @@
           return;
         }
 
-        // Paso 4: mostrar con datos de Firebase — nunca con datos de la URL
+        // Paso 4: verificar que el nombre de la URL coincide con el nombre en Firebase
+        // Esto evita que alguien cambie el número de boleta para ver comprobantes ajenos
+        if (normalizar(datos.nombre) !== normalizar(pNombre)) {
+          mostrarError("Este comprobante no es válido. Los datos no coinciden.");
+          return;
+        }
+
+        // Paso 5: mostrar con datos de Firebase — nunca con datos de la URL
         mostrarComprobante(datos.nombre, datos.boleta, empresaNombre);
 
       } catch(e) {
