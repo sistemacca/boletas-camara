@@ -336,6 +336,7 @@
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <span class="refresh-badge"><span class="refresh-dot"></span>En vivo</span>
             <button class="btn btn-p btn-sm" onclick="cargarDashboard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Actualizar</button>
+            <button class="btn btn-gray btn-sm" id="btn-recalcular" onclick="recalcularStats()" title="Recuenta todos los registros y actualiza el resumen en Firebase. Usar solo si los números del dashboard parecen incorrectos.">🔢 Recalcular stats</button>
           </div>
         </div>
         <div class="stats">
@@ -507,7 +508,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, orderBy, query, doc, getDoc, setDoc }
+  import { getFirestore, collection, getDocs, orderBy, query, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const cfg = {
@@ -614,28 +615,50 @@
     document.getElementById("overlay").classList.toggle("visible");
   };
 
-  // DASHBOARD
+  // ── DASHBOARD — lee 1 doc resumen + empresas + contadores (NO lee registros) ──
+  //
+  //  El doc "stats/_stats" tiene la forma:
+  //    { total: 6000, hoy: 120, ultimaActualizacion: Timestamp }
+  //  Se actualiza cada vez que se guarda un registro nuevo (ver formulario).
+  //  Si aún no existe se reconstruye una sola vez contando registros.
+  //
   window.cargarDashboard = async () => {
     try {
-      const [sR, sE, sC] = await Promise.all([
-        getDocs(query(collection(db,"registros"), orderBy("fecha","desc"))),
-        getDocs(collection(db,"empresas")),
-        getDocs(collection(db,"contadores"))
+      // Solo 3 lecturas: stats (1 doc), empresas (N docs pequeños), contadores (N docs pequeños)
+      const [snapStats, sE, sC] = await Promise.all([
+        getDoc(doc(db, "stats", "_stats")),
+        getDocs(collection(db, "empresas")),
+        getDocs(collection(db, "contadores"))
       ]);
-      regs  = sR.docs.map(d => d.data());
+
       emps  = sE.docs.map(d => ({ id: d.id, ...d.data() }));
       conts = {};
       sC.docs.forEach(d => { conts[d.id] = d.data().actual || 0; });
 
-      // Actualizar mapa id → nombre
       empsMap = {};
       emps.forEach(e => { empsMap[e.id] = e.nombre || e.id; });
 
-      const hoy  = new Date().toISOString().slice(0,10);
-      const hoyN = regs.filter(r => fstr(r.fecha).startsWith(hoy)).length;
       const totB = Object.values(conts).reduce((a,b) => a+b, 0);
 
-      document.getElementById("s-total").textContent = regs.length;
+      let totalRegs = 0, hoyN = 0;
+      if (snapStats.exists()) {
+        // Camino rápido: leer el resumen (1 lectura)
+        const st = snapStats.data();
+        totalRegs = st.total || 0;
+        hoyN      = st.hoy   || 0;
+      } else {
+        // Primera vez o doc borrado: reconstruir contando registros (solo ocurre 1 vez)
+        const snapAll = await getDocs(query(collection(db,"registros"), orderBy("fecha","desc")));
+        const hoyStr  = new Date().toISOString().slice(0,10);
+        totalRegs = snapAll.size;
+        hoyN      = snapAll.docs.filter(d => fstr(d.data().fecha).startsWith(hoyStr)).length;
+        // Guardar el resumen para las próximas lecturas
+        await setDoc(doc(db,"stats","_stats"), {
+          total: totalRegs, hoy: hoyN, ultimaActualizacion: serverTimestamp()
+        });
+      }
+
+      document.getElementById("s-total").textContent = totalRegs;
       document.getElementById("s-emp").textContent   = emps.length;
       document.getElementById("s-hoy").textContent   = hoyN;
       document.getElementById("s-bol").textContent   = totB;
@@ -695,6 +718,24 @@
   };
 
   cargarDashboard();
+
+  // ── RECALCULAR stats/_stats (botón de mantenimiento en el dashboard) ────────
+  window.recalcularStats = async () => {
+    const btn = document.getElementById("btn-recalcular");
+    if (btn) { btn.disabled = true; btn.textContent = "Calculando…"; }
+    try {
+      const snap   = await getDocs(query(collection(db,"registros"), orderBy("fecha","desc")));
+      const hoyStr = new Date().toISOString().slice(0,10);
+      const total  = snap.size;
+      const hoy    = snap.docs.filter(d => fstr(d.data().fecha).startsWith(hoyStr)).length;
+      await setDoc(doc(db,"stats","_stats"), { total, hoy, ultimaActualizacion: serverTimestamp() });
+      if (btn) { btn.textContent = "✓ Listo"; setTimeout(()=>{ btn.disabled=false; btn.textContent="Recalcular stats"; }, 2500); }
+      cargarDashboard();
+    } catch(e) {
+      if (btn) { btn.disabled=false; btn.textContent="Error — reintentar"; }
+      console.error(e);
+    }
+  };
 
   // REGISTROS
   window.cargarRegistros = async () => {
