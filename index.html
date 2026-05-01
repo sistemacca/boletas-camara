@@ -156,7 +156,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, runTransaction, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, runTransaction, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
@@ -170,47 +170,25 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const CODIGO_URL = new URLSearchParams(window.location.search).get("empresa") || "";
-
-  // docId y nombre se llenan al encontrar la empresa por código
-  let EMPRESA_DOC_ID = "";
+  // El código en la URL ES el ID del documento en Firestore
+  const CODIGO = new URLSearchParams(window.location.search).get("empresa") || "";
 
   async function cargarEmpresa() {
     const resultado = document.getElementById("resultado");
-    if (!CODIGO_URL) {
+    if (!CODIGO) {
       resultado.innerHTML = '<p class="fallo">Enlace sin empresa. Contacta al organizador.</p>';
       document.getElementById("empresa-label").textContent = "Sin empresa";
       return;
     }
     try {
-      // Buscar empresa por campo "codigo" (nuevo sistema)
-      const q = query(collection(db, "empresas"), where("codigo", "==", CODIGO_URL));
-      const snap = await getDocs(q);
-
-      let empresaData = null;
-      let empresaId   = null;
-
-      if (!snap.empty) {
-        // Encontrada por código seguro
-        empresaId   = snap.docs[0].id;
-        empresaData = snap.docs[0].data();
-      } else {
-        // Fallback: buscar por ID de documento (empresas antiguas sin código)
-        const snapDoc = await getDoc(doc(db, "empresas", CODIGO_URL));
-        if (snapDoc.exists()) {
-          empresaId   = snapDoc.id;
-          empresaData = snapDoc.data();
-        }
-      }
-
-      if (!empresaData) {
+      // getDoc directo — el código ES el ID del documento
+      const snap = await getDoc(doc(db, "empresas", CODIGO));
+      if (!snap.exists()) {
         resultado.innerHTML = '<p class="fallo">Empresa no registrada. Contacta al organizador.</p>';
         document.getElementById("empresa-label").textContent = "No encontrada";
         return;
       }
-
-      EMPRESA_DOC_ID = empresaId;
-      document.getElementById("empresa-label").textContent = empresaData.nombre || empresaId;
+      document.getElementById("empresa-label").textContent = snap.data().nombre || CODIGO;
       document.getElementById("formulario").style.display = "block";
     } catch (e) {
       resultado.innerHTML = '<p class="fallo">Error al cargar. Intenta de nuevo.</p>';
@@ -225,17 +203,17 @@
   function marcar(inputId, errId, valido) { document.getElementById(inputId).classList.toggle("error", !valido); document.getElementById(errId).style.display = valido ? "none" : "block"; return valido; }
 
   window.registrar = async function () {
-    const nombre = document.getElementById("nombre").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-    const email = document.getElementById("email").value.trim();
+    const nombre    = document.getElementById("nombre").value.trim();
+    const telefono  = document.getElementById("telefono").value.trim();
+    const email     = document.getElementById("email").value.trim();
     const direccion = document.getElementById("direccion").value.trim();
-    const btn = document.getElementById("btn");
+    const btn       = document.getElementById("btn");
     const resultado = document.getElementById("resultado");
 
     resultado.innerHTML = "";
 
     let ok = true;
-    ok = marcar("nombre", "err-nombre", nombre.length >= 2) && ok;
+    ok = marcar("nombre",   "err-nombre",   nombre.length >= 2)    && ok;
     ok = marcar("telefono", "err-telefono", esTelefonoValido(telefono)) && ok;
     if (email) ok = marcar("email", "err-email", esEmailValido(email)) && ok;
     if (!ok) return;
@@ -244,8 +222,8 @@
     btn.innerHTML = '<span class="spinner"></span>Procesando...';
 
     try {
-      const empresaRef = doc(db, "empresas", EMPRESA_DOC_ID);
-      const contadorRef = doc(db, "contadores", EMPRESA_DOC_ID);
+      const empresaRef  = doc(db, "empresas",  CODIGO);
+      const contadorRef = doc(db, "contadores", CODIGO);
       let numeroBoleta;
 
       await runTransaction(db, async (tx) => {
@@ -253,7 +231,7 @@
         if (!empSnap.exists()) throw new Error("Empresa no encontrada");
         const { desde, hasta } = empSnap.data();
         const contSnap = await tx.get(contadorRef);
-        const actual = contSnap.exists() ? contSnap.data().actual : 0;
+        const actual   = contSnap.exists() ? contSnap.data().actual : 0;
         const siguiente = desde + actual;
         if (siguiente > hasta) throw new Error("Boletas agotadas para esta empresa");
         numeroBoleta = siguiente;
@@ -261,16 +239,16 @@
       });
 
       await addDoc(collection(db, "registros"), {
-        empresa: EMPRESA_DOC_ID,
-        boleta: numeroBoleta,
+        empresa:   CODIGO,
+        boleta:    numeroBoleta,
         nombre,
         telefono,
-        email: email || "",
+        email:     email || "",
         direccion: direccion || "",
-        fecha: new Date().toISOString()
+        fecha:     new Date().toISOString()
       });
 
-      const urlComprobante = `comprobante.html?nombre=${encodeURIComponent(nombre)}&boleta=${numeroBoleta}&empresa=${encodeURIComponent(EMPRESA_DOC_ID)}`;
+      const urlComprobante = `comprobante.html?nombre=${encodeURIComponent(nombre)}&boleta=${numeroBoleta}&empresa=${encodeURIComponent(CODIGO)}`;
       window.location.href = urlComprobante;
 
     } catch (err) {
