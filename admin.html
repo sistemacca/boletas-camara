@@ -84,21 +84,40 @@
     .tabla-scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     thead tr { background: var(--azul); color: white; }
-    thead th { padding: 12px 16px; text-align: left; font-weight: 500; white-space: nowrap; }
+    thead th {
+      padding: 13px 14px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 11.5px;
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    thead th:last-child { border-right: none; }
+    tbody tr { transition: background 0.12s; }
     tbody tr:nth-child(even) { background: #f8fafc; }
-    tbody tr:hover { background: #e6f4ec; }
-    tbody td { padding: 11px 16px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+    tbody tr:hover { background: #e8f5ee; }
+    tbody td {
+      padding: 11px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      white-space: nowrap;
+      text-align: center;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+    #t-reg tbody td:nth-child(5),
+    #t-reg tbody td:nth-child(6),
+    #t-reg tbody td:nth-child(7) { text-align: left; }
 
     .lista-m { display: none; }
-    .row-m { padding: 14px 16px; border-bottom: 1px solid var(--borde); transition: background 0.1s; }
-    .row-m:hover { background: #f0faf4; }
+    .row-m { padding: 14px 16px; border-bottom: 1px solid var(--borde); }
     .row-m:last-child { border-bottom: none; }
-    .row-m-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px; }
-    .row-m-nombre { font-weight: 700; font-size: 14px; color: var(--texto); }
-    .row-m-meta { font-size: 12px; color: var(--sub); margin-top: 2px; }
+    .row-m-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .row-m-nombre { font-weight: 600; font-size: 14px; }
+    .row-m-meta { font-size: 12px; color: var(--sub); }
 
-    .emp-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border-left: 4px solid #007D42; transition: box-shadow 0.2s; }
-    .emp-card:hover { box-shadow: 0 4px 16px rgba(0,125,66,0.15); }
+    .emp-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid var(--azul); }
     .emp-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
     .emp-card-nombre { font-size: 15px; font-weight: 700; color: var(--azul); }
     .emp-card-id { font-size: 11px; color: var(--sub); margin-top: 2px; }
@@ -107,18 +126,12 @@
     .emp-dato .dv { font-size: 20px; font-weight: 700; color: var(--azul); }
     .emp-dato .dl { font-size: 10px; color: var(--sub); margin-top: 2px; }
 
-    .badge-b { background: var(--azul); color: white; font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 13px; }
-    .badge-e { background: #e6f4ec; color: var(--azul); padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge-b { background: var(--azul); color: white; font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 13px; display: inline-block; }
+    .badge-e { background: #e6f4ec; color: #005a30; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+    .badge-id { background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-family: monospace; font-weight: 600; display: inline-block; letter-spacing: 0.02em; }
 
-    .prog-bar {
-      height: 8px; background: #d1e8da; border-radius: 10px;
-      margin-top: 5px; overflow: hidden;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
-    }
-    .prog-fill {
-      height: 100%; border-radius: 10px; transition: width 0.5s ease;
-      background: linear-gradient(90deg, #007D42 0%, #00a855 100%);
-    }
+    .prog-bar { height: 7px; background: var(--borde); border-radius: 4px; margin-top: 5px; overflow: hidden; }
+    .prog-fill { height: 100%; background: var(--azul); border-radius: 4px; transition: width 0.4s; }
 
     .btn { padding: 10px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
     .btn:active { transform: scale(0.97); }
@@ -169,53 +182,68 @@
     .refresh-dot { width: 7px; height: 7px; background: var(--verde); border-radius: 50%; animation: pulso 1.5s ease-in-out infinite; }
     @keyframes pulso { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
 
-        /* PAGINACIÓN */
-    .pag-footer {
+    /* ── PAGINACIÓN PROFESIONAL ─────────────────────── */
+    #pag-reg, #pag-emp, #pag-enl { border-top: 1px solid var(--borde); background: #fafcfb; }
+    .pag-container {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; border-top: 1px solid var(--borde);
-      background: #fafafa; flex-wrap: wrap; gap: 10px;
+      padding: 14px 20px; flex-wrap: wrap; gap: 12px;
     }
-    .pag-size-wrap { display: flex; align-items: center; gap: 8px; }
-    .pag-size-wrap label { font-size: 12px; color: var(--sub); }
-    .pag-size-select {
-      height: 30px; padding: 0 8px; border: 1px solid var(--borde);
-      border-radius: 6px; font-size: 12px; color: var(--texto);
-      background: white; cursor: pointer; outline: none;
-    }
-    .pag-size-select:focus { border-color: var(--azul); }
-    .pag-meta-txt { font-size: 12px; color: var(--sub); }
-    .pag-meta-txt b { color: var(--texto); }
-    .pag-btns-wrap { display: flex; align-items: center; gap: 2px; }
-    .pb {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 34px; height: 34px; padding: 0 8px;
-      border: 1.5px solid var(--borde); border-radius: 8px;
+    .pag-meta { font-size: 12.5px; color: var(--sub); white-space: nowrap; }
+    .pag-meta b { color: var(--texto); font-weight: 600; }
+    .pag-controls { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .pag-nav {
+      display: inline-flex; align-items: center; gap: 5px;
+      height: 34px; padding: 0 12px;
       background: white; color: var(--texto);
+      border: 1.5px solid var(--borde); border-radius: 8px;
+      font-size: 12.5px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap; font-family: inherit;
+    }
+    .pag-nav svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .pag-nav:hover:not(:disabled) { background: var(--azul); color: white; border-color: var(--azul); }
+    .pag-nav:active:not(:disabled) { transform: scale(0.97); }
+    .pag-nav:disabled { opacity: 0.35; cursor: not-allowed; background: #f8fafc; color: #94a3b8; }
+    .pag-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px;
+      background: white; color: var(--sub);
+      border: 1.5px solid var(--borde); border-radius: 8px;
       font-size: 13px; font-weight: 500; cursor: pointer;
-      transition: all 0.15s; user-select: none;
+      transition: all 0.15s; font-family: inherit;
     }
-    .pb:hover:not(:disabled) {
-      background: #e6f4ec; border-color: #007D42; color: #007D42;
+    .pag-num:hover:not(.on) { background: #f0fdf4; color: var(--azul); border-color: var(--azul); }
+    .pag-num.on { background: var(--azul); color: white; border-color: var(--azul); font-weight: 700; cursor: default; }
+    .pag-dots-span {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 34px; color: #94a3b8; font-size: 13px; letter-spacing: 1px; user-select: none;
     }
-    .pb.current {
-      background: #007D42; color: white; border-color: #007D42;
-      font-weight: 700; cursor: default;
-      box-shadow: 0 2px 6px rgba(0,125,66,0.3);
+    .pag-jump { display: flex; align-items: center; gap: 6px; }
+    .pag-jump span { font-size: 12.5px; color: var(--sub); white-space: nowrap; }
+    .pag-jump input {
+      width: 52px; height: 34px; padding: 0 8px;
+      border: 1.5px solid var(--borde); border-radius: 8px;
+      font-size: 13px; text-align: center; font-family: inherit;
+      background: white; color: var(--texto); outline: none; transition: border-color 0.15s;
     }
-    .pb:disabled { opacity: 0.3; cursor: default; }
-    .pb-dots { border: none; background: none; cursor: default; color: var(--sub); font-size: 14px; min-width: 24px; letter-spacing: 1px; }
-    .pb-dots:hover { background: none; border: none; color: var(--sub); }
-    .tabla-box { overflow-y: auto; max-height: 480px; }
-    .tabla-box::-webkit-scrollbar { width: 6px; }
-    .tabla-box::-webkit-scrollbar-track { background: #f1f5f9; }
+    .pag-jump input:focus { border-color: var(--azul); }
+    .pag-jump button {
+      height: 34px; padding: 0 14px; background: var(--azul); color: white;
+      border: none; border-radius: 8px; font-size: 12.5px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: background 0.15s;
+    }
+    .pag-jump button:hover { background: #005a30; }
+    /* Tabla con scroll y cabecera sticky */
+    .tabla-box { overflow-y: auto; max-height: 500px; }
+    .tabla-box::-webkit-scrollbar { width: 5px; }
+    .tabla-box::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
     .tabla-box::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
     .tabla-box::-webkit-scrollbar-thumb:hover { background: var(--azul); }
     .tabla-box table thead tr { position: sticky; top: 0; z-index: 2; }
-
-@media (max-width: 768px) {
-      .pag-wrap { flex-direction: column; align-items: flex-start; gap: 10px; }
-      .pag-ir { display: none; }
-      .pag-btn.nav span { display: none; }
+    /* Número de fila */
+    .row-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: #f1f5f9; color: var(--sub); font-size: 11px; font-weight: 600;
     }
 
     @media (max-width: 768px) {
@@ -233,6 +261,11 @@
       .btn-copy { width: 100%; text-align: center; padding: 10px; }
       .page-top { flex-direction: column; }
       .pag-btn { padding: 7px 10px; font-size: 12px; min-width: 34px; }
+      .pag-container { justify-content: center; }
+      .pag-meta { width: 100%; text-align: center; }
+      .pag-jump { display: none; }
+      .pag-nav span { display: none; }
+      .pag-nav { padding: 0 10px; }
     }
     @media (min-width: 769px) {
       .modal-bg { align-items: center; padding: 20px; }
@@ -339,7 +372,19 @@
           <div class="spin-wrap" id="spin-reg"><div class="spin"></div><p>Cargando...</p></div>
           <div class="tabla-box" id="tabla-box-reg">
             <table id="t-reg" style="display:none">
-              <thead><tr><th>#</th><th>Boleta</th><th>Empresa</th><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Fecha</th></tr></thead>
+              <!-- ✅ COLUMNAS SEPARADAS: Código Empresa | Nombre Empresa -->
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Boleta</th>
+                  <th>Código Empresa</th>
+                  <th>Nombre Empresa</th>
+                  <th>Nombre</th>
+                  <th>Teléfono</th>
+                  <th>Email</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
               <tbody id="tb-reg"></tbody>
             </table>
           </div>
@@ -357,7 +402,7 @@
           <div class="fg">
             <label>Nombre de la empresa</label>
             <input type="text" id="e-nombre" placeholder="Ej: El Descuento, Piña Express, Bestbuy">
-            <div class="hint">El ID se genera automáticamente desde el nombre</div>
+            <div class="hint">El ID interno se genera desde el nombre · Se asignará un <strong>código único de enlace</strong> automáticamente</div>
           </div>
           <div class="f2">
             <div class="fg"><label>Boleta desde</label><input type="number" id="e-desde" placeholder="1"></div>
@@ -372,14 +417,28 @@
             <button class="btn btn-p btn-sm" onclick="cargarEmpresas()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Actualizar</button>
           </div>
           <div class="spin-wrap" id="spin-emp"><div class="spin"></div><p>Cargando...</p></div>
-          <div class="tabla-scroll">
+          <div class="tabla-box" id="tabla-box-emp">
             <table id="t-emp" style="display:none">
-              <thead><tr><th>Empresa</th><th>Desde</th><th>Hasta</th><th>Entregadas</th><th>Disponibles</th><th></th></tr></thead>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Código Enlace</th>
+                  <th>Nombre Empresa</th>
+                  <th>Desde</th>
+                  <th>Hasta</th>
+                  <th>Total</th>
+                  <th>Entregadas</th>
+                  <th>Disponibles</th>
+                  <th>Progreso</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
               <tbody id="tb-emp"></tbody>
             </table>
           </div>
-          <div class="lista-m" id="lm-emp" style="padding:12px"></div>
+          <div class="lista-m" id="lm-emp"></div>
           <div class="vacio" id="vacio-emp" style="display:none">No hay empresas creadas</div>
+          <div id="pag-emp" style="display:none"></div>
         </div>
       </div>
 
@@ -392,10 +451,27 @@
         <div class="card">
           <div class="controles">
             <input type="text" id="buscar-enlace" placeholder="Buscar empresa..." oninput="filtrarEnlaces()">
+            <button class="btn btn-p btn-sm" onclick="cargarEnlaces()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></button>
           </div>
-          <div style="padding:12px 20px 20px" id="lista-enlaces">
-            <div class="spin-wrap"><div class="spin"></div><p>Cargando...</p></div>
+          <div class="spin-wrap" id="spin-enl"><div class="spin"></div><p>Cargando...</p></div>
+          <div class="tabla-box" id="tabla-box-enl">
+            <table id="t-enl" style="display:none">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nombre Empresa</th>
+                  <th>Código Enlace</th>
+                  <th>Rango</th>
+                  <th>Enlace de registro</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tb-enl"></tbody>
+            </table>
           </div>
+          <div class="lista-m" id="lm-enl"></div>
+          <div class="vacio" id="vacio-enl" style="display:none">No hay empresas</div>
+          <div id="pag-enl" style="display:none"></div>
         </div>
       </div>
 
@@ -447,10 +523,13 @@
   const CLAVE = "CCA2026";
   const BASE  = "https://sistemacca.github.io/boletas-camara/?empresa=";
 
-  let regs = [], emps = [], conts = {}, empNombres = {}, autoTimer = null, inactividadTimer = null;
+  let regs = [], emps = [], conts = {}, autoTimer = null, inactividadTimer = null;
   let regsCache = [], paginaActual = 1;
   const POR_PAGINA = 50;
   const INACTIVIDAD_MS = 2 * 60 * 1000;
+
+  // Mapa id → nombre de empresa para la tabla de registros
+  let empsMap = {};
 
   function resetInactividad() {
     clearTimeout(inactividadTimer);
@@ -469,17 +548,23 @@
   );
 
   const fstr  = f => !f ? "" : f.toDate ? f.toDate().toISOString() : f.toString();
-  // Resuelve el nombre visible de una empresa dado su ID/código
-  function empNombre(id) {
-    if (!id) return "";
-    // Buscar en el array emps (cargado por dashboard y empresas)
-    const found = emps.find(e => e.id === id);
-    if (found) return found.nombre || id;
-    // Fallback al mapa empNombres (cargado al abrir registros)
-    return empNombres[id] || id;
+  const genId = n => n.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
+
+  // Genera un código único de 8 chars alfanumérico mayúscula p.ej. "A3F9KX2M"
+  function genCodigo() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin 0,O,1,I para evitar confusiones
+    let c = "";
+    for (let i = 0; i < 8; i++) c += chars[Math.floor(Math.random() * chars.length)];
+    return c;
   }
 
-  const genId = n => n.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
+  // Verifica que el código no exista ya como ID de documento
+  async function genCodigoUnico(snapDocs) {
+    const usados = new Set(snapDocs.map(d => d.id));
+    let codigo;
+    do { codigo = genCodigo(); } while (usados.has(codigo));
+    return codigo;
+  }
 
   function iniciarSesion() {
     sessionStorage.setItem("admin_auth", "ok");
@@ -541,6 +626,10 @@
       emps  = sE.docs.map(d => ({ id: d.id, ...d.data() }));
       conts = {};
       sC.docs.forEach(d => { conts[d.id] = d.data().actual || 0; });
+
+      // Actualizar mapa id → nombre
+      empsMap = {};
+      emps.forEach(e => { empsMap[e.id] = e.nombre || e.id; });
 
       const hoy  = new Date().toISOString().slice(0,10);
       const hoyN = regs.filter(r => fstr(r.fecha).startsWith(hoy)).length;
@@ -615,14 +704,16 @@
     document.getElementById("vacio-reg").style.display = "none";
     document.getElementById("pag-reg").style.display   = "none";
     try {
-      const [snapR, snapE] = await Promise.all([
+      const [snapReg, snapEmp] = await Promise.all([
         getDocs(query(collection(db,"registros"), orderBy("fecha","desc"))),
         getDocs(collection(db,"empresas"))
       ]);
-      // Mapa código → nombre visible
-      empNombres = {};
-      snapE.docs.forEach(d => { empNombres[d.id] = d.data().nombre || d.id; });
-      regs = snapR.docs.map(d => d.data());
+      regs = snapReg.docs.map(d => d.data());
+
+      // Construir mapa id → nombre de empresa
+      empsMap = {};
+      snapEmp.docs.forEach(d => { empsMap[d.id] = d.data().nombre || d.id; });
+
       poblarFiltro();
       filtrar();
     } catch(e) {
@@ -635,12 +726,7 @@
     const act = sel.value;
     const emp = [...new Set(regs.map(r => r.empresa))].sort();
     sel.innerHTML = '<option value="">Todas las empresas</option>';
-    emp.forEach(e => {
-      const o = document.createElement("option");
-      o.value = e;
-      o.textContent = empNombre(e);
-      sel.appendChild(o);
-    });
+    emp.forEach(e => { const o = document.createElement("option"); o.value=e; o.textContent=e; sel.appendChild(o); });
     sel.value = act;
   }
 
@@ -672,21 +758,23 @@
     document.getElementById("t-reg").style.display     = (total > 0 && !isMobile) ? "table" : "none";
     document.getElementById("pag-reg").style.display   = total > POR_PAGINA ? "block" : "none";
 
-    // Tabla escritorio
     const tbody = document.getElementById("tb-reg");
     tbody.innerHTML = "";
     pagina.forEach((r, i) => {
-      const fs2   = fstr(r.fecha);
-      const fecha = fs2 ? new Date(fs2).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"}) : "";
-      const tr    = document.createElement("tr");
-      tr.innerHTML = `<td>${inicio+i+1}</td>
+      const fs2        = fstr(r.fecha);
+      const fecha      = fs2 ? new Date(fs2).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"}) : "";
+      const codigoEmp  = r.empresa || "";
+      const nombreEmp  = empsMap[codigoEmp] || codigoEmp;
+      const tr         = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="row-num">${inicio+i+1}</span></td>
         <td><span class="badge-b">${r.boleta}</span></td>
-        <td>
-            <span class="badge-e">${empNombre(r.empresa)}</span>
-            <div style="font-size:10px;color:#94a3b8;margin-top:2px">${r.empresa||""}</div>
-          </td>
-        <td>${r.nombre||""}</td><td>${r.telefono||""}</td>
-        <td>${r.email||""}</td><td>${fecha}</td>`;
+        <td><span class="badge-id">${codigoEmp}</span></td>
+        <td><span class="badge-e">${nombreEmp}</span></td>
+        <td style="text-align:left">${r.nombre||""}</td>
+        <td style="text-align:left">${r.telefono||""}</td>
+        <td style="text-align:left">${r.email||""}</td>
+        <td style="color:var(--sub);font-size:12px">${fecha}</td>`;
       tbody.appendChild(tr);
     });
 
@@ -695,14 +783,21 @@
     lm.innerHTML = "";
     if (isMobile) {
       pagina.forEach(r => {
-        const fs2   = fstr(r.fecha);
-        const fecha = fs2 ? new Date(fs2).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"}) : "";
+        const fs2       = fstr(r.fecha);
+        const fecha     = fs2 ? new Date(fs2).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"}) : "";
+        const codigoEmp = r.empresa || "";
+        const nombreEmp = empsMap[codigoEmp] || codigoEmp;
         const d = document.createElement("div");
         d.className = "row-m";
         d.innerHTML = `
           <div class="row-m-top">
-            <div><div class="row-m-nombre">${r.nombre||""}</div>
-            <div class="row-m-meta">${empNombre(r.empresa)} · ${fecha}</div></div>
+            <div>
+              <div class="row-m-nombre">${r.nombre||""}</div>
+              <div class="row-m-meta">
+                <span class="badge-id" style="margin-right:4px">${codigoEmp}</span>
+                ${nombreEmp} · ${fecha}
+              </div>
+            </div>
             <span class="badge-b">${r.boleta}</span>
           </div>
           <div class="row-m-meta" style="margin-top:4px">${r.telefono||"-"} · ${r.email||"-"}</div>`;
@@ -725,17 +820,14 @@
       const wrap = document.createElement("div");
       wrap.className = "pag-container";
 
-      // Info izquierda
       const meta = document.createElement("div");
       meta.className = "pag-meta";
       meta.innerHTML = `<b>${inicio+1}–${fin}</b> de <b>${total}</b> registros &nbsp;|&nbsp; Página <b>${paginaActual}</b> de <b>${totalPag}</b>`;
       wrap.appendChild(meta);
 
-      // Controles centrales
       const ctrl = document.createElement("div");
       ctrl.className = "pag-controls";
 
-      // Botón primera página
       const first = document.createElement("button");
       first.className = "pag-nav";
       first.disabled  = paginaActual === 1;
@@ -744,7 +836,6 @@
       first.onclick   = () => ir(1);
       ctrl.appendChild(first);
 
-      // Botón anterior
       const prev = document.createElement("button");
       prev.className = "pag-nav";
       prev.disabled  = paginaActual === 1;
@@ -753,7 +844,6 @@
       prev.onclick   = () => ir(paginaActual - 1);
       ctrl.appendChild(prev);
 
-      // Números de página
       const r = 2;
       let lastP = 0;
       for (let p = 1; p <= totalPag; p++) {
@@ -774,7 +864,6 @@
         }
       }
 
-      // Botón siguiente
       const next = document.createElement("button");
       next.className = "pag-nav";
       next.disabled  = paginaActual === totalPag;
@@ -783,7 +872,6 @@
       next.onclick   = () => ir(paginaActual + 1);
       ctrl.appendChild(next);
 
-      // Botón última página
       const last = document.createElement("button");
       last.className = "pag-nav";
       last.disabled  = paginaActual === totalPag;
@@ -794,7 +882,6 @@
 
       wrap.appendChild(ctrl);
 
-      // Ir a página (solo si hay más de 5 páginas)
       if (totalPag > 5) {
         const jump = document.createElement("div");
         jump.className = "pag-jump";
@@ -829,11 +916,14 @@
       const okB = !b||(r.nombre&&r.nombre.toLowerCase().includes(b))||(r.telefono&&r.telefono.includes(b));
       return okE&&okB;
     });
-    let csv = "Boleta,Empresa,Nombre,Teléfono,Email,Dirección,Fecha\n";
+    // ✅ CSV también incluye columna Código Empresa y Nombre Empresa separadas
+    let csv = "Boleta,Código Empresa,Nombre Empresa,Nombre,Teléfono,Email,Dirección,Fecha\n";
     f.forEach(r => {
-      const fs2 = fstr(r.fecha);
-      const fecha = fs2 ? new Date(fs2).toLocaleString("es-CO") : "";
-      csv += [r.boleta,r.empresa,r.nombre,r.telefono,r.email,r.direccion||"",fecha]
+      const fs2       = fstr(r.fecha);
+      const fecha     = fs2 ? new Date(fs2).toLocaleString("es-CO") : "";
+      const codigoEmp = r.empresa || "";
+      const nombreEmp = empsMap[codigoEmp] || codigoEmp;
+      csv += [r.boleta, codigoEmp, nombreEmp, r.nombre, r.telefono, r.email, r.direccion||"", fecha]
         .map(v=>`"${(v||"").toString().replace(/"/g,'""')}"`)
         .join(",") + "\n";
     });
@@ -842,12 +932,84 @@
     a.download = "registros-semana-comercial.csv"; a.click();
   };
 
-  // EMPRESAS
+  // ── UTILIDAD PAGINACIÓN GENÉRICA ──────────────────────────────────────────
+  function buildPaginator(containerId, total, pagActual, porPagina, onIr) {
+    const pag      = document.getElementById(containerId);
+    const totalPag = Math.ceil(total / porPagina);
+    const inicio   = (pagActual - 1) * porPagina;
+    const fin      = Math.min(inicio + porPagina, total);
+
+    pag.style.display = total > porPagina ? "block" : "none";
+    if (total <= porPagina) return;
+
+    pag.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "pag-container";
+
+    const meta = document.createElement("div");
+    meta.className = "pag-meta";
+    meta.innerHTML = `<b>${inicio+1}–${fin}</b> de <b>${total}</b> &nbsp;|&nbsp; Página <b>${pagActual}</b> de <b>${totalPag}</b>`;
+    wrap.appendChild(meta);
+
+    const ctrl = document.createElement("div");
+    ctrl.className = "pag-controls";
+
+    const mkNav = (html, disabled, title, cb) => {
+      const b = document.createElement("button");
+      b.className = "pag-nav"; b.innerHTML = html;
+      b.disabled = disabled; b.title = title;
+      b.onclick = cb; ctrl.appendChild(b);
+    };
+    const SVG_LL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>`;
+    const SVG_L  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`;
+    const SVG_R  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+    const SVG_RR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>`;
+
+    mkNav(SVG_LL, pagActual===1, "Primera página", ()=>onIr(1));
+    mkNav(SVG_L+" Anterior", pagActual===1, "Página anterior", ()=>onIr(pagActual-1));
+
+    let lastP = 0;
+    for (let p = 1; p <= totalPag; p++) {
+      if (p===1||p===totalPag||(p>=pagActual-2&&p<=pagActual+2)) {
+        if (lastP && p-lastP>1) {
+          const d=document.createElement("span"); d.className="pag-dots-span"; d.textContent="···"; ctrl.appendChild(d);
+        }
+        const b = document.createElement("button");
+        b.className = "pag-num"+(p===pagActual?" on":"");
+        b.textContent = p; b.onclick = ((pg)=>()=>onIr(pg))(p);
+        ctrl.appendChild(b); lastP=p;
+      }
+    }
+
+    mkNav("Siguiente "+SVG_R, pagActual===totalPag, "Página siguiente", ()=>onIr(pagActual+1));
+    mkNav(SVG_RR, pagActual===totalPag, "Última página", ()=>onIr(totalPag));
+    wrap.appendChild(ctrl);
+
+    if (totalPag > 5) {
+      const jump = document.createElement("div");
+      jump.className = "pag-jump";
+      const lbl = document.createElement("span"); lbl.textContent = "Ir a página";
+      const inp = document.createElement("input");
+      inp.type="number"; inp.min=1; inp.max=totalPag; inp.value=pagActual;
+      const btn = document.createElement("button"); btn.textContent="Ir";
+      const go = ()=>{ const v=parseInt(inp.value); if(v>=1&&v<=totalPag) onIr(v); };
+      btn.onclick=go; inp.addEventListener("keydown",e=>{if(e.key==="Enter")go();});
+      jump.appendChild(lbl); jump.appendChild(inp); jump.appendChild(btn);
+      wrap.appendChild(jump);
+    }
+    pag.appendChild(wrap);
+  }
+
+  // EMPRESAS — con paginación y tabla unificada
+  let empsCache = [], empsPagActual = 1;
+  const EMPS_POR_PAG = 20;
+
   window.cargarEmpresas = async () => {
     document.getElementById("spin-emp").style.display  = "block";
     document.getElementById("t-emp").style.display     = "none";
     document.getElementById("lm-emp").innerHTML        = "";
     document.getElementById("vacio-emp").style.display = "none";
+    document.getElementById("pag-emp").style.display   = "none";
     try {
       const [sE, sC] = await Promise.all([
         getDocs(collection(db,"empresas")),
@@ -856,70 +1018,95 @@
       emps  = sE.docs.map(d=>({id:d.id,...d.data()}));
       conts = {};
       sC.docs.forEach(d=>{conts[d.id]=d.data().actual||0;});
-      // Orden descendente: más reciente primero (último creado aparece arriba)
-      // Ordenar por rango desde: menor a mayor
-      emps.sort((a,b) => Number(b.desde) - Number(a.desde));
+      emps.sort((a,b)=>(a.nombre||a.id).localeCompare(b.nombre||b.id));
+      empsCache = emps;
+      empsPagActual = 1;
+      renderEmpresas();
+    } catch(e) {
+      console.error(e);
+      document.getElementById("spin-emp").innerHTML="<p style='color:var(--rojo);padding:20px'>Error al cargar</p>";
+    }
+  };
 
-      if (emps.length===0) {
-        document.getElementById("spin-emp").style.display  = "none";
-        document.getElementById("vacio-emp").style.display = "block";
-        return;
-      }
+  function renderEmpresas() {
+    const isMobile = window.innerWidth <= 768;
+    const total    = empsCache.length;
+    const inicio   = (empsPagActual-1)*EMPS_POR_PAG;
+    const fin      = Math.min(inicio+EMPS_POR_PAG, total);
+    const pagina   = empsCache.slice(inicio, fin);
 
-      const tbody = document.getElementById("tb-emp");
-      tbody.innerHTML = "";
-      emps.forEach(e => {
-        const ent  = conts[e.id]||0;
-        const tot  = Number(e.hasta) - Number(e.desde) + 1;
-        const disp = Math.max(0, tot-ent);
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><strong>${e.nombre||e.id}</strong><br>
-            <span style="font-size:11px;color:var(--sub)">${e.id}</span></td>
-          <td>${e.desde}</td><td>${e.hasta}</td><td>${ent}</td>
-          <td><span style="color:${disp>0?'var(--verde)':'var(--rojo)'};font-weight:700">${disp}</span></td>
-          <td><button class="btn btn-p btn-sm"
+    document.getElementById("spin-emp").style.display  = "none";
+    document.getElementById("vacio-emp").style.display = total===0 ? "block" : "none";
+    document.getElementById("t-emp").style.display     = (total>0&&!isMobile) ? "table" : "none";
+    document.getElementById("lm-emp").style.display    = (total>0&&isMobile)  ? "block" : "none";
+
+    // Tabla escritorio
+    const tbody = document.getElementById("tb-emp");
+    tbody.innerHTML = "";
+    pagina.forEach((e, i) => {
+      const ent  = conts[e.id]||0;
+      const tot  = Number(e.hasta)-Number(e.desde)+1;
+      const disp = Math.max(0, tot-ent);
+      const pct  = tot>0 ? Math.min(100,Math.round(ent/tot*100)) : 0;
+      const dispColor = disp>0 ? "var(--verde)" : "var(--rojo)";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="row-num">${inicio+i+1}</span></td>
+        <td><span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:3px 10px;border-radius:8px;font-weight:700;font-size:12px;letter-spacing:0.05em">${e.codigo||'—'}</span></td>
+        <td style="text-align:left"><strong style="color:var(--azul)">${e.nombre||e.id}</strong></td>
+        <td>${e.desde}</td>
+        <td>${e.hasta}</td>
+        <td><strong>${tot}</strong></td>
+        <td><span class="badge-b" style="font-size:12px">${ent}</span></td>
+        <td><span style="color:${dispColor};font-weight:700;font-size:13px">${disp}</span></td>
+        <td style="min-width:130px">
+          <div style="font-size:10px;color:var(--sub);margin-bottom:3px;text-align:center">${pct}%</div>
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+        </td>
+        <td>
+          <button class="btn btn-p btn-sm"
             onclick="abrirModal('${e.id}','${(e.nombre||"").replace(/'/g,"\\'")}',${e.desde},${e.hasta},${ent})">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button></td>`;
-        tbody.appendChild(tr);
-      });
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar
+          </button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
 
-      const lm = document.getElementById("lm-emp");
-      lm.innerHTML = "";
-      emps.forEach(e => {
+    // Lista móvil
+    const lm = document.getElementById("lm-emp");
+    lm.innerHTML = "";
+    if (isMobile) {
+      pagina.forEach(e => {
         const ent  = conts[e.id]||0;
-        const tot  = Number(e.hasta) - Number(e.desde) + 1;
-        const disp = Math.max(0, tot-ent);
+        const tot  = Number(e.hasta)-Number(e.desde)+1;
+        const disp = Math.max(0,tot-ent);
+        const pct  = tot>0?Math.min(100,Math.round(ent/tot*100)):0;
         const d = document.createElement("div");
-        d.className = "emp-card";
-        d.innerHTML = `
+        d.className="emp-card";
+        d.innerHTML=`
           <div class="emp-card-top">
             <div>
               <div class="emp-card-nombre">${e.nombre||e.id}</div>
-              <div class="emp-card-id">ID: ${e.id} · Rango: ${e.desde}–${e.hasta}</div>
+              <div class="emp-card-id"><span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px">${e.codigo||'—'}</span> · Rango: ${e.desde}–${e.hasta}</div>
             </div>
             <button class="btn btn-p btn-sm"
               onclick="abrirModal('${e.id}','${(e.nombre||"").replace(/'/g,"\\'")}',${e.desde},${e.hasta},${ent})">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>
           </div>
           <div class="emp-grid">
             <div class="emp-dato"><div class="dv">${ent}</div><div class="dl">Entregadas</div></div>
             <div class="emp-dato"><div class="dv" style="color:${disp>0?'var(--verde)':'var(--rojo)'}">${disp}</div><div class="dl">Disponibles</div></div>
             <div class="emp-dato"><div class="dv">${tot}</div><div class="dl">Total</div></div>
           </div>
-          <div class="prog-bar"><div class="prog-fill" style="width:${tot>0?Math.min(100,Math.round(ent/tot*100)):0}%"></div></div>`;
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>`;
         lm.appendChild(d);
       });
-
-      document.getElementById("spin-emp").style.display = "none";
-      if (window.innerWidth > 768) document.getElementById("t-emp").style.display = "table";
-      else document.getElementById("lm-emp").style.display = "block";
-
-    } catch(e) {
-      console.error(e);
-      document.getElementById("spin-emp").innerHTML = "<p style='color:var(--rojo);padding:20px'>Error al cargar</p>";
     }
-  };
+
+    buildPaginator("pag-emp", total, empsPagActual, EMPS_POR_PAG, (pg)=>{
+      empsPagActual=pg; renderEmpresas(); window.scrollTo({top:0,behavior:"smooth"});
+    });
+  }
 
   window.crearEmpresa = async () => {
     const nombre = document.getElementById("e-nombre").value.trim();
@@ -929,29 +1116,25 @@
     msg.style.display = "none";
     if (!nombre||!desde||!hasta){ msg.textContent="Completa todos los campos"; msg.className="fmsg error"; msg.style.display="block"; return; }
     if (desde>=hasta){ msg.textContent="'Hasta' debe ser mayor que 'Desde'"; msg.className="fmsg error"; msg.style.display="block"; return; }
-    const id = genId(nombre);
-    if (!id){ msg.textContent="Nombre inválido"; msg.className="fmsg error"; msg.style.display="block"; return; }
     try {
-      const ex = await getDoc(doc(db,"empresas",id));
-      if (ex.exists()){ msg.textContent=`Ya existe una empresa con ID "${id}". Cambia el nombre.`; msg.className="fmsg error"; msg.style.display="block"; return; }
-
-      // Validar que el rango no se solape con empresas existentes
       const snapEmp = await getDocs(collection(db,"empresas"));
+
+      // Verificar conflicto de rango
       const conflicto = snapEmp.docs.find(d => {
         const e = d.data();
-        const eDesde = Number(e.desde);
-        const eHasta = Number(e.hasta);
-        // Hay solapamiento si los rangos se intersectan
-        return desde <= eHasta && hasta >= eDesde;
+        return desde <= Number(e.hasta) && hasta >= Number(e.desde);
       });
       if (conflicto) {
-        const ec = conflicto.data();
         msg.textContent = "El rango ingresado (" + desde + "–" + hasta + ") no está disponible porque se cruza con rangos ya asignados. Por favor ingresa un rango completamente disponible.";
         msg.className="fmsg error"; msg.style.display="block"; return;
       }
 
-      await setDoc(doc(db,"empresas",id),{nombre,desde,hasta});
-      msg.textContent=`✅ Empresa "${nombre}" creada con ID "${id}"`; msg.className="fmsg ok"; msg.style.display="block";
+      // El código ES el ID del documento — único, seguro, no revela el nombre
+      const codigo = await genCodigoUnico(snapEmp.docs);
+
+      await setDoc(doc(db,"empresas",codigo),{nombre,desde,hasta,codigo});
+      msg.innerHTML=`✅ Empresa <strong>"${nombre}"</strong> creada · Código de enlace: <span style="font-family:monospace;background:#e6f4ec;padding:2px 8px;border-radius:6px;font-weight:700;color:#005a30">${codigo}</span>`;
+      msg.className="fmsg ok"; msg.style.display="block";
       ["e-nombre","e-desde","e-hasta"].forEach(f=>document.getElementById(f).value="");
       cargarEmpresas();
     } catch(e){ msg.textContent="Error: "+e.message; msg.className="fmsg error"; msg.style.display="block"; }
@@ -994,36 +1177,103 @@
   };
 
   // ENLACES
+  let enlCache = [], enlPagActual = 1;
+  const ENL_POR_PAG = 20;
+
   window.cargarEnlaces = async () => {
-    document.getElementById("lista-enlaces").innerHTML =
-      '<div class="spin-wrap"><div class="spin"></div><p>Cargando...</p></div>';
+    document.getElementById("spin-enl").style.display  = "block";
+    document.getElementById("t-enl").style.display     = "none";
+    document.getElementById("lm-enl").innerHTML        = "";
+    document.getElementById("vacio-enl").style.display = "none";
+    document.getElementById("pag-enl").style.display   = "none";
     try {
       const snap = await getDocs(collection(db,"empresas"));
       emps = snap.docs.map(d=>({id:d.id,...d.data()}));
       emps.sort((a,b)=>(a.nombre||a.id).localeCompare(b.nombre||b.id));
-      renderEnlaces(emps);
+      enlCache = emps;
+      enlPagActual = 1;
+      renderEnlaces();
     } catch(e){
-      document.getElementById("lista-enlaces").innerHTML="<p style='color:var(--rojo)'>Error al cargar</p>";
+      document.getElementById("spin-enl").innerHTML="<p style='color:var(--rojo);padding:20px'>Error al cargar</p>";
     }
   };
 
   window.filtrarEnlaces = () => {
     const q = document.getElementById("buscar-enlace").value.toLowerCase();
-    renderEnlaces(emps.filter(e=>(e.nombre||e.id).toLowerCase().includes(q)||e.id.toLowerCase().includes(q)));
+    enlCache = emps.filter(e=>(e.nombre||e.id).toLowerCase().includes(q)||e.id.toLowerCase().includes(q));
+    enlPagActual = 1;
+    renderEnlaces();
   };
 
-  function renderEnlaces(lista) {
-    const el = document.getElementById("lista-enlaces");
-    if (!lista.length){ el.innerHTML="<p class='vacio'>No hay empresas</p>"; return; }
-    el.innerHTML = lista.map(e => {
-      const url = BASE + encodeURIComponent(e.id);
-      return `<div class="enlace-row">
-        <span class="enlace-nombre">${e.nombre||e.id}</span>
-        <span class="enlace-rango">${e.desde}–${e.hasta}</span>
-        <span class="enlace-url">${url}</span>
-        <button class="btn-copy" onclick="copiarEnlace(this,'${url}')">Copiar</button>
-      </div>`;
-    }).join("");
+  function renderEnlaces() {
+    const isMobile = window.innerWidth <= 768;
+    const total    = enlCache.length;
+    const inicio   = (enlPagActual-1)*ENL_POR_PAG;
+    const fin      = Math.min(inicio+ENL_POR_PAG, total);
+    const pagina   = enlCache.slice(inicio, fin);
+
+    document.getElementById("spin-enl").style.display  = "none";
+    document.getElementById("vacio-enl").style.display = total===0 ? "block" : "none";
+    document.getElementById("t-enl").style.display     = (total>0&&!isMobile) ? "table" : "none";
+    document.getElementById("lm-enl").style.display    = (total>0&&isMobile)  ? "block" : "none";
+
+    // Tabla escritorio
+    const tbody = document.getElementById("tb-enl");
+    tbody.innerHTML = "";
+    pagina.forEach((e, i) => {
+      const codigoEnlace = e.codigo || e.id;
+      const url = BASE + encodeURIComponent(codigoEnlace);
+      const sinCodigo = !e.codigo;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="row-num">${inicio+i+1}</span></td>
+        <td style="text-align:left"><strong style="color:var(--azul)">${e.nombre||e.id}</strong></td>
+        <td style="text-align:center">
+          <span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:3px 10px;border-radius:8px;font-weight:700;font-size:13px;letter-spacing:0.05em">${codigoEnlace}</span>
+          ${sinCodigo ? '<span title="Empresa creada antes del sistema de códigos" style="font-size:10px;color:#f59e0b;margin-left:4px">⚠</span>' : ''}
+        </td>
+        <td><span class="badge-e">${e.desde}–${e.hasta}</span></td>
+        <td style="text-align:left;max-width:280px">
+          <span style="display:block;font-size:11px;word-break:break-all;background:#f8fafc;padding:6px 10px;border-radius:8px;color:var(--sub)">${url}</span>
+        </td>
+        <td>
+          <button class="btn btn-p btn-sm" onclick="copiarEnlace(this,'${url}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copiar
+          </button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+    // Lista móvil
+    const lm = document.getElementById("lm-enl");
+    lm.innerHTML = "";
+    if (isMobile) {
+      pagina.forEach(e => {
+        const codigoEnlace = e.codigo || e.id;
+        const url = BASE + encodeURIComponent(codigoEnlace);
+        const d = document.createElement("div");
+        d.className = "row-m";
+        d.innerHTML = `
+          <div class="row-m-top">
+            <div>
+              <div class="row-m-nombre" style="color:var(--azul)">${e.nombre||e.id}</div>
+              <div class="row-m-meta">
+                Código: <span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:1px 7px;border-radius:6px;font-weight:700">${codigoEnlace}</span>
+                · ${e.desde}–${e.hasta}
+              </div>
+            </div>
+            <button class="btn btn-p btn-sm" onclick="copiarEnlace(this,'${url}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012 2v1"/></svg>Copiar
+            </button>
+          </div>
+          <div style="font-size:11px;word-break:break-all;background:#f8fafc;padding:6px 10px;border-radius:8px;margin-top:8px;color:var(--sub)">${url}</div>`;
+        lm.appendChild(d);
+      });
+    }
+
+    buildPaginator("pag-enl", total, enlPagActual, ENL_POR_PAG, (pg)=>{
+      enlPagActual=pg; renderEnlaces(); window.scrollTo({top:0,behavior:"smooth"});
+    });
   }
 
   window.copiarEnlace = (btn, url) => {
@@ -1034,7 +1284,7 @@
   };
 
   window.copiarTodos = () => {
-    const txt = emps.map(e=>(e.nombre||e.id)+": "+BASE+encodeURIComponent(e.id)).join("\n");
+    const txt = emps.map(e=>(e.nombre||e.id)+": "+BASE+encodeURIComponent(e.codigo||e.id)).join("\n");
     navigator.clipboard.writeText(txt).then(()=>alert("¡Todos los enlaces copiados!"));
   };
 
