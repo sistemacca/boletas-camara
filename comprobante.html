@@ -1,60 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Comprobante Oficial - Semana Comercial</title>
-  <style>
-    /* Estilos originales preservados */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .card { background: white; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); border-top: 6px solid #007d42; overflow: hidden; text-align: center; width: 100%; max-width: 420px; }
-    .header { background: #007d42; padding: 24px 20px 20px; }
-    .header img { height: 52px; filter: brightness(0) invert(1); margin-bottom: 10px; }
-    .header .subtitulo { color: rgba(255,255,255,0.8); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
-    .body { padding: 28px 24px; }
-    .check { width: 52px; height: 52px; background: #dcfce7; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 24px; }
-    .badge-success { font-size: 13px; font-weight: 600; color: #16a34a; margin-bottom: 4px; text-transform: uppercase; }
-    .empresa { font-size: 15px; font-weight: 700; color: #007d42; margin-bottom: 4px; }
-    .nombre-usuario { font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 20px; }
-    .boleta-box { background: #f0f4f8; border-radius: 14px; padding: 20px; margin-bottom: 20px; border: 2px dashed #007d42; }
-    .boleta-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .numero { font-size: 64px; font-weight: 700; color: #007d42; line-height: 1; }
-    .btn { width: 100%; padding: 14px; background: #007d42; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
-    .captura-box { background: #f0fdf4; border-radius: 10px; padding: 12px; border: 1px solid #bbf7d0; }
-    #estado-cargando { display: flex; flex-direction: column; align-items: center; padding: 48px 24px; gap: 16px; }
-    .spin { width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #007d42; border-radius: 50%; animation: giro 0.7s linear infinite; }
-    @keyframes giro { to { transform: rotate(360deg); } }
-    #estado-error { display: none; padding: 36px 24px; }
-    .error-icon { font-size: 48px; margin-bottom: 12px; }
-    .error-titulo { font-size: 18px; font-weight: 700; color: #dc2626; margin-bottom: 8px; }
-    .error-msg { font-size: 13px; color: #64748b; line-height: 1.6; }
-    #estado-ok { display: none; }
-  </style>
-</head>
-<body>
-<div class="card">
-  <div class="header"><img src="https://sistemacca.github.io/boletas-camara/logo.png"><div class="subtitulo">Semana Comercial 2026</div></div>
-  <div id="estado-cargando"><div class="spin"></div><p>Verificando seguridad...</p></div>
-  <div id="estado-error" class="body">
-    <div class="error-icon">❌</div>
-    <div class="error-titulo">Acceso Denegado</div>
-    <div class="error-msg" id="error-detalle">Este comprobante no es válido o ha sido alterado.</div>
-  </div>
-  <div id="estado-ok">
-    <div class="body">
-      <div class="check">✅</div><div class="badge-success">Registro Oficial</div>
-      <div class="empresa" id="empresa"></div><div class="nombre-usuario" id="nombre"></div>
-      <div class="boleta-box"><div class="boleta-label">Número de boleta</div><div class="numero" id="boleta"></div></div>
-      <button class="btn" id="btn-descargar" onclick="descargarJPG()">📸 Descargar comprobante</button>
-      <div class="captura-box">
-        <div style="font-size:12px;font-weight:600;color:#166534">🔒 Documento Protegido</div>
-        <div style="font-size:11px;color:#4b7a5e;margin-top:2px">Este enlace es único y no puede ser modificado.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -73,59 +16,52 @@
   function mostrarError(msg) {
     document.getElementById("estado-cargando").style.display = "none";
     document.getElementById("estado-error").style.display = "block";
-    if (msg) document.getElementById("error-detalle").textContent = msg;
+    document.getElementById("error-detalle").textContent = msg;
   }
 
   const params = new URLSearchParams(window.location.search);
   const pBoleta = params.get("boleta");
   const pEmpresa = params.get("empresa");
-  const pId = params.get("id"); // EL CANDADO: El ID del documento en Firebase
+  const pId = params.get("id"); // ESTA ES LA LLAVE DE SEGURIDAD
 
-  if (!pBoleta || !pEmpresa || !pId) {
-    mostrarError("Enlace incompleto. No se puede validar la autenticidad sin el token de seguridad.");
+  if (!pId || !pBoleta || !pEmpresa) {
+    mostrarError("Acceso Denegado: El enlace no contiene los parámetros de seguridad necesarios.");
   } else {
     (async () => {
       try {
-        // 1. Buscamos el registro por su ID único de Firebase
+        // BUSCAMOS EL REGISTRO POR SU ID ÚNICO (No por número de boleta)
         const docRef = doc(db, "registros", pId);
         const snap = await getDoc(docRef);
 
         if (!snap.exists()) {
-          mostrarError("El comprobante no existe en el sistema.");
+          mostrarError("El comprobante no existe o es inválido.");
           return;
         }
 
-        const datosDb = snap.data();
+        const datos = snap.data();
 
-        // 2. LA VALIDACIÓN MAESTRA:
-        // Si el usuario cambió el número 'boleta' en la URL, no coincidirá con lo guardado en este ID.
-        if (datosDb.boleta != pBoleta || datosDb.empresa !== pEmpresa) {
-          mostrarError("Alerta: Se detectó un intento de modificación manual en el enlace.");
+        // VALIDACIÓN DE SEGURIDAD:
+        // Verificamos que el número de boleta en la URL coincida con el guardado en la base de datos
+        if (datos.boleta != pBoleta || datos.empresa !== pEmpresa) {
+          mostrarError("Alerta de Seguridad: Se ha detectado una modificación manual en el número de boleta.");
           return;
         }
 
-        // 3. Traemos el nombre oficial de la empresa
+        // Si todo es correcto, buscamos el nombre de la empresa
         const empSnap = await getDoc(doc(db, "empresas", pEmpresa));
-        const nombreEmpresa = empSnap.exists() ? empSnap.data().nombre : pEmpresa;
+        const empresaNombre = empSnap.exists() ? empSnap.data().nombre : pEmpresa;
 
-        // 4. Mostramos los datos OFICIALES (nunca los de la URL)
-        document.getElementById("nombre").textContent = datosDb.nombre;
-        document.getElementById("boleta").textContent = datosDb.boleta;
-        document.getElementById("empresa").textContent = nombreEmpresa;
-
+        // MOSTRAR DATOS REALES
+        document.getElementById("nombre").textContent = datos.nombre;
+        document.getElementById("boleta").textContent = datos.boleta;
+        document.getElementById("empresa").textContent = empresaNombre;
         document.getElementById("estado-cargando").style.display = "none";
         document.getElementById("estado-ok").style.display = "block";
 
       } catch (e) {
-        mostrarError("Error de conexión con la base de datos.");
+        mostrarError("Error al verificar la boleta.");
+        console.error(e);
       }
     })();
   }
-
-  window.descargarJPG = function() {
-    // Lógica de descarga simplificada para el ejemplo
-    alert("Generando imagen de la boleta " + document.getElementById("boleta").textContent);
-  };
 </script>
-</body>
-</html>
