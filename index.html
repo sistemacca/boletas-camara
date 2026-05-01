@@ -156,7 +156,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, runTransaction, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, runTransaction, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
@@ -170,27 +170,51 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const EMPRESA = new URLSearchParams(window.location.search).get("empresa") || "";
+  const CODIGO_URL = new URLSearchParams(window.location.search).get("empresa") || "";
+
+  // docId y nombre se llenan al encontrar la empresa por código
+  let EMPRESA_DOC_ID = "";
 
   async function cargarEmpresa() {
     const resultado = document.getElementById("resultado");
-    if (!EMPRESA) {
+    if (!CODIGO_URL) {
       resultado.innerHTML = '<p class="fallo">Enlace sin empresa. Contacta al organizador.</p>';
       document.getElementById("empresa-label").textContent = "Sin empresa";
       return;
     }
     try {
-      const snap = await getDoc(doc(db, "empresas", EMPRESA));
-      if (!snap.exists()) {
+      // Buscar empresa por campo "codigo" (nuevo sistema)
+      const q = query(collection(db, "empresas"), where("codigo", "==", CODIGO_URL));
+      const snap = await getDocs(q);
+
+      let empresaData = null;
+      let empresaId   = null;
+
+      if (!snap.empty) {
+        // Encontrada por código seguro
+        empresaId   = snap.docs[0].id;
+        empresaData = snap.docs[0].data();
+      } else {
+        // Fallback: buscar por ID de documento (empresas antiguas sin código)
+        const snapDoc = await getDoc(doc(db, "empresas", CODIGO_URL));
+        if (snapDoc.exists()) {
+          empresaId   = snapDoc.id;
+          empresaData = snapDoc.data();
+        }
+      }
+
+      if (!empresaData) {
         resultado.innerHTML = '<p class="fallo">Empresa no registrada. Contacta al organizador.</p>';
         document.getElementById("empresa-label").textContent = "No encontrada";
         return;
       }
-      const data = snap.data();
-      document.getElementById("empresa-label").textContent = data.nombre || EMPRESA;
+
+      EMPRESA_DOC_ID = empresaId;
+      document.getElementById("empresa-label").textContent = empresaData.nombre || empresaId;
       document.getElementById("formulario").style.display = "block";
     } catch (e) {
       resultado.innerHTML = '<p class="fallo">Error al cargar. Intenta de nuevo.</p>';
+      console.error(e);
     }
   }
 
@@ -220,8 +244,8 @@
     btn.innerHTML = '<span class="spinner"></span>Procesando...';
 
     try {
-      const empresaRef = doc(db, "empresas", EMPRESA);
-      const contadorRef = doc(db, "contadores", EMPRESA);
+      const empresaRef = doc(db, "empresas", EMPRESA_DOC_ID);
+      const contadorRef = doc(db, "contadores", EMPRESA_DOC_ID);
       let numeroBoleta;
 
       await runTransaction(db, async (tx) => {
@@ -237,7 +261,7 @@
       });
 
       await addDoc(collection(db, "registros"), {
-        empresa: EMPRESA,
+        empresa: EMPRESA_DOC_ID,
         boleta: numeroBoleta,
         nombre,
         telefono,
@@ -246,8 +270,7 @@
         fecha: new Date().toISOString()
       });
 
-      // ✅ Enviar EMPRESA (código interno) — no el nombre visible
-      const urlComprobante = `comprobante.html?nombre=${encodeURIComponent(nombre)}&boleta=${numeroBoleta}&empresa=${encodeURIComponent(EMPRESA)}`;
+      const urlComprobante = `comprobante.html?nombre=${encodeURIComponent(nombre)}&boleta=${numeroBoleta}&empresa=${encodeURIComponent(EMPRESA_DOC_ID)}`;
       window.location.href = urlComprobante;
 
     } catch (err) {
