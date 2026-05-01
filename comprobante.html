@@ -2,47 +2,67 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comprobante Oficial</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Comprobante - Semana Comercial</title>
   <style>
-    /* Estilos básicos para que funcione visualmente */
-    body { font-family: sans-serif; background: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
-    .card { background: white; border-radius: 15px; padding: 20px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    #estado-cargando { color: #666; }
-    #estado-error { display: none; color: #dc2626; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: white; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); border-top: 6px solid #007d42; overflow: hidden; text-align: center; width: 100%; max-width: 420px; }
+    .header { background: #007d42; padding: 24px 20px 20px; }
+    .header img { height: 52px; filter: brightness(0) invert(1); margin-bottom: 10px; }
+    .header .subtitulo { color: rgba(255,255,255,0.8); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+    .body { padding: 28px 24px; }
+    .check { width: 52px; height: 52px; background: #dcfce7; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 24px; }
+    .badge-success { font-size: 13px; font-weight: 600; color: #16a34a; margin-bottom: 4px; text-transform: uppercase; }
+    .empresa { font-size: 15px; font-weight: 700; color: #007d42; margin-bottom: 4px; }
+    .nombre-usuario { font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 20px; }
+    .boleta-box { background: #f0f4f8; border-radius: 14px; padding: 20px; margin-bottom: 20px; border: 2px dashed #007d42; }
+    .boleta-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .numero { font-size: 64px; font-weight: 700; color: #007d42; line-height: 1; }
+    .btn { width: 100%; padding: 14px; background: #007d42; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
+    
+    #estado-cargando { padding: 48px 24px; }
+    #estado-error { display: none; padding: 36px 24px; }
     #estado-ok { display: none; }
-    .numero { font-size: 50px; font-weight: bold; color: #007d42; margin: 10px 0; }
-    .btn { background: #007d42; color: white; padding: 10px; border: none; border-radius: 5px; width: 100%; cursor: pointer; }
+    .error-titulo { color: #dc2626; font-weight: bold; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
 <div class="card">
+  <div class="header">
+    <img src="https://sistemacca.github.io/boletas-camara/logo.png">
+    <div class="subtitulo">Semana Comercial 2026</div>
+  </div>
+
   <div id="estado-cargando">
     <p>Verificando registro...</p>
   </div>
 
-  <div id="estado-error">
-    <div style="font-size: 40px;">❌</div>
-    <h2 id="error-titulo">Acceso Denegado</h2>
-    <p id="error-detalle"></p>
+  <div id="estado-error" class="body">
+    <div style="font-size: 40px; margin-bottom: 10px;">❌</div>
+    <div class="error-titulo">Error de Verificación</div>
+    <div id="error-detalle" style="font-size: 14px; color: #64748b;"></div>
   </div>
 
   <div id="estado-ok">
-    <div style="color: #16a34a; font-weight: bold;">✅ REGISTRO VERIFICADO</div>
-    <div id="empresa" style="font-weight: bold; margin-top: 10px;"></div>
-    <div id="nombre" style="margin-bottom: 15px;"></div>
-    <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border: 2px dashed #007d42;">
-      <div style="font-size: 12px; color: #64748b;">NÚMERO DE BOLETA</div>
-      <div id="boleta" class="numero"></div>
+    <div class="body">
+      <div class="check">✅</div>
+      <div class="badge-success">Registro exitoso</div>
+      <div class="empresa" id="empresa"></div>
+      <div class="nombre-usuario" id="nombre"></div>
+      <div class="boleta-box">
+        <div class="boleta-label">Número de boleta</div>
+        <div class="numero" id="boleta"></div>
+      </div>
+      <button class="btn" onclick="location.reload()">Refrescar</button>
     </div>
-    <button class="btn" onclick="location.reload()" style="margin-top: 15px;">🔄 Actualizar</button>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const cfg = {
     apiKey: "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
@@ -55,54 +75,51 @@
 
   const db = getFirestore(initializeApp(cfg));
 
-  // Esta función ahora es segura y no dará error de 'null'
   function mostrarError(msg) {
-    const divCargando = document.getElementById("estado-cargando");
-    const divError = document.getElementById("estado-error");
-    const txtDetalle = document.getElementById("error-detalle");
-
-    if(divCargando) divCargando.style.display = "none";
-    if(divError) divError.style.display = "block";
-    if(txtDetalle) txtDetalle.textContent = msg;
+    document.getElementById("estado-cargando").style.display = "none";
+    document.getElementById("estado-error").style.display = "block";
+    document.getElementById("error-detalle").textContent = msg;
   }
 
   const params = new URLSearchParams(window.location.search);
   const pBoleta = params.get("boleta");
   const pEmpresa = params.get("empresa");
-  const pId = params.get("id"); // EL TOKEN REQUERIDO
 
-  if (!pId || !pBoleta || !pEmpresa) {
-    mostrarError("Enlace incompleto. Se requiere el ID de seguridad.");
+  if (!pBoleta || !pEmpresa) {
+    mostrarError("El enlace no tiene los datos de boleta o empresa.");
   } else {
     (async () => {
       try {
-        const docRef = doc(db, "registros", pId);
-        const snap = await getDoc(docRef);
+        // 1. Buscamos el registro por Boleta y Empresa
+        const q = query(
+          collection(db, "registros"), 
+          where("boleta", "==", Number(pBoleta)),
+          where("empresa", "==", pEmpresa)
+        );
+        
+        const snap = await getDocs(q);
 
-        if (!snap.exists()) {
-          mostrarError("El comprobante no existe en la base de datos.");
+        if (snap.empty) {
+          mostrarError("No se encontró ninguna boleta " + pBoleta + " para esta empresa.");
           return;
         }
 
-        const datos = snap.data();
+        const datos = snap.docs[0].data();
 
-        // VALIDACIÓN DE SEGURIDAD
-        if (datos.boleta != pBoleta || datos.empresa !== pEmpresa) {
-          mostrarError("Los datos de la boleta no coinciden con el registro original.");
-          return;
-        }
-
+        // 2. Buscamos el nombre de la empresa para que se vea bonito
         const empSnap = await getDoc(doc(db, "empresas", pEmpresa));
-        const nombreEmp = empSnap.exists() ? empSnap.data().nombre : pEmpresa;
+        const nombreEmpresa = empSnap.exists() ? empSnap.data().nombre : pEmpresa;
 
+        // 3. Mostramos los resultados
         document.getElementById("nombre").textContent = datos.nombre;
         document.getElementById("boleta").textContent = datos.boleta;
-        document.getElementById("empresa").textContent = nombreEmp;
-        
+        document.getElementById("empresa").textContent = nombreEmpresa;
+
         document.getElementById("estado-cargando").style.display = "none";
         document.getElementById("estado-ok").style.display = "block";
+
       } catch (e) {
-        mostrarError("Error al conectar con Firebase.");
+        mostrarError("Error al conectar con la base de datos.");
         console.error(e);
       }
     })();
