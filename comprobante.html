@@ -5,10 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Comprobante Oficial - Semana Comercial</title>
   <style>
-    /* Estilos mantenidos según tu diseño original */
+    /* Estilos originales preservados */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .card { background: white; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); border-top: 6px solid #007d42; overflow: hidden; text-align: center; width: 100%; max-width: 420px; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      border-top: 6px solid #007d42;
+      overflow: hidden;
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+    }
     .header { background: #007d42; padding: 24px 20px 20px; }
     .header img { height: 52px; filter: brightness(0) invert(1); margin-bottom: 10px; }
     .header .subtitulo { color: rgba(255,255,255,0.8); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
@@ -24,6 +41,7 @@
     .btn:hover { background: #005a30; }
     .captura-box { background: #f0fdf4; border-radius: 10px; padding: 12px; border: 1px solid #bbf7d0; }
     .footer-text { font-size: 11px; color: #94a3b8; margin-top: 20px; }
+
     #estado-cargando { display: flex; flex-direction: column; align-items: center; padding: 48px 24px; gap: 16px; }
     .spin { width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #007d42; border-radius: 50%; animation: giro 0.7s linear infinite; }
     @keyframes giro { to { transform: rotate(360deg); } }
@@ -35,6 +53,7 @@
   </style>
 </head>
 <body>
+
 <div class="card">
   <div class="header">
     <img src="https://sistemacca.github.io/boletas-camara/logo.png">
@@ -43,38 +62,38 @@
 
   <div id="estado-cargando">
     <div class="spin"></div>
-    <p>Verificando registro oficial...</p>
+    <p>Verificando autenticidad...</p>
   </div>
 
   <div id="estado-error" class="body">
-    <div class="error-icon">⚠️</div>
-    <div class="error-titulo">Validación Fallida</div>
-    <div class="error-msg" id="error-detalle">No se pudo verificar la autenticidad de este comprobante.</div>
+    <div class="error-icon">❌</div>
+    <div class="error-titulo">Validación fallida</div>
+    <div class="error-msg" id="error-detalle">El comprobante no es válido o ha sido alterado.</div>
   </div>
 
   <div id="estado-ok">
     <div class="body">
       <div class="check">✅</div>
-      <div class="badge-success">Registro Verificado</div>
-      <div class="empresa" id="empresa">Cargando...</div>
-      <div class="nombre-usuario" id="nombre">Cargando...</div>
+      <div class="badge-success">Registro oficial verificado</div>
+      <div class="empresa" id="empresa"></div>
+      <div class="nombre-usuario" id="nombre"></div>
       <div class="boleta-box">
-        <div class="boleta-label">Número de boleta</div>
-        <div class="numero" id="boleta">---</div>
+        <div class="boleta-label">Tu número de boleta</div>
+        <div class="numero" id="boleta"></div>
       </div>
-      <button class="btn" id="btn-descargar" onclick="descargarJPG()">📸 Descargar Comprobante</button>
+      <button class="btn" id="btn-descargar" onclick="descargarJPG()">📸 Descargar comprobante</button>
       <div class="captura-box">
-        <div style="font-size:12px;font-weight:600;color:#166534">Información Protegida</div>
-        <div style="font-size:11px;color:#4b7a5e;margin-top:2px">Este documento ha sido validado por el sistema central.</div>
+        <div style="font-size:12px;font-weight:600;color:#166534">🔒 Documento Protegido</div>
+        <div style="font-size:11px;color:#4b7a5e;margin-top:2px">Este registro es único e intransferible.</div>
       </div>
+      <div class="footer-text">Verificado por la Cámara de Comercio</div>
     </div>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, query, where, getDocs, doc, getDoc }
-    from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const cfg = {
     apiKey:            "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
@@ -94,118 +113,92 @@
     if (msg) document.getElementById("error-detalle").textContent = msg;
   }
 
-  function mostrarComprobante(nombre, boleta, empresaNombre) {
-    document.getElementById("nombre").textContent  = nombre;
-    document.getElementById("boleta").textContent  = boleta;
-    document.getElementById("empresa").textContent = empresaNombre;
-    
-    // Solo mostramos el contenido después de haber inyectado los datos de la DB
-    document.getElementById("estado-cargando").style.display = "none";
-    document.getElementById("estado-ok").style.display       = "block";
-  }
+  // --- LÓGICA DE SEGURIDAD ---
+  const params = new URLSearchParams(window.location.search);
+  const pBoleta  = params.get("boleta");
+  const pEmpresa = params.get("empresa");
+  const pToken   = params.get("id"); // Este es el ID único (Document ID) de Firebase
 
-  const params  = new URLSearchParams(window.location.search);
-  const pBoleta = (params.get("boleta")  || "").trim();
-  const pEmpresa = (params.get("empresa") || "").trim();
-
-  // NOTA: Ya no extraemos el "nombre" de la URL para evitar manipulaciones visuales.
-
-  if (!pBoleta || !pEmpresa) {
-    mostrarError("El enlace de acceso es inválido o está incompleto.");
+  if (!pBoleta || !pEmpresa || !pToken) {
+    mostrarError("Enlace incompleto. No se puede validar este comprobante.");
   } else {
     (async () => {
       try {
-        // 1. Verificar existencia de la empresa
-        const empSnap = await getDoc(doc(db, "empresas", pEmpresa));
-        if (!empSnap.exists()) {
-          mostrarError("La empresa asociada a este registro no es válida.");
-          return;
-        }
-        const empresaNombreOficial = empSnap.data().nombre || pEmpresa;
+        // 1. Buscamos el registro directamente por su ID único (Token)
+        const docRef = doc(db, "registros", pToken);
+        const snap   = await getDoc(docRef);
 
-        // 2. Buscar el registro real en la base de datos por el número de boleta
-        const snap = await getDocs(
-          query(collection(db, "registros"), where("boleta", "==", Number(pBoleta)))
-        );
-
-        if (snap.empty) {
-          mostrarError("No existe ningún registro oficial con el número de boleta proporcionado.");
+        if (!snap.exists()) {
+          mostrarError("Este registro no existe en nuestra base de datos.");
           return;
         }
 
-        const datosReales = snap.docs[0].data();
+        const datos = snap.data();
 
-        // 3. VALIDACIÓN DE SEGURIDAD: ¿La boleta pertenece realmente a esta empresa?
-        // Esto evita que alguien use una boleta válida de la Empresa A en un link de la Empresa B.
-        if (datosReales.empresa !== pEmpresa) {
-          mostrarError("Inconsistencia de datos: El comprobante no coincide con la empresa emisora.");
+        // 2. BLOQUEO ANTIFRAUDE: 
+        // Comparamos los datos del documento real contra lo que dice la URL.
+        if (datos.boleta != pBoleta || datos.empresa !== pEmpresa) {
+          mostrarError("Seguridad: El número de boleta o la empresa han sido alterados manualmente.");
           return;
         }
 
-        // 4. Mostrar datos usando EXCLUSIVAMENTE lo que devolvió Firebase (datosReales)
-        mostrarComprobante(datosReales.nombre, datosReales.boleta, empresaNombreOficial);
+        // 3. Obtenemos el nombre oficial de la empresa
+        const empRef  = doc(db, "empresas", pEmpresa);
+        const empSnap = await getDoc(empRef);
+        const empresaNombre = empSnap.exists() ? empSnap.data().nombre : pEmpresa;
+
+        // 4. Inyectamos los datos reales (NUNCA de la URL, siempre de la DB)
+        document.getElementById("nombre").textContent  = datos.nombre;
+        document.getElementById("boleta").textContent  = datos.boleta;
+        document.getElementById("empresa").textContent = empresaNombre;
+
+        document.getElementById("estado-cargando").style.display = "none";
+        document.getElementById("estado-ok").style.display       = "block";
 
       } catch(e) {
-        mostrarError("Error de conexión con el servidor de validación.");
+        mostrarError("Error de conexión. Intenta de nuevo más tarde.");
         console.error(e);
       }
     })();
   }
 
+  // Función de descarga ajustada
   window.descargarJPG = function() {
-    // La función de descarga ahora toma los valores directamente de los IDs que nosotros llenamos con la DB
     const nombreV  = document.getElementById("nombre").textContent;
     const boletaV  = document.getElementById("boleta").textContent;
     const empresaV = document.getElementById("empresa").textContent;
-    
     const btn = document.getElementById("btn-descargar");
-    btn.textContent = "Generando archivo...";
+    btn.textContent = "Generando...";
     btn.disabled = true;
-    
     try {
-      const W = 600, H = 450;
+      const W = 600, H = 400;
       const cv = document.createElement("canvas");
       cv.width = W; cv.height = H;
       const ctx = cv.getContext("2d");
-      
-      // Fondo y bordes
       ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = "#f0fdf4"; ctx.fillRect(10, 10, W-20, H-20);
-      ctx.strokeStyle = "#007d42"; ctx.lineWidth = 4; ctx.strokeRect(10, 10, W-20, H-20);
-
-      // Texto
-      ctx.fillStyle = "#007d42"; ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
-      ctx.fillText("CÁMARA DE COMERCIO DE ARAUCA", W/2, 60);
+      ctx.fillStyle = "#007d42"; ctx.fillRect(0, 0, W, 10);
+      ctx.fillStyle = "#007d42"; ctx.font = "bold 20px Arial"; ctx.textAlign = "center";
+      ctx.fillText("Comprobante Semana Comercial 2026", W/2, 50);
+      ctx.font = "bold 16px Arial"; ctx.fillStyle = "#1e293b";
+      ctx.fillText(empresaV, W/2, 100);
+      ctx.font = "18px Arial"; ctx.fillStyle = "#334155";
+      ctx.fillText(nombreV, W/2, 140);
+      ctx.font = "bold 95px Arial"; ctx.fillStyle = "#007d42";
+      ctx.fillText(boletaV, W/2, 260);
+      ctx.font = "12px Arial"; ctx.fillStyle = "#64748b";
+      ctx.fillText("ID de seguridad: " + pToken, W/2, 360);
       
-      ctx.font = "16px Arial"; ctx.fillStyle = "#64748b";
-      ctx.fillText("Semana Comercial 2026", W/2, 90);
-      
-      ctx.fillStyle = "#1e293b"; ctx.font = "bold 18px Arial";
-      ctx.fillText(empresaV.toUpperCase(), W/2, 140);
-      
-      ctx.font = "20px Arial"; ctx.fillStyle = "#334155";
-      ctx.fillText(nombreV, W/2, 180);
-      
-      ctx.fillStyle = "#007d42"; ctx.font = "bold 100px Arial";
-      ctx.fillText(boletaV, W/2, 300);
-      
-      ctx.font = "bold 14px Arial"; ctx.fillStyle = "#64748b";
-      ctx.fillText("NÚMERO DE BOLETA OFICIAL", W/2, 330);
-      
-      ctx.font = "italic 12px Arial"; ctx.fillStyle = "#94a3b8";
-      ctx.fillText("Validado digitalmente el " + new Date().toLocaleDateString(), W/2, 400);
-
       cv.toBlob(function(blob) {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.href = url; link.download = "Comprobante_" + boletaV + ".jpg";
+        link.href = url; link.download = "boleta-" + boletaV + ".jpg";
         link.click();
-        btn.textContent = "✓ Descargado";
-        setTimeout(() => { btn.textContent = "📸 Descargar Comprobante"; btn.disabled = false; }, 3000);
+        btn.innerHTML = "✓ Descargado";
+        setTimeout(() => { btn.innerHTML = "📸 Descargar comprobante"; btn.disabled = false; }, 2500);
       }, "image/jpeg", 0.95);
     } catch(e) {
-      alert("Error al generar imagen. Por favor toma una captura de pantalla.");
       btn.disabled = false;
+      alert("Error al generar imagen.");
     }
   };
 </script>
