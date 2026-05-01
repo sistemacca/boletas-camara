@@ -1,3 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comprobante Oficial</title>
+  <style>
+    /* Estilos básicos para que funcione visualmente */
+    body { font-family: sans-serif; background: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
+    .card { background: white; border-radius: 15px; padding: 20px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    #estado-cargando { color: #666; }
+    #estado-error { display: none; color: #dc2626; }
+    #estado-ok { display: none; }
+    .numero { font-size: 50px; font-weight: bold; color: #007d42; margin: 10px 0; }
+    .btn { background: #007d42; color: white; padding: 10px; border: none; border-radius: 5px; width: 100%; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div id="estado-cargando">
+    <p>Verificando registro...</p>
+  </div>
+
+  <div id="estado-error">
+    <div style="font-size: 40px;">❌</div>
+    <h2 id="error-titulo">Acceso Denegado</h2>
+    <p id="error-detalle"></p>
+  </div>
+
+  <div id="estado-ok">
+    <div style="color: #16a34a; font-weight: bold;">✅ REGISTRO VERIFICADO</div>
+    <div id="empresa" style="font-weight: bold; margin-top: 10px;"></div>
+    <div id="nombre" style="margin-bottom: 15px;"></div>
+    <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border: 2px dashed #007d42;">
+      <div style="font-size: 12px; color: #64748b;">NÚMERO DE BOLETA</div>
+      <div id="boleta" class="numero"></div>
+    </div>
+    <button class="btn" onclick="location.reload()" style="margin-top: 15px;">🔄 Actualizar</button>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -13,55 +55,58 @@
 
   const db = getFirestore(initializeApp(cfg));
 
+  // Esta función ahora es segura y no dará error de 'null'
   function mostrarError(msg) {
-    document.getElementById("estado-cargando").style.display = "none";
-    document.getElementById("estado-error").style.display = "block";
-    document.getElementById("error-detalle").textContent = msg;
+    const divCargando = document.getElementById("estado-cargando");
+    const divError = document.getElementById("estado-error");
+    const txtDetalle = document.getElementById("error-detalle");
+
+    if(divCargando) divCargando.style.display = "none";
+    if(divError) divError.style.display = "block";
+    if(txtDetalle) txtDetalle.textContent = msg;
   }
 
   const params = new URLSearchParams(window.location.search);
   const pBoleta = params.get("boleta");
   const pEmpresa = params.get("empresa");
-  const pId = params.get("id"); // ESTA ES LA LLAVE DE SEGURIDAD
+  const pId = params.get("id"); // EL TOKEN REQUERIDO
 
   if (!pId || !pBoleta || !pEmpresa) {
-    mostrarError("Acceso Denegado: El enlace no contiene los parámetros de seguridad necesarios.");
+    mostrarError("Enlace incompleto. Se requiere el ID de seguridad.");
   } else {
     (async () => {
       try {
-        // BUSCAMOS EL REGISTRO POR SU ID ÚNICO (No por número de boleta)
         const docRef = doc(db, "registros", pId);
         const snap = await getDoc(docRef);
 
         if (!snap.exists()) {
-          mostrarError("El comprobante no existe o es inválido.");
+          mostrarError("El comprobante no existe en la base de datos.");
           return;
         }
 
         const datos = snap.data();
 
-        // VALIDACIÓN DE SEGURIDAD:
-        // Verificamos que el número de boleta en la URL coincida con el guardado en la base de datos
+        // VALIDACIÓN DE SEGURIDAD
         if (datos.boleta != pBoleta || datos.empresa !== pEmpresa) {
-          mostrarError("Alerta de Seguridad: Se ha detectado una modificación manual en el número de boleta.");
+          mostrarError("Los datos de la boleta no coinciden con el registro original.");
           return;
         }
 
-        // Si todo es correcto, buscamos el nombre de la empresa
         const empSnap = await getDoc(doc(db, "empresas", pEmpresa));
-        const empresaNombre = empSnap.exists() ? empSnap.data().nombre : pEmpresa;
+        const nombreEmp = empSnap.exists() ? empSnap.data().nombre : pEmpresa;
 
-        // MOSTRAR DATOS REALES
         document.getElementById("nombre").textContent = datos.nombre;
         document.getElementById("boleta").textContent = datos.boleta;
-        document.getElementById("empresa").textContent = empresaNombre;
+        document.getElementById("empresa").textContent = nombreEmp;
+        
         document.getElementById("estado-cargando").style.display = "none";
         document.getElementById("estado-ok").style.display = "block";
-
       } catch (e) {
-        mostrarError("Error al verificar la boleta.");
+        mostrarError("Error al conectar con Firebase.");
         console.error(e);
       }
     })();
   }
 </script>
+</body>
+</html>
