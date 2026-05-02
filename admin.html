@@ -569,11 +569,8 @@
   function resetInactividad() {
     clearTimeout(inactividadTimer);
     inactividadTimer = setTimeout(() => {
-      clearInterval(autoTimer);
-      sessionStorage.removeItem("admin_auth");
-      document.getElementById("app").style.display   = "none";
-      document.getElementById("login").style.display = "flex";
-      document.getElementById("clave").value = "";
+      // Cierre automático por inactividad — Firebase Auth invalida la sesión
+      cerrarSesion();
       document.getElementById("err-login").textContent = "Sesión cerrada por inactividad (2 min)";
     }, INACTIVIDAD_MS);
   }
@@ -581,6 +578,26 @@
   ["click","keydown","touchstart","scroll","mousemove"].forEach(ev =>
     document.addEventListener(ev, resetInactividad, { passive: true })
   );
+
+  // ── PAGE VISIBILITY API — pausa el timer cuando el tab está oculto ────────
+  //
+  // Si el admin minimiza el navegador o cambia de pestaña, el setInterval
+  // seguía disparando cargarDashboard() cada 30 s en segundo plano —
+  // lecturas Firestore que nadie veía. Aquí lo pausamos y reanudamos.
+  //
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      // Tab oculto → pausar timer para no gastar lecturas Firestore
+      clearInterval(autoTimer);
+      autoTimer = null;
+    } else {
+      // Tab visible de nuevo → refrescar inmediatamente y reanudar timer
+      if (auth.currentUser) {
+        cargarDashboard();
+        autoTimer = setInterval(cargarDashboard, 30000);
+      }
+    }
+  });
 
   const fstr  = f => !f ? "" : f.toDate ? f.toDate().toISOString() : f.toString();
   const genId = n => n.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
