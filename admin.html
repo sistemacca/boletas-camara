@@ -368,7 +368,7 @@
       <div class="panel" id="panel-registros">
         <div class="page-top">
           <div><h1>Registros</h1><p>Todos los usuarios registrados</p></div>
-          <button class="btn btn-g" onclick="exportarExcel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar Excel</button>
+          <button class="btn btn-g" id="btn-exportar" onclick="exportarCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar CSV</button>
         </div>
         <div class="card">
           <div class="controles">
@@ -1177,28 +1177,107 @@
     }
   }
 
-  window.exportarExcel = () => {
-    const b = document.getElementById("buscar").value.toLowerCase();
-    const e = document.getElementById("fil-emp").value;
-    const f = regs.filter(r => {
-      const okE = !e||r.empresa===e;
-      const okB = !b||(r.nombre&&r.nombre.toLowerCase().includes(b))||(r.telefono&&r.telefono.includes(b));
-      return okE&&okB;
-    });
-    // ✅ CSV también incluye columna Código Empresa y Nombre Empresa separadas
-    let csv = "Boleta,Código Empresa,Nombre Empresa,Nombre,Teléfono,Email,Dirección,Fecha\n";
-    f.forEach(r => {
-      const fs2       = fstr(r.fecha);
-      const fecha     = fs2 ? new Date(fs2).toLocaleString("es-CO") : "";
-      const codigoEmp = r.empresa || "";
-      const nombreEmp = empsMap[codigoEmp] || codigoEmp;
-      csv += [r.boleta, codigoEmp, nombreEmp, r.nombre, r.telefono, r.email, r.direccion||"", fecha]
-        .map(v=>`"${(v||"").toString().replace(/"/g,'""')}"`)
-        .join(",") + "\n";
-    });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"}));
-    a.download = "registros-semana-comercial.csv"; a.click();
+  // ── EXPORTAR CSV — descarga TODOS los registros de Firestore ────────────
+  //
+  // Con la paginación server-side, regs[] solo tiene el bloque actual (≤200 docs).
+  // Esta función recorre TODOS los bloques de Firestore usando cursores,
+  // acumula los datos y genera el CSV completo, sin importar cuántos registros haya.
+  //
+  // Progreso: el botón muestra "Descargando X registros…" en tiempo real.
+  //
+  window.exportarCSV = async () => {
+    const btn = document.getElementById("btn-exportar");
+    if (btn.disabled) return;
+
+    btn.disabled   = true;
+    const txtOrig  = btn.innerHTML;
+    btn.innerHTML  = "⏳ Preparando…";
+
+    try {
+      // Asegurar que empsMap esté cargado
+      if (Object.keys(empsMap).length === 0) {
+        const snapEmp = await getDocs(collection(db,"empresas"));
+        snapEmp.docs.forEach(d => { empsMap[d.id] = d.data().nombre || d.id; });
+      }
+
+      const empresaFiltro = document.getElementById("fil-emp").value;
+      const buscarFiltro  = document.getElementById("buscar").value.toLowerCase();
+      const fecha_export  = new Date().toISOString().slice(0,10);
+      const nombre_archivo = empresaFiltro
+        ? "registros-" + (empsMap[empresaFiltro]||empresaFiltro).replace(/[^a-z0-9]/gi,"-") + "-" + fecha_export + ".csv"
+        : "registros-semana-comercial-" + fecha_export + ".csv";
+
+      // Recorrer todos los bloques usando cursores
+      let cursor       = null;
+      let totalLeidos  = 0;
+      let filas        = [];
+
+      while (true) {
+        let q;
+        if (empresaFiltro) {
+          q = cursor
+            ? query(collection(db,"registros"), where("empresa","==",empresaFiltro), orderBy("fecha","desc"), startAfter(cursor), limit(500))
+            : query(collection(db,"registros"), where("empresa","==",empresaFiltro), orderBy("fecha","desc"), limit(500));
+        } else {
+          q = cursor
+            ? query(collection(db,"registros"), orderBy("fecha","desc"), startAfter(cursor), limit(500))
+            : query(collection(db,"registros"), orderBy("fecha","desc"), limit(500));
+        }
+
+        const snap = await getDocs(q);
+        if (snap.empty) break;
+
+        snap.docs.forEach(d => {
+          const r         = d.data();
+          const fs2       = fstr(r.fecha);
+          const fecha     = fs2 ? new Date(fs2).toLocaleString("es-CO") : "";
+          const codigoEmp = r.empresa || "";
+          const nombreEmp = empsMap[codigoEmp] || codigoEmp;
+
+          // Aplicar filtro de texto si está activo
+          if (buscarFiltro) {
+            const okB =
+              (r.nombre   && r.nombre.toLowerCase().includes(buscarFiltro)) ||
+              (r.telefono && r.telefono.includes(buscarFiltro))             ||
+              (r.email    && r.email.toLowerCase().includes(buscarFiltro));
+            if (!okB) return;
+          }
+
+          filas.push([r.boleta, codigoEmp, nombreEmp, r.nombre, r.telefono, r.email, r.direccion||"", fecha]);
+        });
+
+        totalLeidos += snap.docs.length;
+        btn.innerHTML = "⏳ " + totalLeidos + " registros…";
+
+        if (snap.docs.length < 500) break; // último bloque
+        cursor = snap.docs[snap.docs.length - 1];
+      }
+
+      if (filas.length === 0) {
+        btn.innerHTML = "⚠️ Sin resultados";
+        setTimeout(() => { btn.disabled = false; btn.innerHTML = txtOrig; }, 2000);
+        return;
+      }
+
+      // Construir CSV con BOM UTF-8 para que Excel lo abra correctamente
+      const encVal = v => '"' + (v||"").toString().replace(/"/g,'""') + '"';
+      let csv = "Boleta,Código Empresa,Nombre Empresa,Nombre,Teléfono,Email,Dirección,Fecha\n";
+      filas.forEach(fila => { csv += fila.map(encVal).join(",") + "\n"; });
+
+      const a   = document.createElement("a");
+      a.href    = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" }));
+      a.download = nombre_archivo;
+      a.click();
+      URL.revokeObjectURL(a.href);
+
+      btn.innerHTML = "✅ " + filas.length + " filas";
+      setTimeout(() => { btn.disabled = false; btn.innerHTML = txtOrig; }, 3000);
+
+    } catch(e) {
+      console.error("exportarCSV:", e);
+      btn.innerHTML = "❌ Error";
+      setTimeout(() => { btn.disabled = false; btn.innerHTML = txtOrig; }, 3000);
+    }
   };
 
   // ── UTILIDAD PAGINACIÓN GENÉRICA ──────────────────────────────────────────
