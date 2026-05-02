@@ -338,7 +338,7 @@
       <!-- DASHBOARD -->
       <div class="panel activo" id="panel-dashboard">
         <div class="page-top">
-          <div><h1>Dashboard</h1><p>Actualización automática cada 30 segundos</p></div>
+          <div><h1>Dashboard</h1><p>Actualización en tiempo real · onSnapshot activo</p></div>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <span class="refresh-badge"><span class="refresh-dot"></span>En vivo</span>
             <button class="btn btn-p btn-sm" onclick="cargarDashboard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Actualizar</button>
@@ -525,7 +525,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, orderBy, query, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, limit, startAfter, where, getCountFromServer, writeBatch }
+  import { getFirestore, collection, getDocs, orderBy, query, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, limit, startAfter, where, getCountFromServer, writeBatch, onSnapshot }
     from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
@@ -551,6 +551,19 @@
 
   // Mapa id → nombre de empresa para la tabla de registros
   let empsMap = {};
+
+  // ── Caché de onSnapshot para empresas y contadores ───────────────────────
+  // Los listeners se activan una vez al iniciar sesión y se cancelan al cerrarla.
+  // Cada cambio real en Firestore dispara renderDashboard() — 0 lecturas periódicas.
+  let _unsubEmps  = null;   // unsubscribe de onSnapshot(empresas)
+  let _unsubConts = null;   // unsubscribe de onSnapshot(contadores)
+  let _cacheEmps  = null;   // último snapshot de empresas recibido
+  let _cacheConts = null;   // último snapshot de contadores recibido
+  let _cacheListo = false;  // true cuando ambos snapshots han llegado al menos 1 vez
+
+  // Control exportación: 1 exportación sin filtro por sesión para limitar lecturas
+  let _exportacionesRealizadas = 0;
+  const MAX_EXPORTS_SIN_FILTRO = 1;
 
   // ── Estado de paginación server-side para Registros ──────────────────────
   // Cada "bloque" trae PAGE_SIZE docs de Firestore.
@@ -579,22 +592,21 @@
     document.addEventListener(ev, resetInactividad, { passive: true })
   );
 
-  // ── PAGE VISIBILITY API — pausa el timer cuando el tab está oculto ────────
+  // ── PAGE VISIBILITY API — re-renderiza al volver al tab ─────────────────
   //
-  // Si el admin minimiza el navegador o cambia de pestaña, el setInterval
-  // seguía disparando cargarDashboard() cada 30 s en segundo plano —
-  // lecturas Firestore que nadie veía. Aquí lo pausamos y reanudamos.
+  // Con onSnapshot los listeners de empresas y contadores siguen activos incluso
+  // cuando el tab está oculto (Firestore los mantiene en socket persistente).
+  // Al volver al tab, forzamos un renderDashboard() para que stats/_stats
+  // se relea si el usuario estuvo ausente más de 60 s.
   //
+  let _lastRender = 0;
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      // Tab oculto → pausar timer para no gastar lecturas Firestore
-      clearInterval(autoTimer);
-      autoTimer = null;
-    } else {
-      // Tab visible de nuevo → refrescar inmediatamente y reanudar timer
-      if (auth.currentUser) {
-        cargarDashboard();
-        autoTimer = setInterval(cargarDashboard, 30000);
+    if (!document.hidden && auth.currentUser) {
+      const ahora = Date.now();
+      // Solo refrescar si pasaron más de 60 s desde el último render
+      if (ahora - _lastRender > 60000) {
+        _lastRender = ahora;
+        if (_cacheListo) renderDashboard();
       }
     }
   });
@@ -637,13 +649,12 @@
       document.getElementById("login").style.display = "none";
       document.getElementById("app").style.display   = "block";
       document.getElementById("lbl-usuario").textContent = user.email;
-      if (!autoTimer) {
-        cargarDashboard();
-        autoTimer = setInterval(cargarDashboard, 30000);
-      }
+      // Iniciar listeners onSnapshot (reemplaza el setInterval de 30s)
+      iniciarListeners();
       resetInactividad();
     } else {
-      // Sin sesión — mostrar login
+      // Sin sesión — detener listeners y mostrar login
+      detenerListeners();
       clearInterval(autoTimer);
       clearTimeout(inactividadTimer);
       autoTimer = null;
@@ -696,9 +707,11 @@
   };
 
   window.cerrarSesion = async () => {
+    detenerListeners();
     clearInterval(autoTimer);
     clearTimeout(inactividadTimer);
     autoTimer = null;
+    _exportacionesRealizadas = 0;
     await signOut(auth);
     // onAuthStateChanged limpia la UI automáticamente
   };
@@ -724,39 +737,59 @@
     document.getElementById("overlay").classList.toggle("visible");
   };
 
-  // ── DASHBOARD — lee 1 doc resumen + empresas + contadores (NO lee registros) ──
+  // ── DASHBOARD — onSnapshot para empresas y contadores ────────────────────
   //
-  //  El doc "stats/_stats" tiene la forma:
-  //    { total: 6000, hoy: 120, ultimaActualizacion: Timestamp }
-  //  Se actualiza cada vez que se guarda un registro nuevo (ver formulario).
-  //  Si aún no existe se reconstruye una sola vez contando registros.
+  // En lugar de leer todas las empresas y contadores cada 30 s con getDocs(),
+  // abrimos dos listeners onSnapshot que Firestore mantiene en caché local.
+  // Coste: 1 lectura inicial por colección + 1 lectura por documento que cambie.
+  // Con 30 empresas esto son ~60 lecturas iniciales y luego solo las que cambian.
   //
-  window.cargarDashboard = async () => {
-    try {
-      // Solo 3 lecturas: stats (1 doc), empresas (N docs pequeños), contadores (N docs pequeños)
-      const [snapStats, sE, sC] = await Promise.all([
-        getDoc(doc(db, "stats", "_stats")),
-        getDocs(collection(db, "empresas")),
-        getDocs(collection(db, "contadores"))
-      ]);
+  // iniciarListeners() se llama al autenticar. detenerListeners() al cerrar sesión.
+  //
+  function iniciarListeners() {
+    if (_unsubEmps) return; // ya activos
 
-      emps  = sE.docs.map(d => ({ id: d.id, ...d.data() }));
+    _unsubEmps = onSnapshot(collection(db, "empresas"), snap => {
+      _cacheEmps = snap;
+      if (_cacheConts !== null) { _cacheListo = true; renderDashboard(); }
+    }, err => console.error("onSnapshot empresas:", err));
+
+    _unsubConts = onSnapshot(collection(db, "contadores"), snap => {
+      _cacheConts = snap;
+      if (_cacheEmps !== null) { _cacheListo = true; renderDashboard(); }
+    }, err => console.error("onSnapshot contadores:", err));
+  }
+
+  function detenerListeners() {
+    if (_unsubEmps)  { _unsubEmps();  _unsubEmps  = null; }
+    if (_unsubConts) { _unsubConts(); _unsubConts = null; }
+    _cacheEmps  = null;
+    _cacheConts = null;
+    _cacheListo = false;
+  }
+
+  // renderDashboard — construye la UI con los datos en caché (0 lecturas Firestore)
+  async function renderDashboard() {
+    if (!_cacheListo) return;
+    _lastRender = Date.now();
+    try {
+      emps  = _cacheEmps.docs.map(d => ({ id: d.id, ...d.data() }));
       conts = {};
-      sC.docs.forEach(d => { conts[d.id] = d.data().actual || 0; });
+      _cacheConts.docs.forEach(d => { conts[d.id] = d.data().actual || 0; });
 
       empsMap = {};
       emps.forEach(e => { empsMap[e.id] = e.nombre || e.id; });
 
-      const totB = Object.values(conts).reduce((a,b) => a+b, 0);
+      const totB = Object.values(conts).reduce((a, b) => a + b, 0);
 
+      // stats/_stats — 1 lectura (solo cuando renderDashboard corre, no en setInterval)
+      const snapStats = await getDoc(doc(db, "stats", "_stats"));
       let totalRegs = 0, hoyN = 0;
       if (snapStats.exists()) {
-        // Camino rápido: leer el resumen (1 lectura)
         const st = snapStats.data();
         totalRegs = st.total || 0;
         hoyN      = st.hoy   || 0;
       } else {
-        // Primera vez o doc borrado: reconstruir usando getCountFromServer (1 lectura, sin descargar docs)
         const hoyStr  = new Date().toISOString().slice(0,10);
         const hoyDate = new Date(hoyStr + "T00:00:00");
         const manDate = new Date(hoyDate.getTime() + 86400000);
@@ -767,7 +800,6 @@
         ]);
         totalRegs = cTotal.data().count;
         hoyN      = cHoy.data().count;
-        // Guardar el resumen para las próximas lecturas
         await setDoc(doc(db,"stats","_stats"), {
           total: totalRegs, hoy: hoyN, ultimaActualizacion: serverTimestamp()
         });
@@ -830,9 +862,15 @@
       console.error(e);
       document.getElementById("spin-dash").innerHTML = "<p style='color:var(--rojo);padding:20px'>Error al cargar. Reintentando...</p>";
     }
-  };
+  }
 
-  // cargarDashboard() — se llama desde onAuthStateChanged al autenticar
+  // cargarDashboard — ahora es solo un alias público que fuerza una lectura inmediata
+  // de stats/_stats y re-renderiza con los datos ya en caché.
+  window.cargarDashboard = () => {
+    if (_cacheListo) renderDashboard();
+    // Si los listeners aún no han llegado, renderDashboard() se invocará automáticamente
+    // cuando onSnapshot entregue los primeros datos.
+  };
 
   // ── RECALCULAR stats/_stats (botón de mantenimiento en el dashboard) ────────
   window.recalcularStats = async () => {
@@ -1183,11 +1221,25 @@
   // Esta función recorre TODOS los bloques de Firestore usando cursores,
   // acumula los datos y genera el CSV completo, sin importar cuántos registros haya.
   //
-  // Progreso: el botón muestra "Descargando X registros…" en tiempo real.
+  // Límite de lecturas: si no hay filtro de empresa activo, se permite solo
+  // 1 exportación por sesión (podría leer 30,000 docs). Con filtro de empresa
+  // activo, la exportación siempre está disponible porque el volumen es pequeño.
   //
   window.exportarCSV = async () => {
     const btn = document.getElementById("btn-exportar");
     if (btn.disabled) return;
+
+    const empresaFiltro = document.getElementById("fil-emp").value;
+
+    // Guardia de lecturas: sin filtro, solo 1 exportación por sesión
+    if (!empresaFiltro && _exportacionesRealizadas >= MAX_EXPORTS_SIN_FILTRO) {
+      const ok = confirm(
+        "⚠️ Ya realizaste una exportación completa en esta sesión.\n\n" +
+        "Exportar todos los registros puede consumir hasta 30,000 lecturas de Firestore.\n\n" +
+        "¿Deseas continuar de todas formas?"
+      );
+      if (!ok) return;
+    }
 
     btn.disabled   = true;
     const txtOrig  = btn.innerHTML;
@@ -1200,7 +1252,6 @@
         snapEmp.docs.forEach(d => { empsMap[d.id] = d.data().nombre || d.id; });
       }
 
-      const empresaFiltro = document.getElementById("fil-emp").value;
       const buscarFiltro  = document.getElementById("buscar").value.toLowerCase();
       const fecha_export  = new Date().toISOString().slice(0,10);
       const nombre_archivo = empresaFiltro
@@ -1271,6 +1322,7 @@
       URL.revokeObjectURL(a.href);
 
       btn.innerHTML = "✅ " + filas.length + " filas";
+      if (!empresaFiltro) _exportacionesRealizadas++;
       setTimeout(() => { btn.disabled = false; btn.innerHTML = txtOrig; }, 3000);
 
     } catch(e) {
