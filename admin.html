@@ -1260,10 +1260,10 @@
       }
 
       // Construir CSV con BOM UTF-8 para que Excel lo abra correctamente
-      const encVal = v => '"' + (v||"").toString().replace(/"/g,'""') + '"';
-      let csv = "Boleta,Código Empresa,Nombre Empresa,Nombre,Teléfono,Email,Dirección,Fecha\n";
-      filas.forEach(fila => { csv += fila.map(encVal).join(",") + "\n"; });
-
+      const toCSV = arr => arr.map(v => JSON.stringify(v == null ? '' : String(v))).join(',');
+      const HEADER = 'Boleta,Codigo Empresa,Nombre Empresa,Nombre,Telefono,Email,Direccion,Fecha';
+      let csv = HEADER + '\n';
+      filas.forEach(fila => { csv += toCSV(fila) + '\n'; });
       const a   = document.createElement("a");
       a.href    = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" }));
       a.download = nombre_archivo;
