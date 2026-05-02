@@ -1527,7 +1527,7 @@
       });
       if (conflicto) {
         const ec = conflicto.data();
-        msg.textContent = "El rango " + desde + "–" + hasta + " se cruza con "" + (ec.nombre||conflicto.id) + "" (" + ec.desde + "–" + ec.hasta + "). Elige un rango disponible.";
+        msg.textContent = "El rango " + desde + "-" + hasta + " se cruza con (" + (ec.nombre||conflicto.id) + ") rango " + ec.desde + "-" + ec.hasta + ". Elige un rango disponible.";
         msg.className="fmsg error"; msg.style.display="block"; return;
       }
 
