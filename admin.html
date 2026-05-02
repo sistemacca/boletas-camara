@@ -287,10 +287,15 @@
   <div class="login-card" style="position:relative;z-index:1">
     <h2>Bienvenido</h2>
     <p>Semana Comercial 2026</p>
-    <label class="login-label" for="clave">Contraseña de acceso</label>
-    <input class="login-input" type="password" id="clave"
-           placeholder="••••••••" onkeydown="if(event.key==='Enter') entrar()">
-    <button class="login-btn" onclick="entrar()">Ingresar al Panel</button>
+    <label class="login-label" for="clave-email">Correo electrónico</label>
+    <input class="login-input" type="email" id="clave-email"
+           placeholder="admin@ejemplo.com" autocomplete="email"
+           onkeydown="if(event.key==='Enter') document.getElementById('clave-pass').focus()">
+    <label class="login-label" for="clave-pass">Contraseña</label>
+    <input class="login-input" type="password" id="clave-pass"
+           placeholder="••••••••" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter') entrar()">
+    <button class="login-btn" id="btn-login" onclick="entrar()">Ingresar al Panel</button>
     <div class="login-error" id="err-login"></div>
   </div>
   <p class="login-footer" style="position:relative;z-index:1">Acceso exclusivo para personal autorizado</p>
@@ -322,6 +327,7 @@
         <div class="menu-item" onclick="irA('enlaces','Enlaces')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></span>Enlaces</div>
       </nav>
       <div style="padding:12px 22px;border-top:1px solid rgba(255,255,255,0.1)">
+        <div id="lbl-usuario" style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px;text-align:center;word-break:break-all;padding:0 4px"></div>
         <button onclick="cerrarSesion()" style="width:100%;padding:10px;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">Cerrar sesión</button>
       </div>
       <div class="sidebar-foot">v3.0 — Firebase + GitHub Pages</div>
@@ -369,6 +375,17 @@
             <input type="text" id="buscar" placeholder="Buscar nombre, teléfono o email..." oninput="filtrar()">
             <select id="fil-emp" onchange="filtrar()"><option value="">Todas las empresas</option></select>
             <button class="btn btn-p btn-sm" onclick="cargarRegistros()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></button>
+          </div>
+          <!-- Navegador de bloques server-side -->
+          <div id="nav-bloques" style="display:none;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--borde);background:#fafcfb;flex-wrap:wrap">
+            <button class="btn btn-gray btn-sm" id="btn-bloque-ant" onclick="cargarBloque(regBloqueActual-1)" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="15 18 9 12 15 6"/></svg>Anterior
+            </button>
+            <span id="lbl-bloque" style="font-size:12px;color:var(--sub)">Bloque 1</span>
+            <button class="btn btn-gray btn-sm" id="btn-bloque-sig" onclick="cargarBloque(regBloqueActual+1)" disabled>
+              Siguiente<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-left:3px"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <span style="font-size:11px;color:#94a3b8;margin-left:4px">Mostrando hasta 200 registros por bloque · usa los filtros para acotar</span>
           </div>
           <div class="spin-wrap" id="spin-reg"><div class="spin"></div><p>Cargando...</p></div>
           <div class="tabla-box" id="tabla-box-reg">
@@ -508,8 +525,10 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, orderBy, query, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp }
+  import { getFirestore, collection, getDocs, orderBy, query, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, limit, startAfter, where, getCountFromServer, writeBatch }
     from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
   const cfg = {
     apiKey:            "AIzaSyD75kntcW_TqAJznShE50ACAgvgjp1DlQc",
@@ -520,8 +539,9 @@
     appId:             "1:52687643666:web:48e7106b88b2f2c2b364cb"
   };
 
-  const db    = getFirestore(initializeApp(cfg));
-  const CLAVE = "CCA2026";
+  const app   = initializeApp(cfg);
+  const db    = getFirestore(app);
+  const auth  = getAuth(app);
   const BASE  = "https://sistemacca.github.io/boletas-camara/?empresa=";
 
   let regs = [], emps = [], conts = {}, autoTimer = null, inactividadTimer = null;
@@ -531,6 +551,20 @@
 
   // Mapa id → nombre de empresa para la tabla de registros
   let empsMap = {};
+
+  // ── Estado de paginación server-side para Registros ──────────────────────
+  // Cada "bloque" trae PAGE_SIZE docs de Firestore.
+  // El admin filtra/pagina sobre esa ventana sin nuevas lecturas al servidor.
+  const PAGE_SIZE     = 200;     // docs por llamada Firestore
+  let regCursors      = [null];  // regCursors[i] = startAfter del bloque i (null = inicio)
+  let regBloqueActual = 0;       // índice del bloque en memoria
+  let regFiltroEmp    = "";      // filtro empresa activo
+  let regFiltroBusq   = "";      // filtro texto activo
+  let regCargando     = false;   // evita llamadas concurrentes
+
+  // Exponer al scope global para acceso desde atributos onclick del HTML
+  Object.defineProperty(window, "regBloqueActual", { get: () => regBloqueActual });
+  Object.defineProperty(window, "PAGE_SIZE",       { get: () => PAGE_SIZE });
 
   function resetInactividad() {
     clearTimeout(inactividadTimer);
@@ -567,31 +601,89 @@
     return codigo;
   }
 
-  function iniciarSesion() {
-    sessionStorage.setItem("admin_auth", "ok");
-    document.getElementById("login").style.display = "none";
-    document.getElementById("app").style.display   = "block";
-    cargarDashboard();
-    autoTimer = setInterval(cargarDashboard, 30000);
-    resetInactividad();
-  }
+  // ── AUTENTICACIÓN — Firebase Auth ────────────────────────────────────────
+  //
+  // onAuthStateChanged es la única fuente de verdad para la sesión.
+  // Cuando Firebase confirma un usuario válido → muestra el app.
+  // Cuando no hay usuario → muestra el login.
+  // Esto hace imposible el bypass desde consola: sessionStorage.setItem no funciona.
+  //
 
-  window.entrar = () => {
-    if (document.getElementById("clave").value === CLAVE) {
-      iniciarSesion();
+  let loginBloqueado  = false;   // bloqueo temporal tras intentos fallidos
+  let loginIntentos   = 0;       // contador de intentos en esta sesión
+  const MAX_INTENTOS  = 5;
+  const BLOQUEO_MS    = 30000;   // 30 segundos de bloqueo
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      // Sesión válida confirmada por Firebase
+      document.getElementById("login").style.display = "none";
+      document.getElementById("app").style.display   = "block";
+      document.getElementById("lbl-usuario").textContent = user.email;
+      if (!autoTimer) {
+        cargarDashboard();
+        autoTimer = setInterval(cargarDashboard, 30000);
+      }
+      resetInactividad();
     } else {
-      document.getElementById("err-login").textContent = "Contraseña incorrecta";
+      // Sin sesión — mostrar login
+      clearInterval(autoTimer);
+      clearTimeout(inactividadTimer);
+      autoTimer = null;
+      document.getElementById("app").style.display   = "none";
+      document.getElementById("login").style.display = "flex";
+    }
+  });
+
+  window.entrar = async () => {
+    if (loginBloqueado) return;
+
+    const email = document.getElementById("clave-email").value.trim();
+    const pass  = document.getElementById("clave-pass").value;
+    const errEl = document.getElementById("err-login");
+    const btn   = document.getElementById("btn-login");
+
+    if (!email || !pass) {
+      errEl.textContent = "Completa email y contraseña";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Verificando…";
+    errEl.textContent = "";
+
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      loginIntentos = 0;
+      // onAuthStateChanged se encarga de mostrar el app
+    } catch (e) {
+      loginIntentos++;
+      if (loginIntentos >= MAX_INTENTOS) {
+        loginBloqueado = true;
+        errEl.textContent = "Demasiados intentos. Espera 30 segundos.";
+        btn.textContent = "Bloqueado…";
+        setTimeout(() => {
+          loginBloqueado = false;
+          loginIntentos  = 0;
+          btn.disabled   = false;
+          btn.textContent = "Ingresar al Panel";
+          errEl.textContent = "";
+        }, BLOQUEO_MS);
+      } else {
+        const restantes = MAX_INTENTOS - loginIntentos;
+        errEl.textContent = "Credenciales incorrectas (" + restantes + " intento" + (restantes!==1?"s":"") + " restante" + (restantes!==1?"s":"") + ")";
+        btn.disabled   = false;
+        btn.textContent = "Ingresar al Panel";
+      }
     }
   };
 
-  window.cerrarSesion = () => {
+  window.cerrarSesion = async () => {
     clearInterval(autoTimer);
     clearTimeout(inactividadTimer);
-    sessionStorage.removeItem("admin_auth");
-    document.getElementById("app").style.display   = "none";
-    document.getElementById("login").style.display = "flex";
-    document.getElementById("clave").value = "";
-    document.getElementById("err-login").textContent = "";
+    autoTimer = null;
+    await signOut(auth);
+    // onAuthStateChanged limpia la UI automáticamente
   };
 
   window.irA = (panel, nombre) => {
@@ -647,11 +739,17 @@
         totalRegs = st.total || 0;
         hoyN      = st.hoy   || 0;
       } else {
-        // Primera vez o doc borrado: reconstruir contando registros (solo ocurre 1 vez)
-        const snapAll = await getDocs(query(collection(db,"registros"), orderBy("fecha","desc")));
+        // Primera vez o doc borrado: reconstruir usando getCountFromServer (1 lectura, sin descargar docs)
         const hoyStr  = new Date().toISOString().slice(0,10);
-        totalRegs = snapAll.size;
-        hoyN      = snapAll.docs.filter(d => fstr(d.data().fecha).startsWith(hoyStr)).length;
+        const hoyDate = new Date(hoyStr + "T00:00:00");
+        const manDate = new Date(hoyDate.getTime() + 86400000);
+        const [cTotal, cHoy] = await Promise.all([
+          getCountFromServer(collection(db,"registros")),
+          getCountFromServer(query(collection(db,"registros"),
+            where("fecha",">=",hoyDate), where("fecha","<",manDate)))
+        ]);
+        totalRegs = cTotal.data().count;
+        hoyN      = cHoy.data().count;
         // Guardar el resumen para las próximas lecturas
         await setDoc(doc(db,"stats","_stats"), {
           total: totalRegs, hoy: hoyN, ultimaActualizacion: serverTimestamp()
@@ -724,10 +822,17 @@
     const btn = document.getElementById("btn-recalcular");
     if (btn) { btn.disabled = true; btn.textContent = "Calculando…"; }
     try {
-      const snap   = await getDocs(query(collection(db,"registros"), orderBy("fecha","desc")));
-      const hoyStr = new Date().toISOString().slice(0,10);
-      const total  = snap.size;
-      const hoy    = snap.docs.filter(d => fstr(d.data().fecha).startsWith(hoyStr)).length;
+      // getCountFromServer: cuenta en el servidor sin descargar ningún documento
+      const hoyStr  = new Date().toISOString().slice(0,10);
+      const hoyDate = new Date(hoyStr + "T00:00:00");
+      const manDate = new Date(hoyDate.getTime() + 86400000);
+      const [cTotal, cHoy] = await Promise.all([
+        getCountFromServer(collection(db,"registros")),
+        getCountFromServer(query(collection(db,"registros"),
+          where("fecha",">=",hoyDate), where("fecha","<",manDate)))
+      ]);
+      const total = cTotal.data().count;
+      const hoy   = cHoy.data().count;
       await setDoc(doc(db,"stats","_stats"), { total, hoy, ultimaActualizacion: serverTimestamp() });
       if (btn) { btn.textContent = "✓ Listo"; setTimeout(()=>{ btn.disabled=false; btn.textContent="Recalcular stats"; }, 2500); }
       cargarDashboard();
@@ -737,50 +842,141 @@
     }
   };
 
-  // REGISTROS
+  // ── REGISTROS — paginación server-side ──────────────────────────────────
+  //
+  // Estrategia: cargamos bloques de PAGE_SIZE docs desde Firestore usando
+  // cursores (startAfter). Cada bloque se filtra en cliente sobre su ventana.
+  // El filtro por empresa hace una query directa en Firestore; el filtro de
+  // texto libre opera en memoria sobre el bloque actual.
+  //
+  // Flujo:
+  //   1. cargarRegistros()  → primer bloque, sin cursor
+  //   2. filtrar()          → re-aplica filtros sobre regs[] sin ir a Firestore
+  //   3. cargarBloque(n)    → bloque anterior / siguiente desde servidor
+  //
+
+  async function _fetchBloque(cursor, empresaId) {
+    let q;
+    if (empresaId) {
+      // Filtro por empresa directo en Firestore → menos lecturas
+      q = cursor
+        ? query(collection(db,"registros"), where("empresa","==",empresaId), orderBy("fecha","desc"), startAfter(cursor), limit(PAGE_SIZE))
+        : query(collection(db,"registros"), where("empresa","==",empresaId), orderBy("fecha","desc"), limit(PAGE_SIZE));
+    } else {
+      q = cursor
+        ? query(collection(db,"registros"), orderBy("fecha","desc"), startAfter(cursor), limit(PAGE_SIZE))
+        : query(collection(db,"registros"), orderBy("fecha","desc"), limit(PAGE_SIZE));
+    }
+    return getDocs(q);
+  }
+
   window.cargarRegistros = async () => {
+    if (regCargando) return;
+    regCargando = true;
+
+    // Reset de estado
+    regCursors      = [null];
+    regBloqueActual = 0;
+    regFiltroEmp    = document.getElementById("fil-emp").value;
+    regFiltroBusq   = "";
+    document.getElementById("buscar").value = "";
+
     document.getElementById("spin-reg").style.display  = "block";
     document.getElementById("t-reg").style.display     = "none";
     document.getElementById("lm-reg").innerHTML        = "";
     document.getElementById("vacio-reg").style.display = "none";
     document.getElementById("pag-reg").style.display   = "none";
+
     try {
-      const [snapReg, snapEmp] = await Promise.all([
-        getDocs(query(collection(db,"registros"), orderBy("fecha","desc"))),
-        getDocs(collection(db,"empresas"))
-      ]);
-      regs = snapReg.docs.map(d => d.data());
-
-      // Construir mapa id → nombre de empresa
-      empsMap = {};
-      snapEmp.docs.forEach(d => { empsMap[d.id] = d.data().nombre || d.id; });
-
+      // Cargar empresas para el mapa y el selector (si aún no están)
+      if (Object.keys(empsMap).length === 0) {
+        const snapEmp = await getDocs(collection(db,"empresas"));
+        snapEmp.docs.forEach(d => { empsMap[d.id] = d.data().nombre || d.id; });
+      }
       poblarFiltro();
+
+      const snap = await _fetchBloque(null, regFiltroEmp);
+      regs = snap.docs.map(d => d.data());
+
+      // Guardar cursor del próximo bloque si lo hay
+      if (snap.docs.length === PAGE_SIZE) {
+        regCursors[1] = snap.docs[snap.docs.length - 1];
+      }
+
       filtrar();
     } catch(e) {
-      document.getElementById("spin-reg").innerHTML = "<p style='color:var(--rojo);padding:20px'>Error al cargar</p>";
+      document.getElementById("spin-reg").innerHTML =
+        "<p style='color:var(--rojo);padding:20px'>Error al cargar: " + e.message + "</p>";
+    } finally {
+      regCargando = false;
+    }
+  };
+
+  // Navegar a un bloque diferente (botones "Bloque anterior / siguiente")
+  window.cargarBloque = async (indice) => {
+    if (regCargando || indice < 0) return;
+    regCargando = true;
+
+    document.getElementById("spin-reg").style.display = "block";
+    document.getElementById("t-reg").style.display    = "none";
+    document.getElementById("lm-reg").innerHTML       = "";
+
+    try {
+      const cursor = regCursors[indice] ?? null;
+      const snap   = await _fetchBloque(cursor, regFiltroEmp);
+      regs             = snap.docs.map(d => d.data());
+      regBloqueActual  = indice;
+
+      // Guardar cursor del siguiente bloque si existe
+      if (snap.docs.length === PAGE_SIZE && !regCursors[indice + 1]) {
+        regCursors[indice + 1] = snap.docs[snap.docs.length - 1];
+      }
+
+      regFiltroBusq = document.getElementById("buscar").value.toLowerCase();
+      filtrar();
+    } catch(e) {
+      document.getElementById("spin-reg").innerHTML =
+        "<p style='color:var(--rojo);padding:20px'>Error: " + e.message + "</p>";
+    } finally {
+      regCargando = false;
     }
   };
 
   function poblarFiltro() {
     const sel = document.getElementById("fil-emp");
     const act = sel.value;
-    const emp = [...new Set(regs.map(r => r.empresa))].sort();
+    // Poblar con todas las empresas del mapa (más estable que inferir de regs[])
+    const empIds = Object.keys(empsMap).sort((a,b) => empsMap[a].localeCompare(empsMap[b]));
     sel.innerHTML = '<option value="">Todas las empresas</option>';
-    emp.forEach(e => { const o = document.createElement("option"); o.value=e; o.textContent=e; sel.appendChild(o); });
+    empIds.forEach(id => {
+      const o = document.createElement("option");
+      o.value = id; o.textContent = empsMap[id];
+      sel.appendChild(o);
+    });
     sel.value = act;
   }
 
   window.filtrar = () => {
-    const b = document.getElementById("buscar").value.toLowerCase();
-    const e = document.getElementById("fil-emp").value;
+    regFiltroBusq = document.getElementById("buscar").value.toLowerCase();
+    const empNueva = document.getElementById("fil-emp").value;
+
+    // Si cambia la empresa recargamos desde Firestore con el filtro nuevo
+    if (empNueva !== regFiltroEmp) {
+      regFiltroEmp = empNueva;
+      regCursors   = [null];
+      regBloqueActual = 0;
+      cargarRegistros();
+      return;
+    }
+
+    // Filtro de texto en memoria sobre el bloque actual
     regsCache = regs.filter(r => {
-      const okE = !e || r.empresa===e;
-      const okB = !b ||
-        (r.nombre   && r.nombre.toLowerCase().includes(b)) ||
-        (r.telefono && r.telefono.includes(b)) ||
-        (r.email    && r.email.toLowerCase().includes(b));
-      return okE && okB;
+      if (!regFiltroBusq) return true;
+      return (
+        (r.nombre   && r.nombre.toLowerCase().includes(regFiltroBusq)) ||
+        (r.telefono && r.telefono.includes(regFiltroBusq)) ||
+        (r.email    && r.email.toLowerCase().includes(regFiltroBusq))
+      );
     });
     paginaActual = 1;
     renderPagina();
@@ -798,6 +994,21 @@
     document.getElementById("vacio-reg").style.display = total === 0 ? "block" : "none";
     document.getElementById("t-reg").style.display     = (total > 0 && !isMobile) ? "table" : "none";
     document.getElementById("pag-reg").style.display   = total > POR_PAGINA ? "block" : "none";
+
+    // Actualizar navegador de bloques
+    const navBloques = document.getElementById("nav-bloques");
+    const hayMasDeUnBloque = regs.length === PAGE_SIZE || regBloqueActual > 0;
+    navBloques.style.display = hayMasDeUnBloque ? "flex" : "none";
+    const btnAnt = document.getElementById("btn-bloque-ant");
+    const btnSig = document.getElementById("btn-bloque-sig");
+    if (btnAnt) btnAnt.disabled = regBloqueActual === 0 || regCargando;
+    if (btnSig) btnSig.disabled = !regCursors[regBloqueActual + 1] || regCargando;
+    const lbl = document.getElementById("lbl-bloque");
+    if (lbl) {
+      const desde = regBloqueActual * PAGE_SIZE + 1;
+      const hasta = regBloqueActual * PAGE_SIZE + regs.length;
+      lbl.textContent = "Registros " + desde + " – " + hasta;
+    }
 
     const tbody = document.getElementById("tb-reg");
     tbody.innerHTML = "";
@@ -1204,14 +1415,33 @@
     const contador = Number(document.getElementById("m-contador").value);
     const msg      = document.getElementById("msg-modal");
     msg.style.display = "none";
+
+    // Validaciones básicas
     if (!nombre||isNaN(desde)||isNaN(hasta)||isNaN(contador)){ msg.textContent="Completa todos los campos"; msg.className="fmsg error"; msg.style.display="block"; return; }
     if (desde>=hasta){ msg.textContent="'Hasta' debe ser mayor que 'Desde'"; msg.className="fmsg error"; msg.style.display="block"; return; }
     if (contador<0){ msg.textContent="El contador no puede ser negativo"; msg.className="fmsg error"; msg.style.display="block"; return; }
+
     try {
-      await Promise.all([
-        setDoc(doc(db,"empresas",id),{nombre,desde,hasta},{merge:true}),
-        setDoc(doc(db,"contadores",id),{actual:contador})
-      ]);
+      // Verificar conflicto de rango con otras empresas (excluyendo la empresa actual)
+      const snapEmp = await getDocs(collection(db,"empresas"));
+      const conflicto = snapEmp.docs.find(d => {
+        if (d.id === id) return false; // ignorar la empresa que estamos editando
+        const e = d.data();
+        return desde <= Number(e.hasta) && hasta >= Number(e.desde);
+      });
+      if (conflicto) {
+        const ec = conflicto.data();
+        msg.textContent = "El rango " + desde + "–" + hasta + " se cruza con "" + (ec.nombre||conflicto.id) + "" (" + ec.desde + "–" + ec.hasta + "). Elige un rango disponible.";
+        msg.className="fmsg error"; msg.style.display="block"; return;
+      }
+
+      // writeBatch: las dos escrituras son atómicas.
+      // Si cualquiera falla, Firestore revierte ambas — nunca quedan en estado inconsistente.
+      const batch = writeBatch(db);
+      batch.set(doc(db,"empresas",id),  { nombre, desde, hasta, codigo: id }, { merge: true });
+      batch.set(doc(db,"contadores",id), { actual: contador });
+      await batch.commit();
+
       msg.textContent="✅ Cambios guardados"; msg.className="fmsg ok"; msg.style.display="block";
       setTimeout(()=>{ cerrarModal(); cargarEmpresas(); cargarDashboard(); }, 1000);
     } catch(e){ msg.textContent="Error: "+e.message; msg.className="fmsg error"; msg.style.display="block"; }
@@ -1329,10 +1559,7 @@
     navigator.clipboard.writeText(txt).then(()=>alert("¡Todos los enlaces copiados!"));
   };
 
-  // Verificar sesión al cargar
-  if (sessionStorage.getItem("admin_auth") === "ok") {
-    iniciarSesion();
-  }
+  // La sesión la gestiona onAuthStateChanged arriba — no se necesita nada aquí.
 
 </script>
 </body>
