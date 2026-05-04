@@ -1418,7 +1418,9 @@
       emps  = sE.docs.map(d=>({id:d.id,...d.data()}));
       conts = {};
       sC.docs.forEach(d=>{conts[d.id]=d.data().actual||0;});
-      emps.sort((a,b)=>(a.nombre||a.id).localeCompare(b.nombre||b.id));
+      // Ordenar: por número de boleta 'desde' descendente
+      // La empresa con el rango más alto queda siempre arriba
+      emps.sort((a, b) => Number(b.desde) - Number(a.desde));
       empsCache = emps;
       empsPagActual = 1;
       renderEmpresas();
@@ -1453,7 +1455,7 @@
       tr.innerHTML = `
         <td><span class="row-num">${inicio+i+1}</span></td>
         <td><span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:3px 10px;border-radius:8px;font-weight:700;font-size:12px;letter-spacing:0.05em">${e.codigo||'—'}</span></td>
-        <td style="text-align:left"><strong style="color:var(--azul)">${e.nombre||e.id}</strong></td>
+        <td style="text-align:left;max-width:180px"><strong style="color:var(--azul);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px" title="${e.nombre||e.id}">${e.nombre||e.id}</strong></td>
         <td>${e.desde}</td>
         <td>${e.hasta}</td>
         <td><strong>${tot}</strong></td>
@@ -1486,7 +1488,7 @@
         d.innerHTML=`
           <div class="emp-card-top">
             <div>
-              <div class="emp-card-nombre">${e.nombre||e.id}</div>
+              <div class="emp-card-nombre" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px" title="${e.nombre||e.id}">${e.nombre||e.id}</div>
               <div class="emp-card-id"><span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px">${e.codigo||'—'}</span> · Rango: ${e.desde}–${e.hasta}</div>
             </div>
             <button class="btn btn-p btn-sm"
@@ -1532,11 +1534,12 @@
       // El código ES el ID del documento — único, seguro, no revela el nombre
       const codigo = await genCodigoUnico(snapEmp.docs);
 
-      await setDoc(doc(db,"empresas",codigo),{nombre,desde,hasta,codigo});
+      const creadoEn = Date.now(); // milisegundos — disponible inmediatamente para ordenar
+      await setDoc(doc(db,"empresas",codigo),{nombre,desde,hasta,codigo,creadoEn});
       msg.innerHTML=`✅ Empresa <strong>"${nombre}"</strong> creada · Código de enlace: <span style="font-family:monospace;background:#e6f4ec;padding:2px 8px;border-radius:6px;font-weight:700;color:#005a30">${codigo}</span>`;
       msg.className="fmsg ok"; msg.style.display="block";
       ["e-nombre","e-desde","e-hasta"].forEach(f=>document.getElementById(f).value="");
-      cargarEmpresas();
+      cargarEmpresas(); // recarga inmediata — nueva empresa aparece en la posición correcta
     } catch(e){ msg.textContent="Error: "+e.message; msg.className="fmsg error"; msg.style.display="block"; }
   };
 
@@ -1608,7 +1611,7 @@
     try {
       const snap = await getDocs(collection(db,"empresas"));
       emps = snap.docs.map(d=>({id:d.id,...d.data()}));
-      emps.sort((a,b)=>(a.nombre||a.id).localeCompare(b.nombre||b.id));
+      emps.sort((a, b) => Number(b.desde) - Number(a.desde)); // rango más alto primero
       enlCache = emps;
       enlPagActual = 1;
       renderEnlaces();
@@ -1646,14 +1649,14 @@
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><span class="row-num">${inicio+i+1}</span></td>
-        <td style="text-align:left"><strong style="color:var(--azul)">${e.nombre||e.id}</strong></td>
+        <td style="text-align:left;max-width:160px"><strong style="color:var(--azul);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px" title="${e.nombre||e.id}">${e.nombre||e.id}</strong></td>
         <td style="text-align:center">
           <span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:3px 10px;border-radius:8px;font-weight:700;font-size:13px;letter-spacing:0.05em">${codigoEnlace}</span>
           ${sinCodigo ? '<span title="Empresa creada antes del sistema de códigos" style="font-size:10px;color:#f59e0b;margin-left:4px">⚠</span>' : ''}
         </td>
         <td><span class="badge-e">${e.desde}–${e.hasta}</span></td>
-        <td style="text-align:left;max-width:280px">
-          <span style="display:block;font-size:11px;word-break:break-all;background:#f8fafc;padding:6px 10px;border-radius:8px;color:var(--sub)">${url}</span>
+        <td style="width:260px;max-width:260px">
+          <span title="${url}" style="display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;background:#f8fafc;padding:6px 10px;border-radius:8px;color:var(--sub);cursor:default">${url}</span>
         </td>
         <td>
           <button class="btn btn-p btn-sm" onclick="copiarEnlace(this,'${url}')">
