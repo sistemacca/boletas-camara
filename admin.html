@@ -356,11 +356,13 @@
           <div class="spin-wrap" id="spin-dash"><div class="spin"></div><p>Cargando...</p></div>
           <div class="tabla-scroll">
             <table id="t-dash" style="display:none">
-              <thead><tr><th>Empresa</th><th>Entregadas</th><th>Total boletas</th><th>Disponibles</th><th>Progreso</th></tr></thead>
+              <thead><tr><th>#</th><th>Empresa</th><th>Entregadas por el comercio</th><th>Total boletas</th><th>Disponibles</th><th>Progreso</th></tr></thead>
               <tbody id="tb-dash"></tbody>
             </table>
           </div>
           <div class="lista-m" id="lm-dash"></div>
+          <div class="vacio" id="vacio-dash" style="display:none">Sin empresas registradas</div>
+          <div id="pag-dash" style="display:none"></div>
         </div>
       </div>
 
@@ -445,7 +447,7 @@
                   <th>Desde</th>
                   <th>Hasta</th>
                   <th>Total</th>
-                  <th>Entregadas</th>
+                  <th>Entregadas por el comercio</th>
                   <th>Disponibles</th>
                   <th>Progreso</th>
                   <th>Acción</th>
@@ -545,6 +547,7 @@
   const BASE  = "https://sistemacca.github.io/boletas-camara/?empresa=";
 
   let regs = [], emps = [], conts = {}, autoTimer = null, inactividadTimer = null;
+  let dashPagActual = 1;
   let regsCache = [], paginaActual = 1;
   const POR_PAGINA = 50;
   const INACTIVIDAD_MS = 15 * 60 * 1000;  // 15 minutos — ajustado para uso en evento presencial
@@ -810,19 +813,43 @@
       document.getElementById("s-hoy").textContent   = hoyN;
       document.getElementById("s-bol").textContent   = totB;
 
-      const sorted = [...emps].sort((a,b) => (a.nombre||a.id).localeCompare(b.nombre||b.id));
+      // Normalizar nombre: primera letra mayúscula, resto minúsculas
+      const normNombre = str => str
+        ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+        : str;
+
+      // Ordenar: más reciente primero (creadoEn desc), empates por nombre normalizado
+      const sorted = [...emps].sort((a, b) => {
+        const tA = a.creadoEn || 0;
+        const tB = b.creadoEn || 0;
+        if (tB !== tA) return tB - tA;
+        return normNombre(a.nombre||a.id).localeCompare(normNombre(b.nombre||b.id));
+      });
+
+      const DASH_POR_PAG = 50;
+      const totalEmp  = sorted.length;
+      const inicio    = (dashPagActual - 1) * DASH_POR_PAG;
+      const fin       = Math.min(inicio + DASH_POR_PAG, totalEmp);
+      const pagina    = sorted.slice(inicio, fin);
 
       const tbody = document.getElementById("tb-dash");
       tbody.innerHTML = "";
-      sorted.forEach(e => {
+      pagina.forEach((e, i) => {
+        const nombre = normNombre(e.nombre || e.id);
         const ent   = conts[e.id] || 0;
         const total = Number(e.hasta) - Number(e.desde) + 1;
         const disp  = Math.max(0, total - ent);
         const pct   = total > 0 ? Math.min(100, Math.round((ent/total)*100)) : 0;
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td><strong>${e.nombre||e.id}</strong></td><td>${ent}</td><td>${total}</td>
+        tr.innerHTML = `
+          <td><span class="row-num">${inicio+i+1}</span></td>
+          <td style="text-align:left;max-width:200px">
+            <strong title="${nombre}" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">${nombre}</strong>
+          </td>
+          <td>${ent}</td>
+          <td>${total}</td>
           <td><span style="color:${disp>0?'var(--verde)':'var(--rojo)'};font-weight:700">${disp}</span></td>
-          <td style="min-width:160px">
+          <td style="min-width:140px">
             <div style="font-size:11px;color:var(--sub);margin-bottom:3px">${pct}% (${ent}/${total})</div>
             <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
           </td>`;
@@ -831,7 +858,8 @@
 
       const lm = document.getElementById("lm-dash");
       lm.innerHTML = "";
-      sorted.forEach(e => {
+      pagina.forEach((e, i) => {
+        const nombre = normNombre(e.nombre || e.id);
         const ent   = conts[e.id] || 0;
         const total = Number(e.hasta) - Number(e.desde) + 1;
         const disp  = Math.max(0, total - ent);
@@ -841,7 +869,9 @@
         d.innerHTML = `
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
             <div>
-              <div style="font-weight:700;font-size:14px;color:var(--azul)">${e.nombre||e.id}</div>
+              <div style="font-weight:700;font-size:14px;color:var(--azul)">
+                <span style="font-size:11px;color:var(--sub);font-weight:500;margin-right:6px">#${inicio+i+1}</span>${nombre}
+              </div>
               <div style="font-size:11px;color:var(--sub)">Rango: ${e.desde} – ${e.hasta}</div>
             </div>
             <span class="badge-b" style="font-size:12px">${ent}/${total}</span>
@@ -854,9 +884,14 @@
         lm.appendChild(d);
       });
 
-      document.getElementById("spin-dash").style.display = "none";
-      if (window.innerWidth > 768) document.getElementById("t-dash").style.display = "table";
-      if (window.innerWidth <= 768) document.getElementById("lm-dash").style.display = "block";
+      document.getElementById("spin-dash").style.display    = "none";
+      document.getElementById("vacio-dash").style.display   = totalEmp === 0 ? "block" : "none";
+      if (window.innerWidth > 768) document.getElementById("t-dash").style.display = totalEmp > 0 ? "table" : "none";
+      if (window.innerWidth <= 768) document.getElementById("lm-dash").style.display = totalEmp > 0 ? "block" : "none";
+
+      buildPaginator("pag-dash", totalEmp, dashPagActual, DASH_POR_PAG, (pg) => {
+        dashPagActual = pg; renderDashboard(); window.scrollTo({top:0,behavior:"smooth"});
+      });
 
     } catch(e) {
       console.error(e);
@@ -867,6 +902,7 @@
   // cargarDashboard — ahora es solo un alias público que fuerza una lectura inmediata
   // de stats/_stats y re-renderiza con los datos ya en caché.
   window.cargarDashboard = () => {
+    dashPagActual = 1;
     if (_cacheListo) renderDashboard();
     // Si los listeners aún no han llegado, renderDashboard() se invocará automáticamente
     // cuando onSnapshot entregue los primeros datos.
@@ -1496,7 +1532,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>
           </div>
           <div class="emp-grid">
-            <div class="emp-dato"><div class="dv">${ent}</div><div class="dl">Entregadas</div></div>
+            <div class="emp-dato"><div class="dv">${ent}</div><div class="dl">Entregadas por el comercio</div></div>
             <div class="emp-dato"><div class="dv" style="color:${disp>0?'var(--verde)':'var(--rojo)'}">${disp}</div><div class="dl">Disponibles</div></div>
             <div class="emp-dato"><div class="dv">${tot}</div><div class="dl">Total</div></div>
           </div>
