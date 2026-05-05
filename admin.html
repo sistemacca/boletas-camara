@@ -1481,17 +1481,19 @@
     // Tabla escritorio
     const tbody = document.getElementById("tb-emp");
     tbody.innerHTML = "";
+    const normNombreEmp = str => str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : str;
     pagina.forEach((e, i) => {
       const ent  = conts[e.id]||0;
       const tot  = Number(e.hasta)-Number(e.desde)+1;
       const disp = Math.max(0, tot-ent);
       const pct  = tot>0 ? Math.min(100,Math.round(ent/tot*100)) : 0;
       const dispColor = disp>0 ? "var(--verde)" : "var(--rojo)";
+      const nombreMostrar = normNombreEmp(e.nombre||e.id);
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><span class="row-num">${inicio+i+1}</span></td>
         <td><span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:3px 10px;border-radius:8px;font-weight:700;font-size:12px;letter-spacing:0.05em">${e.codigo||'—'}</span></td>
-        <td style="text-align:left;max-width:180px"><strong style="color:var(--azul);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px" title="${e.nombre||e.id}">${e.nombre||e.id}</strong></td>
+        <td style="text-align:left;max-width:180px"><strong style="color:var(--azul);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px" title="${nombreMostrar}">${nombreMostrar}</strong></td>
         <td>${e.desde}</td>
         <td>${e.hasta}</td>
         <td><strong>${tot}</strong></td>
@@ -1503,7 +1505,7 @@
         </td>
         <td>
           <button class="btn btn-p btn-sm"
-            onclick="abrirModal('${e.id}','${(e.nombre||"").replace(/'/g,"\\'")}',${e.desde},${e.hasta},${ent})">
+            onclick="abrirModal('${e.id}','${nombreMostrar.replace(/'/g,"\\'")}',${e.desde},${e.hasta},${ent})">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar
           </button>
         </td>`;
@@ -1519,16 +1521,17 @@
         const tot  = Number(e.hasta)-Number(e.desde)+1;
         const disp = Math.max(0,tot-ent);
         const pct  = tot>0?Math.min(100,Math.round(ent/tot*100)):0;
+        const nombreMovil = normNombreEmp(e.nombre||e.id);
         const d = document.createElement("div");
         d.className="emp-card";
         d.innerHTML=`
           <div class="emp-card-top">
             <div>
-              <div class="emp-card-nombre" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px" title="${e.nombre||e.id}">${e.nombre||e.id}</div>
+              <div class="emp-card-nombre" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px" title="${nombreMovil}">${nombreMovil}</div>
               <div class="emp-card-id"><span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px">${e.codigo||'—'}</span> · Rango: ${e.desde}–${e.hasta}</div>
             </div>
             <button class="btn btn-p btn-sm"
-              onclick="abrirModal('${e.id}','${(e.nombre||"").replace(/'/g,"\\'")}',${e.desde},${e.hasta},${ent})">
+              onclick="abrirModal('${e.id}','${nombreMovil.replace(/'/g,"\\'")}',${e.desde},${e.hasta},${ent})">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>
           </div>
           <div class="emp-grid">
@@ -1547,7 +1550,8 @@
   }
 
   window.crearEmpresa = async () => {
-    const nombre = document.getElementById("e-nombre").value.trim();
+    const _n = document.getElementById("e-nombre").value.trim();
+    const nombre = _n ? _n.charAt(0).toUpperCase() + _n.slice(1).toLowerCase() : _n;
     const desde  = Number(document.getElementById("e-desde").value);
     const hasta  = Number(document.getElementById("e-hasta").value);
     const msg    = document.getElementById("msg-emp");
@@ -1596,7 +1600,8 @@
 
   window.guardarEmpresa = async () => {
     const id       = document.getElementById("m-id").value;
-    const nombre   = document.getElementById("m-nombre").value.trim();
+    const _n2      = document.getElementById("m-nombre").value.trim();
+    const nombre   = _n2 ? _n2.charAt(0).toUpperCase() + _n2.slice(1).toLowerCase() : _n2;
     const desde    = Number(document.getElementById("m-desde").value);
     const hasta    = Number(document.getElementById("m-hasta").value);
     const contador = Number(document.getElementById("m-contador").value);
