@@ -1683,14 +1683,16 @@
     // Tabla escritorio
     const tbody = document.getElementById("tb-enl");
     tbody.innerHTML = "";
+    const normEnl = str => str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : str;
     pagina.forEach((e, i) => {
       const codigoEnlace = e.codigo || e.id;
       const url = BASE + encodeURIComponent(codigoEnlace);
       const sinCodigo = !e.codigo;
+      const nombreEnl = normEnl(e.nombre || e.id);
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><span class="row-num">${inicio+i+1}</span></td>
-        <td style="text-align:left;max-width:160px"><strong style="color:var(--azul);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px" title="${e.nombre||e.id}">${e.nombre||e.id}</strong></td>
+        <td style="text-align:left;max-width:160px"><strong style="color:var(--azul);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px" title="${nombreEnl}">${nombreEnl}</strong></td>
         <td style="text-align:center">
           <span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:3px 10px;border-radius:8px;font-weight:700;font-size:13px;letter-spacing:0.05em">${codigoEnlace}</span>
           ${sinCodigo ? '<span title="Empresa creada antes del sistema de códigos" style="font-size:10px;color:#f59e0b;margin-left:4px">⚠</span>' : ''}
@@ -1714,12 +1716,13 @@
       pagina.forEach(e => {
         const codigoEnlace = e.codigo || e.id;
         const url = BASE + encodeURIComponent(codigoEnlace);
+        const nombreEnlM = normEnl(e.nombre || e.id);
         const d = document.createElement("div");
         d.className = "row-m";
         d.innerHTML = `
           <div class="row-m-top">
             <div>
-              <div class="row-m-nombre" style="color:var(--azul)">${e.nombre||e.id}</div>
+              <div class="row-m-nombre" style="color:var(--azul)">${nombreEnlM}</div>
               <div class="row-m-meta">
                 Código: <span style="font-family:monospace;background:#e6f4ec;color:#005a30;padding:1px 7px;border-radius:6px;font-weight:700">${codigoEnlace}</span>
                 · ${e.desde}–${e.hasta}
